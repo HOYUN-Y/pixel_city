@@ -1,0 +1,4 @@
+.DS_Store
+.venv/
+poc/gf_*.json
+poc/cache_*
