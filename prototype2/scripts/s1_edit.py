@@ -16,26 +16,35 @@ import argparse, json, os, sys, time
 
 P2 = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CFG = os.path.join(P2, "configs", "s1.json")
-SRC = os.path.join(P2, "inputs", "source", "base_rgb.png")
-CTL = os.path.join(P2, "inputs", "conditions", "edge.png")
+IN = os.path.join(P2, "inputs")          # --inputs 로 갈아끼운다 (구간을 바꿔 볼 때)
+SRC = CTL = None                         # set_paths()가 채운다
 OUT = os.path.join(P2, "outputs", "candidates")
 EVAL = os.path.join(P2, "eval")
+TAG = ""                                 # 결과 파일명 접두. 구간이 다르면 섞이면 안 된다
+
+
+def set_paths(indir, tag):
+    global SRC, CTL, TAG
+    SRC = os.path.join(indir, "source", "base_rgb.png")
+    CTL = os.path.join(indir, "conditions", "edge.png")
+    TAG = tag
 
 
 def grid(cfg):
     return [(s, sd) for s in cfg["strengths"] for sd in cfg["seeds"]]
 
 
-def contact(cfg, base, paths, cols=3, cell=340):
-    """기준선 1장 + 결과 9장. 행=강도, 열=seed. 눈으로 한 번에 비교하려고 만든다."""
+def contact(cfg, base, paths, combos, cols=3, cell=340):
+    """기준선 1장 + 실제로 만든 결과. 행=강도, 열=seed. 눈으로 한 번에 비교하려고 만든다."""
     from PIL import Image, ImageDraw
-    rows = len(cfg["strengths"])
+    cols = min(cols, len(cfg["seeds"]))
+    rows = -(-len(paths) // cols)                  # --limit로 줄여 돌려도 깨지지 않게
     W, H, pad = cols * cell, (rows + 1) * cell, 18
     sheet = Image.new("RGB", (W + pad * 2, H + pad * (rows + 2) + 20), (24, 24, 28))
     dr = ImageDraw.Draw(sheet)
     sheet.paste(base.resize((cell, cell), Image.LANCZOS), (pad, pad))
     dr.text((pad + 4, pad + cell + 2), "base_rgb (기준선)", fill=(200, 200, 200))
-    for i, (st, sd) in enumerate(grid(cfg)):
+    for i, (st, sd) in enumerate(combos):
         r, c = i // cols, i % cols
         y = pad + (r + 1) * (cell + pad) + 20
         sheet.paste(Image.open(paths[i]).resize((cell, cell), Image.LANCZOS),
@@ -43,7 +52,7 @@ def contact(cfg, base, paths, cols=3, cell=340):
         dr.text((pad + c * cell + 4, y + cell + 2), f"strength {st}  seed {sd}",
                 fill=(200, 200, 200))
     os.makedirs(EVAL, exist_ok=True)
-    p = os.path.join(EVAL, "contact_s1.png")
+    p = os.path.join(EVAL, f"contact_s1{TAG}.png")
     sheet.save(p)
     return p
 
@@ -61,15 +70,20 @@ def selfcheck(cfg):
     print(f"selfcheck ok — {a.size[0]}² {len(grid(cfg))}장 예정")
 
 
-def main(cfg, limit):
+def main(cfg, limit, mode):
     import torch
     from PIL import Image
-    from diffusers import StableDiffusionXLControlNetImg2ImgPipeline, ControlNetModel
+    from diffusers import (StableDiffusionXLControlNetImg2ImgPipeline,
+                            StableDiffusionXLControlNetPipeline, ControlNetModel)
 
     dev = "mps" if torch.backends.mps.is_available() else "cpu"
     cn = ControlNetModel.from_pretrained(cfg["controlnet"], torch_dtype=torch.float16)
-    pipe = StableDiffusionXLControlNetImg2ImgPipeline.from_pretrained(
-        cfg["base"], controlnet=cn, torch_dtype=torch.float16, variant="fp16").to(dev)
+    # img2img: 기존 렌더를 초기 latent로 → 색·면을 붙잡지만 그만큼 못 벗어난다
+    # txt2img: 라인아트로 구조만 잡고 색·질감은 처음부터 그린다
+    Pipe = (StableDiffusionXLControlNetImg2ImgPipeline if mode == "img2img"
+            else StableDiffusionXLControlNetPipeline)
+    pipe = Pipe.from_pretrained(cfg["base"], controlnet=cn,
+                                torch_dtype=torch.float16, variant="fp16").to(dev)
     pipe.set_progress_bar_config(disable=True)
 
     base, ctl = Image.open(SRC).convert("RGB"), Image.open(CTL).convert("RGB")
@@ -77,12 +91,15 @@ def main(cfg, limit):
     paths, combos = [], grid(cfg)[:limit]
     for i, (st, sd) in enumerate(combos, 1):
         t = time.time()
+        kw = (dict(image=base, control_image=ctl, strength=st)
+              if mode == "img2img" else
+              dict(image=ctl, controlnet_conditioning_scale=st))  # txt2img는 st가 조건 강도
+        if mode == "img2img":
+            kw["controlnet_conditioning_scale"] = cfg["control_scale"]
         img = pipe(prompt=cfg["prompt"], negative_prompt=cfg["negative"],
-                   image=base, control_image=ctl, strength=st,
                    num_inference_steps=cfg["steps"], guidance_scale=cfg["guidance"],
-                   controlnet_conditioning_scale=cfg["control_scale"],
-                   generator=torch.Generator(dev).manual_seed(sd)).images[0]
-        name = f"s1_st{int(st*100):03d}_seed{sd}"
+                   generator=torch.Generator(dev).manual_seed(sd), **kw).images[0]
+        name = f"s1{TAG}_st{int(st*100):03d}_seed{sd}"
         p = os.path.join(OUT, name + ".png")
         img.save(p)
         # 설정을 결과 옆에 남긴다. 어느 장이 어떤 설정이었는지 나중에 못 찾으면 판정이 무의미하다.
@@ -92,16 +109,23 @@ def main(cfg, limit):
                   ensure_ascii=False, indent=1)
         paths.append(p)
         print(f"  [{i}/{len(combos)}] {name}  {time.time()-t:.0f}s")
-    print("contact sheet:", os.path.relpath(contact(cfg, base, paths), P2))
+    print("contact sheet:", os.path.relpath(contact(cfg, base, paths, combos), P2))
 
 
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("--config", default=CFG)
     ap.add_argument("--limit", type=int, default=99, help="먼저 N장만 (속도 확인용)")
+    ap.add_argument("--inputs", default=IN, help="conditions.py --out 로 만든 디렉터리")
+    ap.add_argument("--tag", default="", help="결과 파일명 접두 (구간 구분)")
+    ap.add_argument("--strengths", help="쉼표로. 설정 파일 값을 덮어쓴다")
+    ap.add_argument("--mode", default="img2img", choices=["img2img", "txt2img"])
     ap.add_argument("--check", action="store_true")
     a = ap.parse_args()
+    set_paths(a.inputs, a.tag)
     cfg = json.load(open(a.config, encoding="utf-8"))
+    if a.strengths:
+        cfg["strengths"] = [float(x) for x in a.strengths.split(",")]
     selfcheck(cfg)
     if not a.check:
-        main(cfg, a.limit)
+        main(cfg, a.limit, a.mode)

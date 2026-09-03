@@ -17,12 +17,13 @@
 import argparse, json, os, sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-sys.path.insert(0, os.path.join(ROOT, "poc"))
+P1 = os.path.join(ROOT, "prototype1")        # 09-04 저장소 재편 — poc/web이 여기로 들어갔다
+sys.path.insert(0, os.path.join(P1, "poc"))
 import iso2                                  # noqa: E402  proj / depth / expand / STYLE
 from export import dec_ring                  # noqa: E402  델타 인코딩 역변환
 from PIL import Image, ImageDraw             # noqa: E402
 
-DATA = os.path.join(ROOT, "web", "data")
+DATA = os.path.join(P1, "web", "data")
 BBOX = (126.9740, 37.5760, 126.9820, 37.5820)   # 경복궁~삼청동. poc/gyeongbok.png와 동일
 PAD = 8
 
