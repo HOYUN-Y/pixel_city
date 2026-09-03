@@ -1,0 +1,167 @@
+"""용도별건물정보(dt_d198) 기반 아이소메트릭 픽셀 렌더.
+
+건물 형상·층수·용도·구조가 전부 한 응답에 들어 있어 조인이 필요 없다.
+목구조는 처마를 달아 한옥/전각으로 구분해 그린다.
+"""
+import math, re
+from PIL import Image, ImageDraw
+
+ALPHA, PHI = math.radians(22.5), math.radians(30.0)
+import os, sys, json
+W, H, ZOOM, PAD = 520, 380, 3, 14
+BBOX = (126.9740, 37.5760, 126.9820, 37.5820)
+
+# ponytail: 층고 고정값. buldHg(실측)는 데이터API에만 있어 WFS 단독으론 추정한다.
+FLOOR_H = 3.0
+WOOD_FLOOR_H = 5.0        # 전각은 1층이어도 높다
+EAVE = 1.35               # 처마 내밀기 배율
+
+BG, GROUND, ROAD = (26,30,38), (54,60,68), (86,92,102)
+# 용도 -> (지붕, 밝은벽, 어두운벽)
+PAL = {
+    "주거용":   ((198,178,146), (166,148,120), (126,112, 90)),
+    "상업용":   ((172,186,200), (140,152,168), (104,116,132)),
+    "문교사회용":((186,180,198), (152,146,166), (114,110,128)),
+    None:      ((180,180,180), (150,150,150), (112,112,112)),
+}
+WOOD = ((122,140,158), (156,108, 72), (116, 80, 52))  # 기와(밝은 청회색) / 단청 기둥
+HERI, HERI_ED = (66, 92, 70), (86,116, 88)            # 국가유산 지정구역
+
+
+def parse(path):
+    x = open(path, encoding="utf-8", errors="replace").read()
+    x = x.replace("</collection>", "")   # collect.py 캐시 래퍼 무해화
+    out = []
+    for f in re.findall(r"<sop:dt_d198[ >].*?</sop:dt_d198>", x, re.S):
+        get = lambda t: (re.search(rf"<sop:{t}>(.*?)</sop:{t}>", f) or [None, ""])[1] \
+              if re.search(rf"<sop:{t}>(.*?)</sop:{t}>", f) else ""
+        use   = get("buld_prpos_cl_code_nm") or None
+        strct = get("strct_code_nm") or ""
+        nm    = (get("buld_nm") or "") + (" " + get("buld_dong_nm") if get("buld_dong_nm") else "")
+        try: fl = max(1, int(get("ground_floor_co") or 1))
+        except ValueError: fl = 1
+        wood = "목" in strct
+        h = fl * (WOOD_FLOOR_H if wood else FLOOR_H)
+        for c in re.findall(r"<gml:coordinates[^>]*>(.*?)</gml:coordinates>", f, re.S):
+            ring = [tuple(map(float, p.split(",")[:2])) for p in c.split() if "," in p]
+            if len(ring) >= 4:
+                out.append({"ring": ring, "h": h, "use": use, "wood": wood, "nm": nm.strip()})
+    return out
+
+
+def to_local(blds):
+    pts = [p for b in blds for p in b["ring"]]
+    lon0 = sum(p[0] for p in pts)/len(pts); lat0 = sum(p[1] for p in pts)/len(pts)
+    mlon, mlat = 111320*math.cos(math.radians(lat0)), 110540
+    for b in blds:
+        b["en"] = [((c[0]-lon0)*mlon, (c[1]-lat0)*mlat) for c in b["ring"]]
+    frame = [((lo-lon0)*mlon, (la-lat0)*mlat) for lo, la in
+             [(BBOX[0],BBOX[1]),(BBOX[2],BBOX[1]),(BBOX[2],BBOX[3]),(BBOX[0],BBOX[3])]]
+    return frame
+
+
+proj = lambda e, n, h, s: ((e*math.cos(ALPHA) - n*math.sin(ALPHA))/s,
+                           -((e*math.sin(ALPHA)+n*math.cos(ALPHA))*math.sin(PHI) + h*math.cos(PHI))/s)
+depth = lambda en: sum(e*math.sin(ALPHA)+n*math.cos(ALPHA) for e, n in en)/len(en)
+
+
+def expand(en, k):
+    """중심 기준 확대 — 처마 근사."""
+    cx = sum(e for e, _ in en)/len(en); cy = sum(n for _, n in en)/len(en)
+    return [(cx + (e-cx)*k, cy + (n-cy)*k) for e, n in en]
+
+
+def fit(frame, headroom=60.0):
+    pts = [proj(e, n, h, 1.0) for (e, n) in frame for h in (0, headroom)]
+    xs = [p[0] for p in pts]; ys = [p[1] for p in pts]
+    s = max((max(xs)-min(xs))/(W-2*PAD), (max(ys)-min(ys))/(H-2*PAD))
+    return s, W/2-(min(xs)+max(xs))/2/s, H/2-(min(ys)+max(ys))/2/s
+
+
+def render(blds, frame, roads, out, heris=()):
+    s, cx, cy = fit(frame)
+    img = Image.new("RGB", (W, H), BG); dr = ImageDraw.Draw(img)
+    S = lambda e, n, h: (proj(e, n, h, s)[0]+cx, proj(e, n, h, s)[1]+cy)
+    ext = 3000
+    dr.polygon([S(-ext,-ext,0), S(ext,-ext,0), S(ext,ext,0), S(-ext,ext,0)], fill=GROUND)
+    for g in heris:
+        dr.polygon([S(e, n, 0) for e, n in g], fill=HERI, outline=HERI_ED)
+    for g in roads:
+        dr.line([S(e, n, 0) for e, n in g], fill=ROAD, width=max(2, int(9/s)), joint="curve")
+
+    def walls(en, h0, h1, lit_c, dark_c):
+        for i in range(len(en)-1):
+            (e1,n1),(e2,n2) = en[i], en[i+1]
+            nx, nz = (n2-n1), -(e2-e1)
+            if nx*math.sin(ALPHA) + nz*math.cos(ALPHA) <= 0: continue
+            c = lit_c if abs(nx)/(math.hypot(nx,nz)+1e-9) > 0.5 else dark_c
+            dr.polygon([S(e1,n1,h0), S(e2,n2,h0), S(e2,n2,h1), S(e1,n1,h1)], fill=c)
+
+    for b in sorted(blds, key=lambda b: -depth(b["en"])):
+        en, h = b["en"], b["h"]
+        if b["wood"]:
+            roof, lit, dark = WOOD
+            body = h*0.5
+            walls(en, 0, body, lit, dark)                    # 낮은 기둥부
+            eave = expand(en, EAVE)                          # 크게 내민 처마 지붕
+            walls(eave, body, h, roof, tuple(int(c*0.72) for c in roof))
+            dr.polygon([S(e,n,h) for e,n in eave], fill=roof,
+                       outline=tuple(int(c*0.62) for c in roof))
+        else:
+            roof, lit, dark = PAL.get(b["use"], PAL[None])
+            walls(en, 0, h, lit, dark)
+            dr.polygon([S(e,n,h) for e,n in en], fill=roof, outline=dark)
+
+    img.resize((W*ZOOM, H*ZOOM), Image.NEAREST).save(out)
+    return s
+
+
+def selfcheck():
+    assert proj(0,0,10,1)[1] < proj(0,0,0,1)[1]
+    sq=[(0,0),(10,0),(10,10),(0,10)]
+    ex=expand(sq,2.0); assert abs(ex[0][0]-(-5))<1e-9 and abs(ex[2][0]-15)<1e-9
+    assert fit([(0,0),(100,0),(100,100),(0,100)])[0] > 0
+    print("selfcheck ok")
+
+
+def _geoms(path, kind):
+    """cache_*.json -> 링/라인 좌표 리스트."""
+    if not os.path.exists(path):
+        return []
+    out = []
+    for f in json.load(open(path, encoding="utf-8"))["features"]:
+        g = f["geometry"]; t, c = g["type"], g["coordinates"]
+        if t == "MultiPolygon":    out += [poly[0] for poly in c]
+        elif t == "Polygon":       out.append(c[0])
+        elif t == "MultiLineString": out += list(c)
+        elif t == "LineString":    out.append(c)
+    return out
+
+
+if __name__ == "__main__":
+    selfcheck()
+    a = sys.argv[1:]
+    bld_f = a[0] if a else "bu_wfs.xml"
+    if len(a) > 1:
+        BBOX = tuple(map(float, a[1].split(",")))
+    if len(a) > 3:
+        W, H = int(a[2]), int(a[3])
+    if len(a) > 4:
+        ZOOM = int(a[4])
+    out_f = a[5] if len(a) > 5 else "render.png"
+
+    blds = parse(bld_f)
+    pts = [p for b in blds for p in b["ring"]]
+    lon0 = sum(p[0] for p in pts)/len(pts); lat0 = sum(p[1] for p in pts)/len(pts)
+    mlon, mlat = 111320*math.cos(math.radians(lat0)), 110540
+    for b in blds:
+        b["en"] = [((c[0]-lon0)*mlon, (c[1]-lat0)*mlat) for c in b["ring"]]
+    frame = [((lo-lon0)*mlon, (la-lat0)*mlat) for lo, la in
+             [(BBOX[0],BBOX[1]),(BBOX[2],BBOX[1]),(BBOX[2],BBOX[3]),(BBOX[0],BBOX[3])]]
+    L = lambda g: [((c[0]-lon0)*mlon, (c[1]-lat0)*mlat) for c in g]
+    roads = [L(g) for g in _geoms("cache_road.json", "road")]
+    heris = [L(g) for g in _geoms("cache_heri.json", "heri")]
+    rivers= [L(g) for g in _geoms("cache_river.json", "river")]
+    print(f"건물 {len(blds)}동 (목구조 {sum(1 for x in blds if x['wood'])}) / "
+          f"도로 {len(roads)} / 국가유산 {len(heris)} / 하천 {len(rivers)}")
+    print("scale %.3f m/px -> %s" % (render(blds, frame, roads, out_f, heris+rivers), out_f))
