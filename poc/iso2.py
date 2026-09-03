@@ -24,7 +24,8 @@ PAL = {
     "문교사회용":((186,180,198), (152,146,166), (114,110,128)),
     None:      ((180,180,180), (150,150,150), (112,112,112)),
 }
-WOOD = ((122,140,158), (156,108, 72), (116, 80, 52))  # 기와(밝은 청회색) / 단청 기둥
+PALACE = ((104,126,152), (170, 88, 74), (122, 60, 52))  # 청기와 / 단청 적색 기둥
+HANOK  = ((132,134,138), (154,118, 86), (112, 86, 62))  # 회기와 / 목재
 HERI, HERI_ED = (66, 92, 70), (86,116, 88)            # 국가유산 지정구역
 
 
@@ -41,11 +42,13 @@ def parse(path):
         try: fl = max(1, int(get("ground_floor_co") or 1))
         except ValueError: fl = 1
         wood = "목" in strct
-        h = fl * (WOOD_FLOOR_H if wood else FLOOR_H)
+        palace = wood and any(k in nm for k in ("궁", "종묘", "사직"))
+        h = fl * (WOOD_FLOOR_H * (1.4 if palace else 1.0) if wood else FLOOR_H)
         for c in re.findall(r"<gml:coordinates[^>]*>(.*?)</gml:coordinates>", f, re.S):
             ring = [tuple(map(float, p.split(",")[:2])) for p in c.split() if "," in p]
             if len(ring) >= 4:
-                out.append({"ring": ring, "h": h, "use": use, "wood": wood, "nm": nm.strip()})
+                out.append({"ring": ring, "h": h, "use": use, "wood": wood,
+                            "palace": palace, "nm": nm.strip()})
     return out
 
 
@@ -86,8 +89,9 @@ def render(blds, frame, roads, out, heris=()):
     dr.polygon([S(-ext,-ext,0), S(ext,-ext,0), S(ext,ext,0), S(-ext,ext,0)], fill=GROUND)
     for g in heris:
         dr.polygon([S(e, n, 0) for e, n in g], fill=HERI, outline=HERI_ED)
-    for g in roads:
-        dr.line([S(e, n, 0) for e, n in g], fill=ROAD, width=max(2, int(9/s)), joint="curve")
+    for g, bt in sorted(roads, key=lambda r: r[1]):
+        dr.line([S(e, n, 0) for e, n in g], fill=ROAD,
+                width=max(1, round(bt/s)), joint="curve")
 
     def walls(en, h0, h1, lit_c, dark_c):
         for i in range(len(en)-1):
@@ -100,7 +104,7 @@ def render(blds, frame, roads, out, heris=()):
     for b in sorted(blds, key=lambda b: -depth(b["en"])):
         en, h = b["en"], b["h"]
         if b["wood"]:
-            roof, lit, dark = WOOD
+            roof, lit, dark = PALACE if b["palace"] else HANOK
             body = h*0.5
             walls(en, 0, body, lit, dark)                    # 낮은 기둥부
             eave = expand(en, EAVE)                          # 크게 내민 처마 지붕
@@ -124,17 +128,24 @@ def selfcheck():
     print("selfcheck ok")
 
 
-def _geoms(path, kind):
-    """cache_*.json -> 링/라인 좌표 리스트."""
+def _geoms(path, wkey=None):
+    """cache_*.json -> 좌표 리스트. wkey를 주면 (좌표, 속성값) 튜플로 반환."""
     if not os.path.exists(path):
         return []
     out = []
     for f in json.load(open(path, encoding="utf-8"))["features"]:
         g = f["geometry"]; t, c = g["type"], g["coordinates"]
-        if t == "MultiPolygon":    out += [poly[0] for poly in c]
-        elif t == "Polygon":       out.append(c[0])
-        elif t == "MultiLineString": out += list(c)
-        elif t == "LineString":    out.append(c)
+        if t == "MultiPolygon":      gs = [poly[0] for poly in c]
+        elif t == "Polygon":         gs = [c[0]]
+        elif t == "MultiLineString": gs = list(c)
+        elif t == "LineString":      gs = [c]
+        else:                        gs = []
+        if wkey is None:
+            out += gs
+        else:
+            try: w = float(f["properties"].get(wkey) or 3)
+            except (TypeError, ValueError): w = 3.0
+            out += [(g_, w) for g_ in gs]
     return out
 
 
@@ -159,9 +170,10 @@ if __name__ == "__main__":
     frame = [((lo-lon0)*mlon, (la-lat0)*mlat) for lo, la in
              [(BBOX[0],BBOX[1]),(BBOX[2],BBOX[1]),(BBOX[2],BBOX[3]),(BBOX[0],BBOX[3])]]
     L = lambda g: [((c[0]-lon0)*mlon, (c[1]-lat0)*mlat) for c in g]
-    roads = [L(g) for g in _geoms("cache_road.json", "road")]
-    heris = [L(g) for g in _geoms("cache_heri.json", "heri")]
-    rivers= [L(g) for g in _geoms("cache_river.json", "river")]
-    print(f"건물 {len(blds)}동 (목구조 {sum(1 for x in blds if x['wood'])}) / "
+    roads = [(L(g), w) for g, w in _geoms("cache_road.json", wkey="road_bt")]
+    heris = [L(g) for g in _geoms("cache_heri.json")]
+    rivers= [L(g) for g in _geoms("cache_river.json")]
+    print(f"건물 {len(blds)}동 (한옥 {sum(1 for x in blds if x['wood'] and not x['palace'])}"
+          f" / 궁궐 {sum(1 for x in blds if x['palace'])}) / "
           f"도로 {len(roads)} / 국가유산 {len(heris)} / 하천 {len(rivers)}")
     print("scale %.3f m/px -> %s" % (render(blds, frame, roads, out_f, heris+rivers), out_f))
