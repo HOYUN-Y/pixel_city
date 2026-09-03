@@ -62,14 +62,17 @@ function expand(en, k) {
  *   - 아트 픽셀 : 오프스크린. sx/sy가 돌려주는 값. s()는 "미터 / 아트픽셀"
  *   - 화면 픽셀 : 아트 픽셀 x PIX. 입력 이벤트와 라벨이 쓴다
  */
-const SCALES = [8.0, 4.0, 2.0, 1.0, 0.5];       // 미터/아트픽셀. 인접 단계가 정확히 2배
+// 미터/화면px. PIX와 무관하게 프레이밍이 같도록 화면 기준으로 정의한다
+const SCALES = [8 / 3, 4 / 3, 2 / 3, 1 / 3, 1 / 6];
 const view = { cx: 0, cy: 0, zi: 1 };
 const layers = { poi: true, subway: true, green: true, label: true };
 let canvas, ctx, W = 0, H = 0, DPR = 1;
 let off, octx, OW = 0, OH = 0;                  // 오프스크린(아트 픽셀)
 let PIX = 3;                                    // 아트픽셀 1개가 화면에서 차지하는 px
+let PIX_ON = 3;                                 // 픽셀화 켰을 때의 배율 (style.json)
 
-const s = () => SCALES[view.zi];
+// 미터/아트픽셀. PIX=1이면 화면 해상도에 그대로 그린다(= 픽셀화 이전 렌더)
+const s = () => SCALES[view.zi] * PIX;
 // 월드(미터) -> 아트 픽셀
 const sx = (e, n) => Math.round(projU(e, n, s()) - projU(view.cx, view.cy, s()) + OW / 2);
 const sy = (e, n, h) => Math.round(projV(e, n, h, s()) - projV(view.cx, view.cy, 0, s()) + OH / 2);
@@ -184,7 +187,8 @@ function render() {
 
   document.getElementById('stat').textContent =
     `건물 ${D.B.length.toLocaleString()}동 중 ${drawn.toLocaleString()} 표시 · `
-    + `${s().toFixed(2)} m/픽셀 · ${PIX}배 · ${Math.round(performance.now() - t0)}ms`;
+    + `${(s() / PIX).toFixed(2)} m/화면px · `
+    + (PIX > 1 ? `픽셀 ${PIX}배` : '픽셀화 꺼짐') + ` · ${Math.round(performance.now() - t0)}ms`;
 }
 
 /* 지하철·POI는 물리적 대상이 아니라 기호다. 월드 크기가 아니라
@@ -215,7 +219,7 @@ function drawSubway() {
 }
 
 function labelSubway() {
-  if (s() > 4.0) return;
+  if (s() / PIX > 4 / 3) return;
   for (const st of D.poi.subway.stations) {
     label(st.name, toScr(sx(st.x / Q, st.y / Q)),
           toScr(sy(st.x / Q, st.y / Q, 0) - SYM.station) - 3, '#fff', '#000');
@@ -242,7 +246,7 @@ function drawPOI() {
 }
 
 function labelPOI() {
-  if (s() > 2.0) return;
+  if (s() / PIX > 2 / 3) return;
   for (const k of POI_KINDS) {
     const col = rgb(D.meta.style.poi[k].color);
     for (const p of D.poi[k]) {
@@ -270,7 +274,7 @@ function label(text, x, y, fg, bg) {
 }
 
 function drawLabels() {
-  if (s() > 2.0) return;                         // 확대했을 때만
+  if (s() / PIX > 2 / 3) return;                 // 확대했을 때만
   // 높은 건물이 우선. 궁궐·전각은 낮아도 관광 대상이라 끌어올린다.
   const cand = [];
   for (const [i, nm] of D.city.names) {
@@ -459,6 +463,8 @@ function bindInput() {
     const el = document.getElementById('ly-' + k);
     el.addEventListener('change', () => { layers[k] = el.checked; render(); });
   }
+  const px = document.getElementById('ly-pixelate');
+  px.addEventListener('change', () => { PIX = px.checked ? PIX_ON : 1; resize(); });
   addEventListener('resize', resize);
   // 이미 열린 상태에서 공유 링크를 받았을 때. writeHash는 replaceState라 이걸 트리거하지 않는다.
   addEventListener('hashchange', () => { if (readHash()) { syncZoomUI(); render(); } });
@@ -475,7 +481,8 @@ async function main() {
   PHI = st.phi_deg * Math.PI / 180;
   EAVE = st.eave;
   C = st.colors;
-  PIX = st.pixel_size || 3;
+  PIX_ON = st.pixel_size || 3;
+  PIX = PIX_ON;
   checkGolden(meta.golden);
 
   // 링 디코딩 + 컬링용 AABB(s=1 기준) 사전계산

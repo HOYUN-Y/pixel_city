@@ -1,6 +1,8 @@
 .DS_Store
-.venv/
 __pycache__/
 *.pyc
-poc/gf_*.json
-poc/cache_*
+.venv/
+
+# prototype1 — 수집 캐시 (재생성 가능)
+prototype1/poc/gf_*.json
+prototype1/poc/cache_*
