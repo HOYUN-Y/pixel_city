@@ -79,6 +79,74 @@ const sy = (e, n, h) => Math.round(projV(e, n, h, s()) - projV(view.cx, view.cy,
 // 아트 픽셀 -> 화면 픽셀
 const toScr = v => v * PIX;
 
+/* ---------- 팔레트 양자화 ----------
+ *
+ * 오프스크린 캔버스도 도형을 안티앨리어싱하므로 경계 픽셀이 중간색으로 섞인다.
+ * (실측: 팔레트가 ~50색인데 화면에는 6,593색이 나왔다)
+ * 렌더 후 모든 픽셀을 팔레트의 가장 가까운 색으로 스냅해 경계를 딱 떨어지게 만든다.
+ *
+ * 파이썬 렌더러(poc/iso2.py)는 PIL이 폴리곤을 안티앨리어싱하지 않아 이 과정이 필요 없다.
+ * 브라우저 전용 보정이다.
+ *
+ * 디더링은 넣지 않는다 — 모든 면이 단색이라 계조가 없어 디더링할 대상이 없다.
+ * 벽면 질감은 Phase 2-D 스프라이트가 맡는다.
+ */
+let PAL_RGB = null;                 // Uint8Array(n*3)
+let PAL_LUT = null;                 // Int16Array(32768). 15비트 RGB -> 팔레트 인덱스
+
+const hex2rgb = h => [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16));
+
+function buildPalette() {
+  const seen = new Set(), out = [];
+  const add = c => {
+    if (!c) return;
+    const k = c.join(',');
+    if (!seen.has(k)) { seen.add(k); out.push(c); }
+  };
+  for (const k of ['bg', 'ground', 'road', 'heri', 'heri_edge', 'park', 'park_edge', 'river'])
+    add(C[k]);
+  const triple = t => {
+    t.forEach(add);
+    // 처마에 쓰는 파생색도 팔레트에 포함해야 스냅이 정확하다
+    add(t[0].map(v => Math.round(v * 0.72)));
+    add(t[0].map(v => Math.round(v * 0.62)));
+  };
+  Object.values(C.use).forEach(triple);
+  [C.palace, C.hanok, C.default].forEach(triple);
+  for (const v of Object.values(D.meta.style.poi)) add(v.color);
+  for (const v of Object.values(D.meta.style.subway_lines)) add(hex2rgb(v));
+  add([255, 255, 255]);
+
+  PAL_RGB = new Uint8Array(out.length * 3);
+  out.forEach((c, i) => PAL_RGB.set(c, i * 3));
+  PAL_LUT = new Int16Array(32768).fill(-1);
+  return out.length;
+}
+
+function nearest(r, g, b) {
+  const key = ((r >> 3) << 10) | ((g >> 3) << 5) | (b >> 3);
+  let idx = PAL_LUT[key];
+  if (idx >= 0) return idx;
+  let best = 0, bd = Infinity;
+  for (let i = 0, n = PAL_RGB.length; i < n; i += 3) {
+    const dr = r - PAL_RGB[i], dg = g - PAL_RGB[i + 1], db = b - PAL_RGB[i + 2];
+    const d = dr * dr + dg * dg + db * db;
+    if (d < bd) { bd = d; best = i / 3; }
+  }
+  PAL_LUT[key] = best;
+  return best;
+}
+
+function quantize() {
+  const img = octx.getImageData(0, 0, OW, OH), d = img.data;
+  for (let i = 0; i < d.length; i += 4) {
+    const j = nearest(d[i], d[i + 1], d[i + 2]) * 3;
+    d[i] = PAL_RGB[j]; d[i + 1] = PAL_RGB[j + 1]; d[i + 2] = PAL_RGB[j + 2];
+  }
+  octx.putImageData(img, 0, 0);
+}
+
+
 /* ---------- 그리기 (전부 오프스크린 octx에) ---------- */
 function poly(pts, fill, stroke) {
   octx.beginPath();
@@ -171,6 +239,8 @@ function render() {
   if (layers.subway) drawSubway();
   if (layers.poi) drawPOI();
 
+  if (PIX > 1) quantize();          // 안티앨리어싱된 경계를 팔레트로 스냅
+
   // 아트 픽셀 -> 화면. 정수배 NEAREST 확대라 픽셀 경계가 살아남는다
   ctx.setTransform(1, 0, 0, 1, 0, 0);
   ctx.imageSmoothingEnabled = false;
@@ -188,7 +258,8 @@ function render() {
   document.getElementById('stat').textContent =
     `건물 ${D.B.length.toLocaleString()}동 중 ${drawn.toLocaleString()} 표시 · `
     + `${(s() / PIX).toFixed(2)} m/화면px · `
-    + (PIX > 1 ? `픽셀 ${PIX}배` : '픽셀화 꺼짐') + ` · ${Math.round(performance.now() - t0)}ms`;
+    + (PIX > 1 ? `픽셀 ${PIX}배 · ${PAL_RGB.length / 3}색` : '픽셀화 꺼짐')
+    + ` · ${Math.round(performance.now() - t0)}ms`;
 }
 
 /* 지하철·POI는 물리적 대상이 아니라 기호다. 월드 크기가 아니라
@@ -484,6 +555,7 @@ async function main() {
   PIX_ON = st.pixel_size || 3;
   PIX = PIX_ON;
   checkGolden(meta.golden);
+  console.log(`[pixel_city] 팔레트 ${buildPalette()}색`);
 
   // 링 디코딩 + 컬링용 AABB(s=1 기준) 사전계산
   const nameOf = new Map(city.names);
@@ -535,6 +607,9 @@ function pixelCitySelfCheck() {
   console.assert(OW > 0 && OH > 0 && off.width === OW, '오프스크린 크기');
   const w = screenToWorld(W / 2, H / 2);
   console.assert(Math.hypot(w.e - view.cx, w.n - view.cy) < s() * 2, '화면중심 역투영');
+  console.assert(PAL_RGB && PAL_RGB.length % 3 === 0, '팔레트 구성');
+  const i0 = nearest(PAL_RGB[0], PAL_RGB[1], PAL_RGB[2]);
+  console.assert(i0 === 0, '팔레트 색은 자기 자신으로 스냅');
   console.log('[pixel_city] selfcheck ok');
   return true;
 }
