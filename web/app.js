@@ -51,25 +51,39 @@ function expand(en, k) {
   return en.map(p => [cx + (p[0] - cx) * k, cy + (p[1] - cy) * k]);
 }
 
-/* ---------- 뷰 상태 ---------- */
-const SCALES = [7.0, 3.5, 1.75, 0.875, 0.45];   // m/px. 인접 단계가 정확히 2배
+/* ---------- 뷰 상태 ----------
+ *
+ * 픽셀아트의 핵심은 **고정된 픽셀 격자**다. 화면 해상도에 직접 그리면 Canvas가
+ * 도형을 안티앨리어싱해 가장자리가 뭉개진다(imageSmoothingEnabled는 이미지 확대에만 걸린다).
+ * 그래서 1/PIX 크기 오프스크린 캔버스에 그린 뒤 정수배 NEAREST로 확대해 붙인다.
+ * poc/iso2.py가 Image.NEAREST로 하는 것과 같은 방식이다.
+ *
+ * 좌표계가 둘이다:
+ *   - 아트 픽셀 : 오프스크린. sx/sy가 돌려주는 값. s()는 "미터 / 아트픽셀"
+ *   - 화면 픽셀 : 아트 픽셀 x PIX. 입력 이벤트와 라벨이 쓴다
+ */
+const SCALES = [8.0, 4.0, 2.0, 1.0, 0.5];       // 미터/아트픽셀. 인접 단계가 정확히 2배
 const view = { cx: 0, cy: 0, zi: 1 };
 const layers = { poi: true, subway: true, green: true, label: true };
 let canvas, ctx, W = 0, H = 0, DPR = 1;
+let off, octx, OW = 0, OH = 0;                  // 오프스크린(아트 픽셀)
+let PIX = 3;                                    // 아트픽셀 1개가 화면에서 차지하는 px
 
 const s = () => SCALES[view.zi];
-// 월드(미터) -> 화면(px)
-const sx = (e, n) => Math.round(projU(e, n, s()) - projU(view.cx, view.cy, s()) + W / 2);
-const sy = (e, n, h) => Math.round(projV(e, n, h, s()) - projV(view.cx, view.cy, 0, s()) + H / 2);
+// 월드(미터) -> 아트 픽셀
+const sx = (e, n) => Math.round(projU(e, n, s()) - projU(view.cx, view.cy, s()) + OW / 2);
+const sy = (e, n, h) => Math.round(projV(e, n, h, s()) - projV(view.cx, view.cy, 0, s()) + OH / 2);
+// 아트 픽셀 -> 화면 픽셀
+const toScr = v => v * PIX;
 
-/* ---------- 그리기 ---------- */
+/* ---------- 그리기 (전부 오프스크린 octx에) ---------- */
 function poly(pts, fill, stroke) {
-  ctx.beginPath();
-  ctx.moveTo(pts[0][0], pts[0][1]);
-  for (let i = 1; i < pts.length; i++) ctx.lineTo(pts[i][0], pts[i][1]);
-  ctx.closePath();
-  if (fill) { ctx.fillStyle = fill; ctx.fill(); }
-  if (stroke) { ctx.strokeStyle = stroke; ctx.lineWidth = 1; ctx.stroke(); }
+  octx.beginPath();
+  octx.moveTo(pts[0][0], pts[0][1]);
+  for (let i = 1; i < pts.length; i++) octx.lineTo(pts[i][0], pts[i][1]);
+  octx.closePath();
+  if (fill) { octx.fillStyle = fill; octx.fill(); }
+  if (stroke) { octx.strokeStyle = stroke; octx.lineWidth = 1; octx.stroke(); }
 }
 
 function walls(en, h0, h1, litC, darkC) {
@@ -106,33 +120,31 @@ function drawBuilding(b) {
   }
 }
 
-function visible(b) {                             // s=1 기준 화면 AABB로 컬링
-  const k = 1 / s(), m = 64;
-  const ox = -projU(view.cx, view.cy, 1) * k + W / 2;
-  const oy = -projV(view.cx, view.cy, 0, 1) * k + H / 2;
-  return b.u1 * k + ox > -m && b.u0 * k + ox < W + m
-      && b.v1 * k + oy > -m && b.v0 * k + oy < H + m;
+function visible(b) {                             // s=1 기준 아트픽셀 AABB로 컬링
+  const k = 1 / s(), m = 24;
+  const ox = -projU(view.cx, view.cy, 1) * k + OW / 2;
+  const oy = -projV(view.cx, view.cy, 0, 1) * k + OH / 2;
+  return b.u1 * k + ox > -m && b.u0 * k + ox < OW + m
+      && b.v1 * k + oy > -m && b.v0 * k + oy < OH + m;
 }
 
 function drawLines(list, color, widthOf) {
-  ctx.strokeStyle = color; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+  octx.strokeStyle = color; octx.lineCap = 'butt'; octx.lineJoin = 'miter';
   for (const it of list) {
     const [w, en] = widthOf ? it : [null, it];
-    ctx.lineWidth = widthOf ? Math.max(1, (w / Q) / s()) : 1.5;
-    ctx.beginPath();
-    en.forEach((p, i) => i ? ctx.lineTo(sx(p[0], p[1]), sy(p[0], p[1], 0))
-                           : ctx.moveTo(sx(p[0], p[1]), sy(p[0], p[1], 0)));
-    ctx.stroke();
+    octx.lineWidth = Math.max(1, Math.round(widthOf ? (w / Q) / s() : 2));
+    octx.beginPath();
+    en.forEach((p, i) => i ? octx.lineTo(sx(p[0], p[1]), sy(p[0], p[1], 0))
+                           : octx.moveTo(sx(p[0], p[1]), sy(p[0], p[1], 0)));
+    octx.stroke();
   }
 }
 
 function render() {
   const t0 = performance.now();
-  ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
-  ctx.imageSmoothingEnabled = false;
-  ctx.fillStyle = rgb(C.bg);
-  ctx.fillRect(0, 0, W, H);
-  labelBoxes = [];
+  octx.setTransform(1, 0, 0, 1, 0, 0);
+  octx.fillStyle = rgb(C.bg);
+  octx.fillRect(0, 0, OW, OH);
 
   // 지면
   const E = 4000;
@@ -155,34 +167,58 @@ function render() {
 
   if (layers.subway) drawSubway();
   if (layers.poi) drawPOI();
+
+  // 아트 픽셀 -> 화면. 정수배 NEAREST 확대라 픽셀 경계가 살아남는다
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  ctx.imageSmoothingEnabled = false;
+  ctx.fillStyle = rgb(C.bg);
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.drawImage(off, 0, 0, OW, OH, 0, 0, OW * PIX * DPR, OH * PIX * DPR);
+
+  // 라벨은 화면 해상도로 (같이 확대하면 읽을 수 없다)
+  ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+  labelBoxes = [];
   if (layers.label) drawLabels();
+  if (layers.subway) labelSubway();
+  if (layers.poi) labelPOI();
 
   document.getElementById('stat').textContent =
     `건물 ${D.B.length.toLocaleString()}동 중 ${drawn.toLocaleString()} 표시 · `
-    + `${s().toFixed(2)} m/px · ${Math.round(performance.now() - t0)}ms`;
+    + `${s().toFixed(2)} m/픽셀 · ${PIX}배 · ${Math.round(performance.now() - t0)}ms`;
 }
+
+/* 지하철·POI는 물리적 대상이 아니라 기호다. 월드 크기가 아니라
+ * 화면(아트픽셀) 크기를 고정해야 확대해도 굵어지지 않는다. */
+const SYM = { line: 2, station: 4, poi: 4 };
 
 function drawSubway() {
   const sub = D.poi.subway, lc = D.meta.style.subway_lines;
-  ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+  octx.lineCap = 'butt'; octx.lineJoin = 'miter';
   for (const [ln, pts] of Object.entries(sub.lines)) {
     if (pts.length < 2) continue;
-    ctx.strokeStyle = lc[ln] || '#888';
-    ctx.lineWidth = Math.max(2, 9 / s());
-    ctx.globalAlpha = 0.85;
-    ctx.beginPath();
+    octx.strokeStyle = lc[ln] || '#888';
+    octx.lineWidth = SYM.line;
+    octx.beginPath();
     pts.forEach((p, i) => { const x = sx(p[0] / Q, p[1] / Q), y = sy(p[0] / Q, p[1] / Q, 0);
-      i ? ctx.lineTo(x, y) : ctx.moveTo(x, y); });
-    ctx.stroke();
+      i ? octx.lineTo(x, y) : octx.moveTo(x, y); });
+    octx.stroke();
   }
-  ctx.globalAlpha = 1;
   for (const st of sub.stations) {
     const x = sx(st.x / Q, st.y / Q), y = sy(st.x / Q, st.y / Q, 0);
-    const r = Math.max(4, 16 / s());
-    ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(x, y, r, 0, 7); ctx.fill();
-    ctx.strokeStyle = lc[st.lines[0]] || '#666';
-    ctx.lineWidth = Math.max(2, r * 0.42); ctx.stroke();
-    if (s() <= 3.5) label(st.name, x, y - r - 4, '#fff', '#000');
+    const r = SYM.station;
+    // 픽셀아트답게 원 대신 사각형
+    octx.fillStyle = lc[st.lines[0]] || '#666';
+    octx.fillRect(x - r, y - r, r * 2, r * 2);
+    octx.fillStyle = '#fff';
+    octx.fillRect(x - r + 1, y - r + 1, r * 2 - 2, r * 2 - 2);
+  }
+}
+
+function labelSubway() {
+  if (s() > 4.0) return;
+  for (const st of D.poi.subway.stations) {
+    label(st.name, toScr(sx(st.x / Q, st.y / Q)),
+          toScr(sy(st.x / Q, st.y / Q, 0) - SYM.station) - 3, '#fff', '#000');
   }
 }
 
@@ -191,16 +227,29 @@ const POI_KINDS = ['museum', 'market', 'tourinfo'];
 function drawPOI() {
   for (const k of POI_KINDS) {
     const col = rgb(D.meta.style.poi[k].color);
+    octx.fillStyle = col;
     for (const p of D.poi[k]) {
       const x = sx(p.x / Q, p.y / Q), y = sy(p.x / Q, p.y / Q, 0);
-      if (x < -20 || x > W + 20 || y < -20 || y > H + 20) continue;
-      const r = Math.max(3, 11 / s());
-      ctx.fillStyle = col;
-      ctx.beginPath();
-      ctx.moveTo(x, y); ctx.lineTo(x - r, y - r * 1.7);
-      ctx.lineTo(x + r, y - r * 1.7); ctx.closePath(); ctx.fill();
-      ctx.strokeStyle = 'rgba(0,0,0,.55)'; ctx.lineWidth = 1; ctx.stroke();
-      if (s() <= 1.75 && p.name) label(p.name, x, y - r * 1.7 - 3, col, '#000');
+      if (x < -8 || x > OW + 8 || y < -8 || y > OH + 8) continue;
+      const r = SYM.poi;
+      // 픽셀 삼각형 — 한 줄씩 사각형으로 쌓는다
+      for (let i = 0; i < r * 2; i++) {
+        const half = Math.max(1, Math.round(r * (1 - i / (r * 2))));
+        octx.fillRect(x - half, y - r * 2 + i, half * 2, 1);
+      }
+    }
+  }
+}
+
+function labelPOI() {
+  if (s() > 2.0) return;
+  for (const k of POI_KINDS) {
+    const col = rgb(D.meta.style.poi[k].color);
+    for (const p of D.poi[k]) {
+      if (!p.name) continue;
+      const x = sx(p.x / Q, p.y / Q), y = sy(p.x / Q, p.y / Q, 0);
+      if (x < 0 || x > OW || y < 0 || y > OH) continue;
+      label(p.name, toScr(x), toScr(y - SYM.poi * 2) - 3, col, '#000');
     }
   }
 }
@@ -221,7 +270,7 @@ function label(text, x, y, fg, bg) {
 }
 
 function drawLabels() {
-  if (s() > 1.75) return;                        // 확대했을 때만
+  if (s() > 2.0) return;                         // 확대했을 때만
   // 높은 건물이 우선. 궁궐·전각은 낮아도 관광 대상이라 끌어올린다.
   const cand = [];
   for (const [i, nm] of D.city.names) {
@@ -231,7 +280,7 @@ function drawLabels() {
   cand.sort((a, b) => b[0] - a[0]);
   for (const [, nm, b] of cand) {
     const p = b.en[0];
-    label(nm, sx(p[0], p[1]), sy(p[0], p[1], b.h) - 3, '#eef2f8', '#000');
+    label(nm, toScr(sx(p[0], p[1])), toScr(sy(p[0], p[1], b.h)) - 3, '#eef2f8', '#000');
   }
 }
 
@@ -245,12 +294,13 @@ function pointInPoly(px, py, pts) {
   return inside;
 }
 
-function pick(px, py) {
+function pick(spx, spy) {
+  const px = spx / PIX, py = spy / PIX;          // 화면 -> 아트 픽셀
   for (const k of POI_KINDS) {                    // POI가 건물보다 우선
     for (const p of D.poi[k]) {
       const x = sx(p.x / Q, p.y / Q), y = sy(p.x / Q, p.y / Q, 0);
-      const r = Math.max(6, 11 / s());
-      if (px > x - r && px < x + r && py > y - r * 1.9 && py < y + 4)
+      const r = SYM.poi;
+      if (px > x - r && px < x + r && py > y - r * 2.2 && py < y + 3)
         return { type: 'poi', kind: k, data: p };
     }
   }
@@ -259,12 +309,18 @@ function pick(px, py) {
     const r = Math.max(6, 16 / s());
     if (Math.hypot(px - x, py - y) < r) return { type: 'subway', data: st };
   }
+  // 압출은 화면상 수직 이동이라 실루엣 = 지붕 폴리곤을 아래로 쓸어내린 영역이다.
+  // 지붕만 검사하면 벽면 클릭이 빠지므로 높이 구간을 몇 단계 샘플링한다.
   for (let i = D.B.length - 1; i >= 0; i--) {     // 가까운 건물부터 (그린 순서 역순)
     const b = D.B[i];
     if (!visible(b)) continue;
     const src = b.kind ? (b.eave || (b.eave = expand(b.en, EAVE))) : b.en;
     const pts = src.map(p => [sx(p[0], p[1]), sy(p[0], p[1], b.h)]);
-    if (pointInPoly(px, py, pts)) return { type: 'building', data: b };
+    const drop = sy(src[0][0], src[0][1], 0) - sy(src[0][0], src[0][1], b.h);  // 지붕→지면
+    const steps = Math.min(6, Math.max(1, Math.ceil(drop / 6)));
+    for (let k = 0; k <= steps; k++)
+      if (pointInPoly(px, py - drop * k / steps, pts))
+        return { type: 'building', data: b };
   }
   return null;
 }
@@ -315,7 +371,11 @@ function showInfo(hit) {
 function resize() {
   DPR = Math.min(2, window.devicePixelRatio || 1);
   W = canvas.clientWidth; H = canvas.clientHeight;
-  canvas.width = W * DPR; canvas.height = H * DPR;
+  canvas.width = Math.round(W * DPR); canvas.height = Math.round(H * DPR);
+  OW = Math.ceil(W / PIX); OH = Math.ceil(H / PIX);
+  if (!off) off = document.createElement('canvas');
+  off.width = OW; off.height = OH;
+  octx = off.getContext('2d', { alpha: false });
   render();
 }
 
@@ -331,10 +391,11 @@ function setZoom(zi, ax, ay) {
 }
 
 /* 화면 -> 월드(지면 h=0). 투영식을 역으로 푼다. */
-function screenToWorld(px, py) {
+function screenToWorld(spx, spy) {
   const k = s();
-  const du = (px - W / 2) * k + projU(view.cx, view.cy, 1);
-  const dv = -((py - H / 2) * k + projV(view.cx, view.cy, 0, 1)) / Math.sin(PHI);
+  const px = spx / PIX, py = spy / PIX;          // 화면 -> 아트 픽셀
+  const du = (px - OW / 2) * k + projU(view.cx, view.cy, 1);
+  const dv = -((py - OH / 2) * k + projV(view.cx, view.cy, 0, 1)) / Math.sin(PHI);
   const ca = Math.cos(ALPHA), sa = Math.sin(ALPHA);
   return { e: du * ca + dv * sa, n: -du * sa + dv * ca };
 }
@@ -363,7 +424,9 @@ function bindInput() {
   let drag = null, moved = 0;
   canvas.addEventListener('pointerdown', e => {
     drag = { x: e.clientX, y: e.clientY }; moved = 0;
-    canvas.classList.add('drag'); canvas.setPointerCapture(e.pointerId);
+    canvas.classList.add('drag');
+    // 합성 이벤트나 일부 입력에서 던질 수 있다. 실패해도 팬·클릭은 계속돼야 한다.
+    try { canvas.setPointerCapture(e.pointerId); } catch { /* 무시 */ }
   });
   canvas.addEventListener('pointermove', e => {
     if (!drag) return;
@@ -373,10 +436,17 @@ function bindInput() {
     drag = { x: e.clientX, y: e.clientY };
     render();
   });
-  canvas.addEventListener('pointerup', e => {
-    canvas.classList.remove('drag');
-    if (drag && moved < 5) showInfo(pick(e.clientX, e.clientY));
-    drag = null; writeHash();
+  // 포인터 이벤트는 팬만 맡고, 선택은 click으로 처리한다.
+  // pointerup에 선택을 걸면 포인터 캡처 상황에 따라 누락될 수 있다.
+  canvas.addEventListener('pointerup', () => {
+    canvas.classList.remove('drag'); drag = null; writeHash();
+  });
+  canvas.addEventListener('pointercancel', () => {
+    canvas.classList.remove('drag'); drag = null;
+  });
+  canvas.addEventListener('click', e => {
+    if (moved < 5) showInfo(pick(e.clientX, e.clientY));
+    moved = 0;
   });
   canvas.addEventListener('wheel', e => {
     e.preventDefault();
@@ -405,6 +475,7 @@ async function main() {
   PHI = st.phi_deg * Math.PI / 180;
   EAVE = st.eave;
   C = st.colors;
+  PIX = st.pixel_size || 3;
   checkGolden(meta.golden);
 
   // 링 디코딩 + 컬링용 AABB(s=1 기준) 사전계산
@@ -446,3 +517,21 @@ main().catch(e => {
   console.error(e);
   document.getElementById('load').textContent = '데이터를 불러오지 못했습니다: ' + e.message;
 });
+
+/* ---------- 자체 검증 (콘솔에서 pixelCitySelfCheck() 호출) ---------- */
+function pixelCitySelfCheck() {
+  const sq = [[0, 0], [10, 0], [10, 10], [0, 10]];
+  console.assert(pointInPoly(5, 5, sq) === true, 'pointInPoly 내부');
+  console.assert(pointInPoly(15, 5, sq) === false, 'pointInPoly 외부');
+  const ex = expand([[0, 0], [10, 0], [10, 10], [0, 10]], 2);
+  console.assert(Math.abs(ex[0][0] + 5) < 1e-9 && Math.abs(ex[2][0] - 15) < 1e-9, 'expand');
+  console.assert(OW > 0 && OH > 0 && off.width === OW, '오프스크린 크기');
+  const w = screenToWorld(W / 2, H / 2);
+  console.assert(Math.hypot(w.e - view.cx, w.n - view.cy) < s() * 2, '화면중심 역투영');
+  console.log('[pixel_city] selfcheck ok');
+  return true;
+}
+window.pixelCitySelfCheck = pixelCitySelfCheck;
+// 디버그 훅 — 콘솔에서 좌표 변환과 판정을 직접 확인할 수 있다
+window.pixelCity = { pick, sx, sy, s: () => s(), view, get PIX() { return PIX; },
+                     get OW() { return OW; }, get OH() { return OH; }, D };

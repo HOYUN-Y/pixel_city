@@ -14,6 +14,7 @@
 - [docs/PLAN.md](docs/PLAN.md) — 일정과 진행 체크리스트
 - [docs/WORKLOG.md](docs/WORKLOG.md) — 작업 기록
 - [docs/AGENTS.md](docs/AGENTS.md) — AI 에이전트 작업 지침
+- [prototype2/README.md](prototype2/README.md) — 구조 제어형 AI 픽셀 지도 실험 계획
 
 ## 레퍼런스 조사
 

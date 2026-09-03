@@ -1,0 +1,12 @@
+{
+  "_comment": "S1 단일 컷 판정 설정. 프롬프트를 고칠 때 코드를 건드리지 않는다.",
+  "base": "stabilityai/stable-diffusion-xl-base-1.0",
+  "controlnet": "diffusers/controlnet-canny-sdxl-1.0",
+  "prompt": "isometric pixel art city map of Seoul, Gyeongbokgung palace district, top-down 2:1 dimetric view, detailed pixel art tilework, korean hanok tiled roofs with curved eaves, dancheong painted beams, small windows and signage on shophouses, street trees and courtyards, pedestrians and cars, limited retro palette, crisp hard-edged pixels, strong roof and wall shading, consistent light from upper left, game map illustration",
+  "negative": "perspective view, photorealistic, photo, blurry, soft gradients, antialiased, western architecture, gothic, skyscraper skyline, text, watermark, signature, logo, label, distorted roads, new large buildings, water, lake, river",
+  "steps": 30,
+  "guidance": 7.0,
+  "control_scale": 0.75,
+  "strengths": [0.35, 0.55, 0.75],
+  "seeds": [1, 2, 3]
+}
