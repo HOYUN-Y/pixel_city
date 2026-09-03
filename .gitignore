@@ -1,4 +1,6 @@
 .DS_Store
 .venv/
+__pycache__/
+*.pyc
 poc/gf_*.json
 poc/cache_*
