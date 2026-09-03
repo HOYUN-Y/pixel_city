@@ -14,7 +14,16 @@ ENDPOINTS = {
     "age": ("https://api.vworld.kr/ned/wfs/getBuildingAgeWFS", "dt_d196"),
 }
 # 기존 오픈API WFS (GeoJSON) — 피처 수가 적어 분할 없이 받는다
-GEOJSON_LAYERS = {"road": "lt_l_sprd", "heri": "lt_c_uo301", "river": "lt_c_wkmstrm"}
+GEOJSON_LAYERS = {
+    "road":     "lt_l_sprd",          # 도로 (road_bt 도로폭 보유)
+    "heri":     "lt_c_uo301",         # 국가유산 지정/보호구역
+    "river":    "lt_c_wkmstrm",       # 하천망
+    "park":     "lt_c_uq162",         # 도시자연공원구역 (공원·녹지·광장)
+    "temple":   "lt_c_uo501",         # 전통사찰보존구역
+    "museum":   "lt_p_dgmuseumart",   # 박물관·미술관
+    "market":   "lt_p_tradsijang",    # 전통시장
+    "tourinfo": "lt_p_dgtouristinfo", # 관광안내소
+}
 
 
 def _fetch(url, typename, bbox):

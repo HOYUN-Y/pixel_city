@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+<title>pixel_city — 서울 도심 픽셀 지도</title>
+<style>
+  :root {
+    --bg: #1a1e26; --panel: rgba(22,26,34,.92); --line: #39404e;
+    --fg: #e8ecf2; --dim: #98a2b3; --accent: #7fd0b0;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; overflow: hidden;
+    background: var(--bg); color: var(--fg);
+    font: 13px/1.5 "Pretendard", -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", sans-serif; }
+  #map { display: block; width: 100vw; height: 100vh; cursor: grab; touch-action: none; }
+  #map.drag { cursor: grabbing; }
+
+  .panel { position: fixed; background: var(--panel); border: 1px solid var(--line);
+    border-radius: 8px; backdrop-filter: blur(8px); }
+
+  #hud { top: 12px; left: 12px; padding: 12px 14px; max-width: 260px; }
+  #hud h1 { margin: 0 0 2px; font-size: 15px; letter-spacing: -.01em; }
+  #hud .sub { color: var(--dim); font-size: 11px; margin-bottom: 10px; }
+  #hud label { display: flex; align-items: center; gap: 7px; padding: 3px 0;
+    font-size: 12px; cursor: pointer; }
+  #hud input { accent-color: var(--accent); margin: 0; }
+  #stat { color: var(--dim); font-size: 11px; margin-top: 9px;
+    border-top: 1px solid var(--line); padding-top: 8px; }
+
+  #zoom { bottom: 12px; left: 12px; display: flex; gap: 1px; overflow: hidden; }
+  #zoom button { background: transparent; border: 0; color: var(--fg); font: inherit;
+    padding: 7px 13px; cursor: pointer; }
+  #zoom button:hover { background: rgba(255,255,255,.07); }
+  #zoom button[aria-pressed="true"] { background: var(--accent); color: #10141a; font-weight: 600; }
+
+  #info { top: 12px; right: 12px; padding: 12px 14px; max-width: 270px; display: none; }
+  #info.on { display: block; }
+  #info h2 { margin: 0 0 6px; font-size: 14px; }
+  #info dl { margin: 0; display: grid; grid-template-columns: auto 1fr; gap: 3px 10px; font-size: 12px; }
+  #info dt { color: var(--dim); }
+  #info dd { margin: 0; word-break: break-all; }
+  #info a { color: var(--accent); }
+  #info .close { position: absolute; top: 8px; right: 10px; cursor: pointer;
+    color: var(--dim); border: 0; background: 0; font-size: 15px; line-height: 1; }
+
+  #legend { bottom: 12px; right: 12px; padding: 10px 12px; font-size: 11px; }
+  #legend div { display: flex; align-items: center; gap: 6px; padding: 1px 0; }
+  #legend i { width: 10px; height: 10px; border-radius: 2px; display: inline-block; }
+
+  #load { position: fixed; inset: 0; display: grid; place-content: center;
+    background: var(--bg); color: var(--dim); z-index: 9; }
+</style>
+</head>
+<body>
+<canvas id="map"></canvas>
+
+<div id="hud" class="panel">
+  <h1>서울 도심 픽셀 지도</h1>
+  <div class="sub">경복궁 · 창덕궁 · 종묘 · 북촌 · 남산 — 7.86km²</div>
+  <label><input type="checkbox" id="ly-poi" checked> 관광 POI</label>
+  <label><input type="checkbox" id="ly-subway" checked> 지하철</label>
+  <label><input type="checkbox" id="ly-green" checked> 공원 · 문화재구역</label>
+  <label><input type="checkbox" id="ly-label" checked> 건물 이름</label>
+  <div id="stat"></div>
+</div>
+
+<div id="zoom" class="panel"></div>
+
+<div id="info" class="panel">
+  <button class="close" title="닫기">✕</button>
+  <h2></h2>
+  <dl></dl>
+</div>
+
+<div id="legend" class="panel">
+  <div><i style="background:#688098"></i> 궁궐 · 전각</div>
+  <div><i style="background:#9a7656"></i> 한옥 · 목조</div>
+  <div><i style="background:#8c98a8"></i> 상업용</div>
+  <div><i style="background:#a6926e"></i> 주거용</div>
+  <div><i style="background:#98929e"></i> 문교사회용</div>
+</div>
+
+<div id="load">데이터 불러오는 중…</div>
+
+<script src="app.js"></script>
+</body>
+</html>

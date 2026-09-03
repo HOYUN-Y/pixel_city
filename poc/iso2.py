@@ -3,30 +3,32 @@
 건물 형상·층수·용도·구조가 전부 한 응답에 들어 있어 조인이 필요 없다.
 목구조는 처마를 달아 한옥/전각으로 구분해 그린다.
 """
-import math, re
+import math, os, re, sys, json
 from PIL import Image, ImageDraw
 
-ALPHA, PHI = math.radians(22.5), math.radians(30.0)
-import os, sys, json
+STYLE = json.load(open(os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                    "style.json"), encoding="utf-8"))
+_C = STYLE["colors"]
+_rgb = lambda v: tuple(v)
+
+ALPHA, PHI = math.radians(STYLE["alpha_deg"]), math.radians(STYLE["phi_deg"])
+FLOOR_H      = STYLE["floor_h"]
+WOOD_FLOOR_H = STYLE["wood_floor_h"]     # 전각은 1층이어도 높다
+PALACE_SCALE = STYLE["palace_scale"]
+EAVE         = STYLE["eave"]             # 처마 내밀기 배율
+
 W, H, ZOOM, PAD = 520, 380, 3, 14
 BBOX = (126.9740, 37.5760, 126.9820, 37.5820)
 
-# ponytail: 층고 고정값. buldHg(실측)는 데이터API에만 있어 WFS 단독으론 추정한다.
-FLOOR_H = 3.0
-WOOD_FLOOR_H = 5.0        # 전각은 1층이어도 높다
-EAVE = 1.35               # 처마 내밀기 배율
-
-BG, GROUND, ROAD = (26,30,38), (54,60,68), (86,92,102)
+BG, GROUND, ROAD = _rgb(_C["bg"]), _rgb(_C["ground"]), _rgb(_C["road"])
+HERI, HERI_ED    = _rgb(_C["heri"]), _rgb(_C["heri_edge"])
+PARK, PARK_ED    = _rgb(_C["park"]), _rgb(_C["park_edge"])
+RIVER            = _rgb(_C["river"])
 # 용도 -> (지붕, 밝은벽, 어두운벽)
-PAL = {
-    "주거용":   ((198,178,146), (166,148,120), (126,112, 90)),
-    "상업용":   ((172,186,200), (140,152,168), (104,116,132)),
-    "문교사회용":((186,180,198), (152,146,166), (114,110,128)),
-    None:      ((180,180,180), (150,150,150), (112,112,112)),
-}
-PALACE = ((104,126,152), (170, 88, 74), (122, 60, 52))  # 청기와 / 단청 적색 기둥
-HANOK  = ((132,134,138), (154,118, 86), (112, 86, 62))  # 회기와 / 목재
-HERI, HERI_ED = (66, 92, 70), (86,116, 88)            # 국가유산 지정구역
+PAL = {k: tuple(map(_rgb, v)) for k, v in _C["use"].items()}
+PAL[None] = tuple(map(_rgb, _C["default"]))
+PALACE = tuple(map(_rgb, _C["palace"]))   # 청기와 / 단청 적색 기둥
+HANOK  = tuple(map(_rgb, _C["hanok"]))    # 회기와 / 목재
 
 
 def parse(path):
@@ -43,7 +45,7 @@ def parse(path):
         except ValueError: fl = 1
         wood = "목" in strct
         palace = wood and any(k in nm for k in ("궁", "종묘", "사직"))
-        h = fl * (WOOD_FLOOR_H * (1.4 if palace else 1.0) if wood else FLOOR_H)
+        h = fl * (WOOD_FLOOR_H * (PALACE_SCALE if palace else 1.0) if wood else FLOOR_H)
         for c in re.findall(r"<gml:coordinates[^>]*>(.*?)</gml:coordinates>", f, re.S):
             ring = [tuple(map(float, p.split(",")[:2])) for p in c.split() if "," in p]
             if len(ring) >= 4:
