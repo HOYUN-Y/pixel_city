@@ -12,13 +12,16 @@
 - **무엇을 하는가**: 서울 도심 관광축(경복궁~남산, 약 6~8km²)을 AI 생성 아이소메트릭
   픽셀아트 지도로 재현하고, 관광·지하철 등 공공 공간데이터를 레이어로 얹는다.
   공모전 출품용 **프로토타입**, 비영리. → 상세는 `docs/CONCEPT.md`
-- **현재 단계**: **기획**. 코드 없음. 구현 착수 전.
-- **기술 스택**: 잠정 — 렌더 three.js + Playwright / 생성 Qwen-Image-Edit-2511 + LoRA /
-  뷰어 커스텀 Canvas. **Phase 0 PoC 이후 확정** (지금 확정하면 뒤집힌다).
-- **핵심 디렉토리**: 아직 없음.
-- **실행 방법**: 아직 없음.
-- **데이터 출처**: V-World(3D 건물·항공영상·DEM), 한국관광공사 TourAPI, 카카오 로컬 API,
-  Tmap API, 서울 열린데이터광장, 국가유산청.
+- **현재 단계**: 규칙 기반 `prototype1` 뷰어와 로컬 생성 재질 기반
+  `prototype2` 대표 3구역 시안 구현 완료. 전체 타일 적용과 제출 문서는 진행 중.
+- **기술 스택**: Python + Pillow/NumPy 렌더러, Canvas 뷰어, 로컬 SDXL 재질.
+  `prototype2` 입력은 고정 스냅샷으로 `prototype1` 실행 코드와 분리한다.
+- **핵심 디렉토리**: `prototype1/poc`, `prototype1/web`, `prototype2/scripts`,
+  `prototype2/eval`, `prototype2/web`.
+- **실행 방법**: 저장소 루트 `README.md`와 각 프로토타입 README 참조.
+- **데이터 출처**: V-World 2D/WFS·DEM, 한국관광공사 TourAPI, 카카오 로컬 API,
+  Tmap API, 서울 열린데이터광장, 국가유산청. V-World 3D DATA API는 중단된
+  서비스이므로 사용 경로에 포함하지 않는다.
   → **모든 출처는 표시 의무·이용약관을 확인하고 사용한다.**
 
 ---

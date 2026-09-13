@@ -32,6 +32,37 @@ function checkGolden(golden) {
   return true;
 }
 
+/* ---------- 지형 (poc/terrain.py가 만든 표고 격자) ----------
+ * ENU 축정렬 직사각 격자다. 좌표계 변환은 파이썬이 이미 끝냈고 여기선 이중선형만 한다.
+ * terrain.json이 없으면 TERR=null -> zAt()이 전부 0 -> 지형 도입 전 평지 동작.
+ * 되돌리기가 `rm web/data/terrain.json` 한 줄인 것이 이 구조 덕이다.
+ */
+let TERR = null, TEXAG = 1;
+
+function zAt(e, n) {
+  const g = TERR;
+  if (!g) return 0;
+  const fi = (e - g.e0) / g.step, fj = (n - g.n0) / g.step;
+  if (fi < 0 || fj < 0 || fi > g.nx - 1 || fj > g.ny - 1) return 0;
+  // 마지막 행·열에서 i+1이 격자를 넘지 않도록 클램프. 빼면 메시 외곽이 0으로 주저앉는다
+  const i = Math.min(Math.floor(fi), g.nx - 2), j = Math.min(Math.floor(fj), g.ny - 2);
+  const u = fi - i, v = fj - j, z = g.z, w = g.nx;
+  return TEXAG / Q * (
+    (z[j * w + i] * (1 - u) + z[j * w + i + 1] * u) * (1 - v) +
+    (z[(j + 1) * w + i] * (1 - u) + z[(j + 1) * w + i + 1] * u) * v);
+}
+
+function checkTerrainGolden(g) {
+  const bad = g.golden.filter(p => Math.abs(zAt(p.e, p.n) / TEXAG - p.z) > 1e-3);
+  if (bad.length) {
+    console.error('[pixel_city] 지형 이식 불일치 — terrain.py와 결과가 다르다', bad);
+    return false;
+  }
+  console.log(`[pixel_city] 지형 골든 값 ${g.golden.length}건 일치 `
+    + `(격자 ${g.nx}x${g.ny} / datum ${g.z0}m / 기복 ${g.zmin}~${g.zmax}m / exag ${g.exag})`);
+  return true;
+}
+
 /* ---------- 디코딩 ---------- */
 function decRing(a) {                       // [x0,y0,dx,dy,...] -> [[e,n],...] 미터
   let x = a[0], y = a[1];
@@ -75,7 +106,14 @@ let PIX_ON = 3;                                 // 픽셀화 켰을 때의 배�
 const s = () => SCALES[view.zi] * PIX;
 // 월드(미터) -> 아트 픽셀
 const sx = (e, n) => Math.round(projU(e, n, s()) - projU(view.cx, view.cy, s()) + OW / 2);
-const sy = (e, n, h) => Math.round(projV(e, n, h, s()) - projV(view.cx, view.cy, 0, s()) + OH / 2);
+// h는 "지면 위 높이". z를 주면 그 값을 기준면으로 쓰고(건물 = 평면 기초),
+// 안 주면 지형을 샘플한다(도로·POI 등 지면 밀착 요소가 편집 없이 지형을 탄다).
+// ponytail: 카메라 앵커는 z=0 평면 고정. 최대 줌에서 남산에 가면 지형이 화면 위로
+// ~400 아트픽셀 벗어난다. 고치려면 앵커·visible()의 oy·screenToWorld 3곳을 동시에
+// 수정해야 하고, 문서용 축척(전체/넓게)에서는 25~50픽셀이라 무해하다.
+const sy = (e, n, h, z) =>
+  Math.round(projV(e, n, h + (z === undefined ? zAt(e, n) : z), s())
+             - projV(view.cx, view.cy, 0, s()) + OH / 2);
 // 아트 픽셀 -> 화면 픽셀
 const toScr = v => v * PIX;
 
@@ -113,6 +151,19 @@ function buildPalette() {
   };
   Object.values(C.use).forEach(triple);
   [C.palace, C.hanok, C.default].forEach(triple);
+  // 지형 음영 — 맨땅·공원·문화재구역 각각의 표고 램프 (기존 색에서 파생).
+  // style.json에 색을 넣지 않는 이유는 그 경로가 export.py -> meta.json 재생성을
+  // 요구하고, 수집 캐시가 없어 지금 돌릴 수 없기 때문이다. 처마 파생색과 같은 패턴이다.
+  // ⚠️ nearest()가 채널당 5비트로 버킷팅하므로(>>3) 모든 채널에서 8 미만 차이인 색 둘은
+  // LUT가 구분하지 못한다. GSHADE_K 간격을 좁히면 램프끼리 뭉친다
+  // (selfcheck가 '엉뚱한 색으로 스냅'으로 잡는다. 현재 간격에서는 충돌 0).
+  TSHADE = [C.ground, C.park, C.heri].map(base => GSHADE_K.map(f => {
+    const fr = Array.isArray(f) ? f : [f, f, f];   // 채널별 배율 (스칼라도 허용)
+    const c = base.map((v, i) => Math.max(0, Math.min(255, Math.round(v * fr[i]))));
+    add(c);
+    return rgb(c);
+  }));
+  buildVariants(add);                 // 건물 변주색도 여기서 등록한다
   for (const v of Object.values(D.meta.style.poi)) add(v.color);
   for (const v of Object.values(D.meta.style.subway_lines)) add(hex2rgb(v));
   add([255, 255, 255]);
@@ -157,37 +208,146 @@ function poly(pts, fill, stroke) {
   if (stroke) { octx.strokeStyle = stroke; octx.lineWidth = 1; octx.stroke(); }
 }
 
-function walls(en, h0, h1, litC, darkC) {
+/* 벽에 그릴 가로선 개수. 0 = 없음 / 1 = 파라펫 1줄 / n>1 = n층 (선은 n-1개).
+ *
+ * 층당 아트픽셀 = (층고 × cosΦ) / s(). 줌별로 2.6/s() 이고 실측 판정은:
+ *   줌2 1.3px 불가 · 줌3 2.6px 모아레(sy의 Math.round가 2/3/2/3px로 흩뿌린다) · 줌4 5.2px 가능
+ * 그래서 줌3은 파라펫 1줄만, 줌4에서만 층 띠를 그린다. 가드 하나가 둘을 분기시킨다.
+ */
+function floorBands(b) {
+  if (s() > 1.0) return 0;                                   // 줌 0~2: 비용 0
+  if (b.fl < 3) return 1;                                    // 저층은 띠가 의미 없다
+  return (b.h / b.fl) * Math.cos(PHI) / s() >= BAND_MIN_PX ? b.fl : 1;
+}
+
+function walls(en, h0, h1, litC, darkC, z, bands) {
   const sa = Math.sin(ALPHA), ca = Math.cos(ALPHA);
   for (let i = 0; i < en.length - 1; i++) {
     const [e1, n1] = en[i], [e2, n2] = en[i + 1];
     const nx = n2 - n1, nz = -(e2 - e1);
     if (nx * sa + nz * ca <= 0) continue;                    // 후면 제거
     const lit = Math.abs(nx) / (Math.hypot(nx, nz) + 1e-9) > 0.5;
-    poly([[sx(e1, n1), sy(e1, n1, h0)], [sx(e2, n2), sy(e2, n2, h0)],
-          [sx(e2, n2), sy(e2, n2, h1)], [sx(e1, n1), sy(e1, n1, h1)]],
+    poly([[sx(e1, n1), sy(e1, n1, h0, z)], [sx(e2, n2), sy(e2, n2, h0, z)],
+          [sx(e2, n2), sy(e2, n2, h1, z)], [sx(e1, n1), sy(e1, n1, h1, z)]],
          lit ? litC : darkC, null);
+    // ponytail: 띠는 lit 면에만, 색은 그 건물의 dark 재사용 -> 팔레트 추가 0색, 비용 절반.
+    // 어두운 면까지 필요하면 dark×0.8을 재질별로 등록해야 한다(+색) — 그때 올린다.
+    // 간격은 sy()의 Math.round 때문에 +-1 아트픽셀 흔들린다. 고치려면 sy를 우회해야 하고
+    // 그건 파이썬 렌더러와의 패리티를 깬다.
+    if (!bands || !lit) continue;
+    octx.strokeStyle = darkC; octx.lineWidth = 1;
+    octx.beginPath();
+    for (let k = 1; k <= (bands === 1 ? 1 : bands - 1); k++) {
+      const hb = bands === 1 ? h0 + (h1 - h0) * 0.92 : h0 + (h1 - h0) * k / bands;
+      octx.moveTo(sx(e1, n1) + 0.5, sy(e1, n1, hb, z) + 0.5);
+      octx.lineTo(sx(e2, n2) + 0.5, sy(e2, n2, hb, z) + 0.5);
+    }
+    octx.stroke();
   }
 }
 
+/* ---------- 건물 색 변주 ----------
+ *
+ * 지붕은 **주용도 세분류**, 벽은 **재질 x 연령**. 둘을 분리한 게 핵심이다 —
+ * 팔레트는 덧셈(+75색)으로 늘고 외형은 곱셈(실재 조합 83개)으로 는다.
+ * 묶어두면 같은 변주에 630색이 필요하다.
+ *
+ * 실측 6,985동: 최대 셀 점유 **44.5% -> 13.4%**, 갈리는 조합 **8 -> 83개**.
+ * 축을 이렇게 고른 근거는 poc/style.json의 `_variant_note`와 WORKLOG 09-13에 있다.
+ *
+ * **결측은 전부 오늘 색으로 떨어진다** — 지붕은 대분류, 벽은 kind 기본색, 연령은
+ * 중립 밴드(배율 1.0). 이 되돌리기 동치를 selfcheck가 지킨다.
+ */
+let VAR = null;                 // 캐시된 변주 색. buildVariants()가 채운다
+
+// ↓ 셋 다 iso2.py의 wall_mat / wood_use / age_band와 **같은 규칙**이어야 한다
+function wallMat(strct) {
+  if (strct.includes('목')) return null;                    // 목조는 kind가 처리
+  if (/철근콘크리트|철골철근|철골콘크리트/.test(strct)) return '콘크리트';
+  if (/벽돌|조적|블록|석/.test(strct)) return '조적';
+  return '기타';
+}
+function woodUse(prpos) {
+  const p = prpos || '';
+  return p.includes('주택') ? '주거' : (p.includes('근린생활') ? '근생' : '기타');
+}
+function ageBand(year, breaks) {                            // 결측(0)은 중립 = 오늘 색
+  const b = breaks || [1966, 1989];
+  if (!year) return 1;
+  return year < b[0] ? 0 : (year >= b[1] ? 2 : 1);
+}
+
+function variant(b) {
+  // b.wm은 목조면 주용도 구분(주거/근생/기타), 아니면 재질(콘크리트/조적/기타)이다.
+  // 로드 시 kind에 따라 갈라 구워두므로 여기선 그대로 쓴다.
+  if (b.kind) return [b.kind === 2 ? '궁궐' : '한옥', b.wm, b.ab];
+  return [b.rg, b.wm, b.ab];
+}
+
+/* 프레임마다 rgb() 문자열을 만들지 않도록 로드 시 한 번 구워둔다.
+ * 기존 drawBuilding은 건물당 3~4회 템플릿 문자열을 만들었다 (프레임당 약 28,000회). */
+function buildVariants(add) {
+  const K = C.age_k || [1, 1, 1];
+  const mulc = (c, k) => c.map(v => Math.max(0, Math.min(255, Math.round(v * k))));
+  VAR = { roof: {}, wall: {}, wood: {} };
+  const reg = c => { add(c); return rgb(c); };
+
+  // 지붕 — 주용도 세분류. 폴백은 대분류(오늘 색)
+  for (const [k, c] of Object.entries(C.roof_g || {})) VAR.roof[k] = reg(c);
+  for (const [k, t] of Object.entries(C.use)) VAR.roof['대분류:' + k] = reg(t[0]);
+  VAR.roof['대분류:'] = reg(C.default[0]);
+
+  // 벽 — 재질 x 연령
+  for (const [k, [lit, dark]] of Object.entries(C.wall_m || {}))
+    VAR.wall[k] = K.map(f => [reg(mulc(lit, f)), reg(mulc(dark, f))]);
+  // 목조 벽 — 주용도 x 연령 (한옥은 재질 축이 없다)
+  for (const [kind, byUse] of Object.entries(C.wood_wall || {})) {
+    VAR.wood[kind] = {};
+    for (const [u, [lit, dark]] of Object.entries(byUse))
+      VAR.wood[kind][u] = K.map(f => [reg(mulc(lit, f)), reg(mulc(dark, f))]);
+  }
+  // 폴백 — 변주가 없을 때 쓰는 오늘 색
+  VAR.fb = {};
+  for (const [k, t] of Object.entries(C.use)) VAR.fb[k] = [reg(t[1]), reg(t[2])];
+  VAR.fb[''] = [reg(C.default[1]), reg(C.default[2])];
+  VAR.fbWood = { 한옥: [reg(C.hanok[1]), reg(C.hanok[2])],
+                 궁궐: [reg(C.palace[1]), reg(C.palace[2])] };
+  // 목조 지붕은 용도로 변하지 않는다 (기와는 기와). 처마 파생색까지 미리 굽는다
+  const woodRoof = t => [reg(t[0]), reg(t[0].map(v => Math.round(v * 0.72))),
+                                    reg(t[0].map(v => Math.round(v * 0.62)))];
+  VAR.fbRoofWood = { 한옥: woodRoof(C.hanok), 궁궐: woodRoof(C.palace) };
+}
+
+/* -> [지붕, 밝은벽, 어두운벽] **rgb 문자열**. 예전에는 색 배열을 돌려줬다. */
 function palette(b) {
-  if (b.kind === 2) return C.palace;
-  if (b.kind === 1) return C.hanok;
-  return C.use[D.city.uses[b.use]] || C.default;
+  const [rg, wm, ab] = variant(b);
+  if (b.kind) {
+    const kn = b.kind === 2 ? '궁궐' : '한옥';
+    const w = VAR.wood[kn] && VAR.wood[kn][wm];
+    const [roof, e72, e62] = VAR.fbRoofWood[kn];
+    return [roof, ...(w ? w[ab] : VAR.fbWood[kn]), e72, e62];
+  }
+  const roof = VAR.roof[rg] || VAR.roof['대분류:' + (D.city.uses[b.use] || '')]
+                            || VAR.roof['대분류:'];
+  const w = VAR.wall[wm];
+  return [roof, ...(w ? w[ab] : (VAR.fb[D.city.uses[b.use]] || VAR.fb['']))];
 }
 
 function drawBuilding(b) {
-  const [roof, lit, dark] = palette(b);
-  const en = b.en, h = b.h;
+  const pal = palette(b), [roof, lit, dark] = pal;
+  // ponytail: 건물은 중심 표고(b.z)에 평면으로 앉는다. 경사면에서 내리막쪽이 최대
+  // ±7m 떠 보이지만, 정점별 표고를 주면 바닥이 비평면이 되어 지붕이 기운다
+  // (90m 격자 최대 경사에서 7~13 아트픽셀). 평평한 게 기운 것보다 훨씬 낫다.
+  const en = b.en, h = b.h, z = b.z;
   if (b.kind) {                                   // 목조: 낮은 기둥 + 크게 내민 처마
-    const body = h * 0.5;
-    walls(en, 0, body, rgb(lit), rgb(dark));
+    const body = h * 0.5, e72 = pal[3], e62 = pal[4];
+    walls(en, 0, body, lit, dark, z);             // 한옥은 1~2층이라 띠를 안 그린다
     const ev = b.eave || (b.eave = expand(en, EAVE));
-    walls(ev, body, h, rgb(roof), mul(roof, 0.72));
-    poly(ev.map(p => [sx(p[0], p[1]), sy(p[0], p[1], h)]), rgb(roof), mul(roof, 0.62));
+    walls(ev, body, h, roof, e72, z);
+    poly(ev.map(p => [sx(p[0], p[1]), sy(p[0], p[1], h, z)]), roof, e62);
   } else {
-    walls(en, 0, h, rgb(lit), rgb(dark));
-    poly(en.map(p => [sx(p[0], p[1]), sy(p[0], p[1], h)]), rgb(roof), rgb(dark));
+    walls(en, 0, h, lit, dark, z, floorBands(b));
+    poly(en.map(p => [sx(p[0], p[1]), sy(p[0], p[1], h, z)]), roof, dark);
   }
 }
 
@@ -197,6 +357,93 @@ function visible(b) {                             // s=1 기준 아트픽셀 AAB
   const oy = -projV(view.cx, view.cy, 0, 1) * k + OH / 2;
   return b.u1 * k + ox > -m && b.u0 * k + ox < OW + m
       && b.v1 * k + oy > -m && b.v0 * k + oy < OH + m;
+}
+
+/* ---------- 지형 메시 ----------
+ * 표고 격자를 쿼드로 깐다. 경사로 음영 5단을 골라 언덕이 읽히게 한다.
+ *
+ * 순서: t = e·sinα + n·cosα 가 클수록 멀다. α=22.5°에서 sinα·cosα 둘 다 양수라
+ * t는 e·n 양쪽에 단조 증가한다 -> **인덱스 내림차순이 곧 먼 것부터**다. 정렬이 필요 없다.
+ */
+/* 음영 상수는 terrain.json에서 온다 (정본은 poc/style.json). 하드코딩하지 않는 이유는
+ * 파이썬 렌더러와 같은 숫자를 읽게 하려는 것이다 — style.json -> meta.json 경로는
+ * export.py 재실행을 요구하는데 수집 캐시가 없어 지금 돌릴 수 없다.
+ * gain은 남산 셀 220개 실측으로 맞췄다: 단일셀 기울기 g6은 인접 단계차 0.39로
+ * 패치워크처럼 읽히고, 3x3 평활 g4는 0.20이면서 분포와 평균(2.0)을 유지한다. */
+let GSHADE_K = [[1, 1, 1], [1, 1, 1], [1, 1, 1]];   // terrain.json이 덮어쓴다 (채널별 배율)
+let GNEUTRAL = 2;                                  // 램프 안에서 배율 1.0인 칸 (평지)
+let GLIGHT = [1.0, 0.35];                          // 광원 방향 (e, n)
+let GSHADE_GAIN = 3;                               // 경사 -> 단계 (보조 신호)
+let GZBAND = 50;
+let BAND_MIN_PX = 3;                               // 층당 이 아트픽셀 미만이면 층 띠 대신 파라펫 1줄                                   // 표고 몇 m마다 한 단계 (주 신호)
+let TSHADE = [];        // TSHADE[지표][단계] = rgb 문자열. buildPalette()가 채운다
+let TCELL = null;       // Int16Array(i, j, 단계, 지표) x N. 먼 것부터. 로드 시 1회 계산
+
+/* 셀별 음영 단계와 지표를 미리 굽는다.
+ *
+ * 단계 = GNEUTRAL + round(표고/GZBAND) - round(경사*GSHADE_GAIN), 램프 범위로 clamp.
+ *
+ * **표고 밴드가 주 신호다.** 경사만 쓰면 균일 사면이 균일 톤이 되어 산이 평지와 같은
+ * 색으로 칠해진다 — 실측으로 확인했다: 남산 종단면 232m->31m 구간에서 단계가 2·3
+ * 두 개만 쓰이고 단계 2의 휘도는 평지 공원과 완전히 동일했다. 지도가 산을 보여주는
+ * 방식은 표고별 색조이고, 경사는 국지적 형태(능선·골)를 얹는 보조 신호다.
+ *
+ * neutral 단계(배율 1.0 = 평지)는 건너뛴다 — 기존 폴리곤 렌더(크리스프한 공원 경계)를
+ * 덮지 않고 기복이 있는 곳만 덮는다. GZBAND(60m)가 도심 대역폭(41.5m)보다 커서
+ * 평지 도심은 대부분 여기 남고, 90m 블록은 기복이 있는 곳에만 나타난다.
+ *
+ * 지표를 보는 이유: 남산은 전체가 공원 폴리곤(가장 큰 것이 한 변 979m)에 덮여 있어
+ * 맨땅 음영으로 덮으면 산이 초록에서 회색으로 바뀐다. 셀이 공원 안인지 보고
+ * 공원색 램프를 쓰면 초록을 유지한 채 기복이 읽힌다.
+ */
+function buildTerrainCells() {
+  if (!TERR) return 0;
+  const { nx, ny, step, e0, n0, z } = TERR, k = TEXAG / Q;
+  // 인덱스를 격자 안으로 물린 접근자 — 3x3 스텐실이 경계를 넘지 않게
+  const zc = (i, j) => z[Math.min(ny - 1, Math.max(0, j)) * nx
+                       + Math.min(nx - 1, Math.max(0, i))] * k;
+  // 폴리곤 ENU bbox를 미리 잡아 점-다각형 판정 횟수를 줄인다.
+  // render()의 그리는 순서(heri -> park -> temple)와 같게 두고 마지막 일치를 쓴다
+  const zones = [];
+  for (const [cover, key] of [[2, 'heri'], [1, 'park'], [2, 'temple']])
+    for (const r of (D.L[key] || [])) {
+      let x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9;
+      for (const [e, n] of r) {
+        x0 = Math.min(x0, e); y0 = Math.min(y0, n);
+        x1 = Math.max(x1, e); y1 = Math.max(y1, n);
+      }
+      zones.push([cover, x0, y0, x1, y1, r]);
+    }
+  const out = [];
+  for (let j = ny - 2; j >= 0; j--)                // 먼 것부터 (t = e·sinα + n·cosα 내림차순)
+    for (let i = nx - 2; i >= 0; i--) {
+      const grad = ((zc(i + 2, j) + zc(i + 2, j + 1) - zc(i - 1, j) - zc(i - 1, j + 1)) / 2 * GLIGHT[0]
+                  + (zc(i, j + 2) + zc(i + 1, j + 2) - zc(i, j - 1) - zc(i + 1, j - 1)) / 2 * GLIGHT[1])
+                  / (3 * step);
+      const zmid = (zc(i, j) + zc(i + 1, j) + zc(i, j + 1) + zc(i + 1, j + 1)) / 4;
+      const lv = Math.max(0, Math.min(GSHADE_K.length - 1,
+        GNEUTRAL + Math.round(zmid / GZBAND) - Math.round(grad * GSHADE_GAIN)));
+      if (lv === GNEUTRAL) continue;
+      const ce = e0 + (i + 0.5) * step, cn = n0 + (j + 0.5) * step;
+      let cover = 0;
+      for (const [ci, x0, y0, x1, y1, r] of zones)
+        if (ce >= x0 && ce <= x1 && cn >= y0 && cn <= y1 && pointInPoly(ce, cn, r)) cover = ci;
+      out.push(i, j, lv, cover);
+    }
+  TCELL = new Int16Array(out);
+  return TCELL.length / 4;
+}
+
+function drawTerrain() {
+  if (!TCELL || !TSHADE.length) return;
+  const { step, e0, n0 } = TERR;
+  for (let p = 0; p < TCELL.length; p += 4) {
+    const e = e0 + TCELL[p] * step, n = n0 + TCELL[p + 1] * step;
+    const e1 = e + step, n1 = n + step;
+    poly([[sx(e, n), sy(e, n, 0)], [sx(e1, n), sy(e1, n, 0)],
+          [sx(e1, n1), sy(e1, n1, 0)], [sx(e, n1), sy(e, n1, 0)]],
+         TSHADE[TCELL[p + 3]][TCELL[p + 2]], null);
+  }
 }
 
 function drawLines(list, color, widthOf) {
@@ -217,7 +464,7 @@ function render() {
   octx.fillStyle = rgb(C.bg);
   octx.fillRect(0, 0, OW, OH);
 
-  // 지면
+  // 지면 — 격자 밖 배경. zAt이 격자 밖에서 0이므로 지형 메시와 이가 맞는다
   const E = 4000;
   poly([[sx(-E, -E), sy(-E, -E, 0)], [sx(E, -E), sy(E, -E, 0)],
         [sx(E, E), sy(E, E, 0)], [sx(-E, E), sy(-E, E, 0)]], rgb(C.ground), null);
@@ -230,6 +477,8 @@ function render() {
     for (const g of D.L.temple) poly(g.map(p => [sx(p[0], p[1]), sy(p[0], p[1], 0)]),
                                      rgb(C.heri), rgb(C.heri_edge));
   }
+  // 지표 폴리곤 위에 얹는다 — 경사 있는 셀만 덮으므로 평지의 크리스프한 경계는 남는다
+  drawTerrain();
   drawLines(D.L.road, rgb(C.road), true);
   drawLines(D.L.river, rgb(C.river), false);
 
@@ -355,7 +604,7 @@ function drawLabels() {
   cand.sort((a, b) => b[0] - a[0]);
   for (const [, nm, b] of cand) {
     const p = b.en[0];
-    label(nm, toScr(sx(p[0], p[1])), toScr(sy(p[0], p[1], b.h)) - 3, '#eef2f8', '#000');
+    label(nm, toScr(sx(p[0], p[1])), toScr(sy(p[0], p[1], b.h, b.z)) - 3, '#eef2f8', '#000');
   }
 }
 
@@ -390,8 +639,10 @@ function pick(spx, spy) {
     const b = D.B[i];
     if (!visible(b)) continue;
     const src = b.kind ? (b.eave || (b.eave = expand(b.en, EAVE))) : b.en;
-    const pts = src.map(p => [sx(p[0], p[1]), sy(p[0], p[1], b.h)]);
-    const drop = sy(src[0][0], src[0][1], 0) - sy(src[0][0], src[0][1], b.h);  // 지붕→지면
+    const pts = src.map(p => [sx(p[0], p[1]), sy(p[0], p[1], b.h, b.z)]);
+    // 표고 b.z는 양쪽에 같이 들어가 소거된다 -> drop은 지형 도입 전과 동일하다
+    const drop = sy(src[0][0], src[0][1], 0, b.z)
+               - sy(src[0][0], src[0][1], b.h, b.z);         // 지붕→지면
     const steps = Math.min(6, Math.max(1, Math.ceil(drop / 6)));
     for (let k = 0; k <= steps; k++)
       if (pointInPoly(px, py - drop * k / steps, pts))
@@ -425,10 +676,16 @@ function showInfo(hit) {
   if (hit.type === 'building') {
     const b = hit.data;
     h2.textContent = b.nm || '(이름 없는 건물)';
-    row('용도', D.city.uses[b.use] || '—');
-    row('구조', KIND_NM[b.kind]);
+    const ci = D.city, gi = D.B.indexOf(b);
+    // 색의 근거를 그대로 보여준다 — "왜 이 색인가"에 답할 수 있어야 한다
+    row('주용도', (ci.prp && ci.prp[ci.prpos[gi]]) || D.city.uses[b.use] || '—');
+    row('용도 대분류', D.city.uses[b.use] || '—');
+    row('구조', (ci.str && ci.str[ci.strct[gi]]) || KIND_NM[b.kind]);
     row('지상층수', `${b.fl}층`);
-    row('추정 높이', `${b.h.toFixed(1)} m`);
+    // 높이의 출처를 밝힌다 — 36%는 실측(buld_hg), 나머지는 층고 곡선 추정이다
+    row(ci.meas && ci.meas[gi] ? '높이 (실측)' : '높이 (추정)', `${b.h.toFixed(1)} m`);
+    const yr = ci.yr && ci.yr[gi];
+    row('사용승인', yr ? `${yr}년` : '기록 없음');
   } else if (hit.type === 'subway') {
     h2.textContent = `${hit.data.name}역`;
     row('노선', hit.data.lines.map(l => `${l}호선`).join(', '));
@@ -543,9 +800,17 @@ function bindInput() {
 
 /* ---------- 시작 ---------- */
 async function main() {
+  // cache:'no-cache'는 캐시를 버리는 게 아니라 **재검증**을 강제한다 (If-Modified-Since).
+  // 안 바뀐 파일은 304로 돌아와 비용이 거의 없고, 바뀐 파일은 반드시 새로 받는다.
+  // 이게 없으면 export.py를 돌려도 브라우저가 옛 JSON을 계속 쓴다 — 실제로 겪었다.
+  // 페이지 URL에 ?v=N을 붙여도 app.js가 fetch하는 data/*.json은 뚫리지 않는다.
+  const grab = n => fetch(`data/${n}.json`, { cache: 'no-cache' });
   const [meta, city, L, poi] = await Promise.all(
-    ['meta', 'city', 'layers', 'poi'].map(n => fetch(`data/${n}.json`).then(r => r.json())));
-  Object.assign(D, { meta, city, L, poi });
+    ['meta', 'city', 'layers', 'poi'].map(n => grab(n).then(r => r.json())));
+  // 지형은 없어도 돈다 — 404면 평지로 되돌아간다 (되돌리기 안전망)
+  const terr = await grab('terrain').then(r => r.ok ? r.json() : null)
+                                    .catch(() => null);
+  Object.assign(D, { meta, city, L, poi, terrain: terr });
 
   const st = meta.style;
   ALPHA = st.alpha_deg * Math.PI / 180;
@@ -553,29 +818,58 @@ async function main() {
   EAVE = st.eave;
   C = st.colors;
   PIX_ON = st.pixel_size || 3;
+  if (st.band_min_px != null) BAND_MIN_PX = st.band_min_px;
   PIX = PIX_ON;
   checkGolden(meta.golden);
+  if (terr) {
+    TERR = terr; TEXAG = terr.exag ?? 1;
+    if (terr.shade) GSHADE_K = terr.shade;          // 파이썬과 같은 상수를 쓴다
+    if (terr.light) GLIGHT = terr.light;
+    if (terr.gain != null) GSHADE_GAIN = terr.gain;
+    if (terr.zband != null) GZBAND = terr.zband;
+    if (terr.neutral != null) GNEUTRAL = terr.neutral;
+    checkTerrainGolden(terr);
+  }
+  else console.warn('[pixel_city] terrain.json 없음 — 평지로 렌더한다');
   console.log(`[pixel_city] 팔레트 ${buildPalette()}색`);
 
   // 링 디코딩 + 컬링용 AABB(s=1 기준) 사전계산
   const nameOf = new Map(city.names);
   D.B = city.rings.map((r, i) => {
     const en = decRing(r);
-    let u0 = 1e9, u1 = -1e9, v0 = 1e9, v1 = -1e9;
+    let u0 = 1e9, u1 = -1e9, v0 = 1e9, v1 = -1e9, ce = 0, cn = 0;
     const h = city.h[i] / Q;
+    for (const p of en) { ce += p[0]; cn += p[1]; }
+    const z = zAt(ce / en.length, cn / en.length);   // 기초 표고. expand와 같은 중심 계산
     for (const [e, n] of en) {
       const u = projU(e, n, 1);
       u0 = Math.min(u0, u); u1 = Math.max(u1, u);
-      v0 = Math.min(v0, projV(e, n, h, 1)); v1 = Math.max(v1, projV(e, n, 0, 1));
+      // AABB에 표고를 굽는다. 컬링 마진을 넓히는 쪽은 최대 줌에서 ~420 아트픽셀이
+      // 필요해 컬링이 무력화된다 — 여기서 굽는 것이 정확하고 더 짧다
+      v0 = Math.min(v0, projV(e, n, h + z, 1)); v1 = Math.max(v1, projV(e, n, z, 1));
     }
     const kind = city.kind[i];
-    const fh = kind === 2 ? st.wood_floor_h * st.palace_scale
-             : kind === 1 ? st.wood_floor_h : st.floor_h;
-    return { en, h, kind, use: city.use[i], nm: nameOf.get(i) || '',
-             fl: Math.max(1, Math.round(h / fh)), u0, u1, v0, v1 };
+    // 변주 축을 로드 시 굽는다 — iso2.variant()와 같은 규칙.
+    // 값이 없으면(-1) 그대로 undefined/null로 두어 palette()가 오늘 색으로 폴백한다.
+    const prp = city.prp ? city.prp[city.prpos[i]] : null;
+    const str = city.str ? city.str[city.strct[i]] : null;
+    return { en, h, z, kind, use: city.use[i], nm: nameOf.get(i) || '',
+             // 층수는 이제 데이터에서 온다. 예전엔 h/층고로 역산했는데
+             // (실측 6,991동 전부 일치) 층고 상수에 대한 숨은 결합이었다
+             // 층수는 데이터에서 온다. 아래 역산은 city.fl이 없는 옛 데이터용 폴백이다
+             // (높이가 실측이면 역산이 애초에 안 맞으므로 폴백은 근사일 뿐이다)
+             fl: city.fl ? city.fl[i] : Math.max(1, Math.round(
+                   h / (kind === 2 ? (st.palace_floor_h || 8.25)
+                      : kind === 1 ? st.wood_floor_h : st.floor_h))),
+             rg: prp && (st.colors.roof_g || {})[prp] ? prp : null,
+             wm: kind ? woodUse(prp) : wallMat(str || ''),
+             ab: ageBand(city.yr ? city.yr[i] : 0, st.age_break),
+             u0, u1, v0, v1 };
   });
   for (const k of ['heri', 'park', 'temple', 'river']) D.L[k] = D.L[k].map(decRing);
   D.L.road = D.L.road.map(([w, r]) => [w, decRing(r)]).sort((a, b) => a[0] - b[0]);
+  if (TERR) console.log(`[pixel_city] 지형 음영 셀 ${buildTerrainCells()}개 `
+    + `(격자 ${(TERR.nx - 1) * (TERR.ny - 1)}칸 중 경사 있는 것만)`);
 
   const zb = document.getElementById('zoom');
   SCALES.forEach((sc, i) => {
@@ -608,12 +902,95 @@ function pixelCitySelfCheck() {
   const w = screenToWorld(W / 2, H / 2);
   console.assert(Math.hypot(w.e - view.cx, w.n - view.cy) < s() * 2, '화면중심 역투영');
   console.assert(PAL_RGB && PAL_RGB.length % 3 === 0, '팔레트 구성');
-  const i0 = nearest(PAL_RGB[0], PAL_RGB[1], PAL_RGB[2]);
-  console.assert(i0 === 0, '팔레트 색은 자기 자신으로 스냅');
+  // 팔레트 색은 '시각적으로 같은 색'으로 스냅돼야 한다. 인덱스 0만 보던 것을 전수로 바꿨다.
+  // 자기 자신을 요구하지 않는 이유: nearest()가 채널당 5비트로 버킷팅하므로(>>3) 모든
+  // 채널이 8 미만 차이인 색끼리는 원리상 구분되지 않고, 그건 육안으로도 같은 색이다.
+  // 잡아야 하는 것은 '멀리 있는 색으로 스냅되는 것'이다 — 새 색을 추가할 때 그게 사고다.
+  let dup = 0;
+  for (let i = 0; i < PAL_RGB.length; i += 3) {
+    const j = nearest(PAL_RGB[i], PAL_RGB[i + 1], PAL_RGB[i + 2]) * 3;
+    const d = Math.hypot(PAL_RGB[i] - PAL_RGB[j], PAL_RGB[i + 1] - PAL_RGB[j + 1],
+                         PAL_RGB[i + 2] - PAL_RGB[j + 2]);
+    if (j !== i) dup++;
+    console.assert(d < 14, '팔레트 색이 엉뚱한 색으로 스냅된다', i / 3,
+                   [PAL_RGB[i], PAL_RGB[i + 1], PAL_RGB[i + 2]], '->',
+                   [PAL_RGB[j], PAL_RGB[j + 1], PAL_RGB[j + 2]]);
+  }
+  // 참고: 근사 중복 2건은 지형 도입 전부터 있다 (문교사회용 처마 파생 ~ 한옥 벽,
+  // 주거용 파생 ~ 공업용 파생). 채널당 4 이하 차이라 화면에서 구분되지 않는다.
+  if (dup) console.log(`[pixel_city] 팔레트 근사 중복 ${dup}건 (5비트 버킷 공유, 무해)`);
+  if (TERR) {
+    for (const g of TERR.golden)
+      console.assert(Math.abs(zAt(g.e, g.n) / TEXAG - g.z) < 1e-3, '지형 골든', g);
+    console.assert(zAt(1e9, 1e9) === 0, '격자 밖은 0');
+    // 마지막 격자점 클램프 — 빼면 메시 외곽이 0으로 주저앉는다
+    const le = TERR.e0 + (TERR.nx - 1) * TERR.step, ln = TERR.n0 + (TERR.ny - 1) * TERR.step;
+    console.assert(Math.abs(zAt(le, ln) - TEXAG / Q * TERR.z[TERR.nx * TERR.ny - 1]) < 1e-9,
+                   '마지막 격자점 클램프');
+    // drop 불변식: 표고는 지붕→지면 낙차를 오염시키지 않는다 (반올림 ±1 허용)
+    const dz = sy(459, -1691, 0, zAt(459, -1691)) - sy(459, -1691, 100, zAt(459, -1691));
+    console.assert(Math.abs(dz - (sy(0, 0, 0, 0) - sy(0, 0, 100, 0))) <= 1, 'drop 오염');
+    console.assert(sy(459, -1691, 0) < sy(0, 0, 0, 0) - 10, '남산이 화면에서 솟는다');
+    console.assert(TSHADE.length === 3 && TSHADE[0].length === GSHADE_K.length, '지형 음영 미등록');
+    const nf = GSHADE_K[GNEUTRAL];
+    console.assert((Array.isArray(nf) ? nf : [nf]).every(v => v === 1),
+                   'neutral 칸의 배율이 1.0이 아니다 — 평지가 원래 색으로 안 남는다');
+    console.assert(TCELL && TCELL.length % 4 === 0, '지형 셀 미계산');
+  }
+  // 계층 2 — 층 띠 게이트. 줌 0~2에서 켜지면 저줌 비용이 새는 것이고,
+  // 줌 4에서 안 켜지면 기능이 죽은 것이다. 둘 다 조용히 지나가면 안 된다.
+  {
+    const zi0 = view.zi, probe = { h: 30, fl: 10, kind: 0 };
+    view.zi = 0; console.assert(floorBands(probe) === 0, '줌0에서 띠가 켜졌다');
+    view.zi = 2; console.assert(floorBands(probe) === 0, '줌2에서 띠가 켜졌다');
+    view.zi = 3; console.assert(floorBands(probe) === 1, '줌3은 파라펫 1줄이어야 한다');
+    view.zi = 4; console.assert(floorBands(probe) === 10, '줌4에서 층 띠가 안 켜졌다');
+    console.assert(floorBands({ h: 6, fl: 2, kind: 0 }) === 1, '저층은 파라펫만');
+    view.zi = zi0;
+  }
+  // 계층 1 — 색 변주
+  {
+    const sp = paletteSpread();
+    console.assert(PAL_RGB.length / 3 <= 160, `팔레트 예산 초과 ${PAL_RGB.length / 3}`);
+    console.assert(sp.cells >= 40, `색 변주가 데이터로 안 갈린다 (${sp.cells}종)`);
+    console.assert(sp.topShare <= 0.15, `한 색이 건물의 ${(sp.topShare*100).toFixed(1)}%를 덮는다`);
+    // ★ 되돌리기 동치 — 속성이 전부 결측이면 오늘과 같은 색이어야 한다
+    const bare = { kind: 0, use: D.city.uses.indexOf('상업용'), rg: null, wm: null, ab: 1 };
+    console.assert(palette(bare)[0] === rgb(C.use['상업용'][0]), '폴백이 오늘 색과 다르다');
+    // 분류 함수가 iso2.py와 같은 규칙인지
+    console.assert(wallMat('철근콘크리트구조') === '콘크리트' && wallMat('벽돌구조') === '조적'
+                && wallMat('일반철골구조') === '기타' && wallMat('일반목구조') === null, 'wallMat');
+    console.assert(woodUse('단독주택') === '주거' && woodUse('제2종근린생활시설') === '근생'
+                && woodUse(null) === '기타', 'woodUse');
+    console.assert(ageBand(0, [1966, 1989]) === 1 && ageBand(1950, [1966, 1989]) === 0
+                && ageBand(2010, [1966, 1989]) === 2, 'ageBand');
+  }
   console.log('[pixel_city] selfcheck ok');
   return true;
 }
+/* 오프스크린 영역의 고유색 수. 색 변주 작업의 before/after를 숫자로 비교하려고 둔다.
+ * 화면 캔버스가 아니라 off를 읽는다 — 블릿·DPR 배율이 색을 섞지 않은 상태여야 한다. */
+function countColors(x = 0, y = 0, w = OW, h = OH) {
+  const d = octx.getImageData(x, y, w, h).data, seen = new Set();
+  for (let i = 0; i < d.length; i += 4) seen.add((d[i] << 16) | (d[i + 1] << 8) | d[i + 2]);
+  return seen.size;
+}
+
+/* 건물이 실제로 몇 가지 색으로 갈리는지. "8팔레트 문제"의 직접 지표다. */
+function paletteSpread() {
+  // 지붕만 세면 안 된다 — 한옥은 기와가 전부 같은 색이라 벽 변주가 안 잡힌다.
+  // 건물을 실제로 구분하는 건 (지붕, 밝은벽, 어두운벽) 조합이다.
+  const hist = new Map();
+  for (const b of D.B) {
+    const k = palette(b).slice(0, 3).map(c => Array.isArray(c) ? c.join(',') : c).join('|');
+    hist.set(k, (hist.get(k) || 0) + 1);
+  }
+  const top = Math.max(...hist.values());
+  return { cells: hist.size, top, topShare: +(top / D.B.length).toFixed(3) };
+}
+
 window.pixelCitySelfCheck = pixelCitySelfCheck;
 // 디버그 훅 — 콘솔에서 좌표 변환과 판정을 직접 확인할 수 있다
-window.pixelCity = { pick, sx, sy, s: () => s(), view, get PIX() { return PIX; },
+window.pixelCity = { pick, sx, sy, zAt, palette, countColors, paletteSpread,
+                     s: () => s(), view, get PIX() { return PIX; },
                      get OW() { return OW; }, get OH() { return OH; }, D };

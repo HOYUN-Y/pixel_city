@@ -42,24 +42,41 @@ def dec_ring(a):
 
 def build_city(cache_dir, to_en):
     blds = iso2.parse(os.path.join(cache_dir, "cache_bld.xml"))
+    age = iso2.parse_age(os.path.join(cache_dir, "cache_age.xml"))
     for b in blds:
         b["en"] = [to_en(c) for c in b["ring"]]
     blds.sort(key=lambda b: -iso2.depth(b["en"]))      # 먼 것부터 = 그리는 순서
 
-    uses, uidx = [], {}
+    # 인덱스 테이블 — uses/uidx와 같은 관례. 등장 순서대로 번호를 준다
+    tables = {"uses": ([], {}), "prp": ([], {}), "str": ([], {})}
+    def idx(key, v):
+        lst, m = tables[key]
+        if v is None or v == "":
+            return -1
+        if v not in m:
+            m[v] = len(lst); lst.append(v)
+        return m[v]
+
+    # ⚠️ 정렬 **후** 한 루프 안에서 전부 채운다. 따로 돌면 names 인덱스가 어긋난다
     kind, use, hh, rings, names = [], [], [], [], []
+    prpos, strct, yr, fl, meas = [], [], [], [], []
     for i, b in enumerate(blds):
-        u = b["use"]
-        if u is not None and u not in uidx:
-            uidx[u] = len(uses); uses.append(u)
-        use.append(uidx.get(u, -1))
+        use.append(idx("uses", b["use"]))
+        prpos.append(idx("prp", b.get("prpos")))
+        strct.append(idx("str", b.get("strct")))
+        yr.append(age.get(b.get("gid"), 0))            # 0 = 결측 -> 중립 밴드
+        fl.append(b.get("fl", 1))
+        meas.append(b.get("meas", 0))                  # 1 = 실측 높이 사용
         kind.append(2 if b["palace"] else (1 if b["wood"] else 0))
         hh.append(round(b["h"] * Q))
         rings.append(enc_ring(b["ring"], to_en))
         if b["nm"]:
             names.append([i, b["nm"]])
-    return {"n": len(blds), "uses": uses, "kind": kind, "use": use,
-            "h": hh, "rings": rings, "names": names}
+    return {"n": len(blds), "uses": tables["uses"][0], "kind": kind, "use": use,
+            "h": hh, "rings": rings, "names": names,
+            "prp": tables["prp"][0], "prpos": prpos,
+            "str": tables["str"][0], "strct": strct, "yr": yr, "fl": fl,
+            "meas": meas}
 
 
 def build_layers(cache_dir, to_en):
@@ -158,6 +175,23 @@ def _selfcheck():
     assert len(back) == len(ring)
     for (a, b), c in zip([to_en(p) for p in ring], back):
         assert abs(a - c[0]) < 0.05 and abs(b - c[1]) < 0.05, (a, b, c)
+    # 인덱스 테이블 관례 — 결측은 -1, 등장 순서대로 번호
+    import iso2 as _i
+    st = {"age_break": [1966, 1989], "prpos_group": {"단독주택": "house"}}
+    assert _i.age_band(None, [1966, 1989]) == 1, "결측은 중립 밴드여야 한다"
+    assert _i.age_band(1950, [1966, 1989]) == 0 and _i.age_band(2010, [1966, 1989]) == 2
+    assert _i.wall_mat("철근콘크리트구조") == "콘크리트"
+    assert _i.wall_mat("벽돌구조") == "조적" and _i.wall_mat("블록구조") == "조적"
+    assert _i.wall_mat("일반철골구조") == "기타"
+    assert _i.wall_mat("일반목구조") is None, "목조는 kind가 처리한다"
+    assert _i.wood_use("단독주택") == "주거" and _i.wood_use("제2종근린생활시설") == "근생"
+    assert _i.wood_use(None) == "기타"
+    # 전 결측 -> 중립 = 오늘과 같은 색 (되돌리기 동치)
+    assert _i.variant({"wood": False, "palace": False}, st) == (None, "기타", 1)
+    # 높이 — 실측 우선 + 비대칭 가드
+    assert _i.bld_height(1, 21.0, True, True) == 21.0
+    assert _i.bld_height(15, 12.5, False, False) > 40
+    assert abs(_i.bld_height(1, 0, True, False) - 4.00) < .01
     lon0, lat0, mlon, mlat = origin((126.0, 37.0, 127.0, 38.0))
     assert abs(lon0 - 126.5) < 1e-9 and abs(lat0 - 37.5) < 1e-9
     assert mlon > 0 and mlat > 0
