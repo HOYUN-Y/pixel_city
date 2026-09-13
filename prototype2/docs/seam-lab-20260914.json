@@ -1,0 +1,695 @@
+{
+  "run_id": "20260913T173009999136Z",
+  "model": "openai/gpt-image-2.5-sunburst",
+  "source_hashes": {
+    "downtown": "2959288cbdbf55d21f3c64e4724ad072e19d6f21265baa8122009bee727406c2",
+    "namsan": "822ad02f1d3b74de5f3a7774e692d7431b54f9f7b433e808e0bddc0aa2f8d0c8"
+  },
+  "style_sha256": "333e045eb4457bab4b5d4ad630c0dcac2bed05b51ea0594b9560295b3dfcbb63",
+  "requests": [
+    {
+      "group": "downtown",
+      "name": "downtown_0",
+      "status": "complete",
+      "prompt": "Use case: style-transfer / contextual continuation. Image 1 is the exact scene and geometry. Image 2 is ONLY pixel-art style, never layout or an object source. Image 3 is this exact scene with already approved pixel art pasted at its correct coordinates. Image 4 is a context mask: WHITE pixels mark completed art to preserve exactly; BLACK pixels are the region to redraw. Produce ONE continuous pixel-art city scene, seamlessly continuing roads, walls, roof edges, tree crowns and palette from the completed art. Preserve camera, crop, building count, silhouettes and positions from Image 1. Crisp pixel clusters, warm paving, fresh greens, clear cool roofs. No split panels, no masks in output, no text, no added buildings, no farmland from style reference. ",
+      "options": {
+        "model": "openai/gpt-image-2.5-sunburst",
+        "n": 1,
+        "quality": "high",
+        "aspect_ratio": "1:1",
+        "background": "opaque",
+        "provider": {
+          "only": [
+            "openai"
+          ],
+          "allow_fallbacks": false
+        }
+      },
+      "reference_sha256": [
+        "f923b39ef21d15267d78fc78a1a6ed32e3432b7295a8e74de2b86b33bbcd320d",
+        "333e045eb4457bab4b5d4ad630c0dcac2bed05b51ea0594b9560295b3dfcbb63",
+        "f923b39ef21d15267d78fc78a1a6ed32e3432b7295a8e74de2b86b33bbcd320d",
+        "d69112264db6c2c1b6f6bc930b7d7cf38c27a4fead1b5000259265c5405c66ef"
+      ],
+      "usage": {
+        "prompt_tokens": 4074,
+        "completion_tokens": 1756,
+        "total_tokens": 5830,
+        "cost": 0.084666,
+        "is_byok": false,
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "cost_details": {
+          "upstream_inference_cost": 0.084666,
+          "upstream_inference_prompt_cost": 0.031986,
+          "upstream_inference_completions_cost": 0.05268
+        },
+        "completion_tokens_details": {
+          "reasoning_tokens": 0,
+          "image_tokens": 1756
+        }
+      },
+      "seconds": 54.65,
+      "raw_sha256": "66675bbedc4da749eeff76408e0f2ee776408305b525253bd6b5d34bc792deb3",
+      "native_size": [
+        1024,
+        1024
+      ]
+    },
+    {
+      "group": "downtown",
+      "name": "downtown_1",
+      "status": "complete",
+      "prompt": "Use case: style-transfer / contextual continuation. Image 1 is the exact scene and geometry. Image 2 is ONLY pixel-art style, never layout or an object source. Image 3 is this exact scene with already approved pixel art pasted at its correct coordinates. Image 4 is a context mask: WHITE pixels mark completed art to preserve exactly; BLACK pixels are the region to redraw. Produce ONE continuous pixel-art city scene, seamlessly continuing roads, walls, roof edges, tree crowns and palette from the completed art. Preserve camera, crop, building count, silhouettes and positions from Image 1. Crisp pixel clusters, warm paving, fresh greens, clear cool roofs. No split panels, no masks in output, no text, no added buildings, no farmland from style reference. ",
+      "options": {
+        "model": "openai/gpt-image-2.5-sunburst",
+        "n": 1,
+        "quality": "high",
+        "aspect_ratio": "1:1",
+        "background": "opaque",
+        "provider": {
+          "only": [
+            "openai"
+          ],
+          "allow_fallbacks": false
+        }
+      },
+      "reference_sha256": [
+        "f0a7248b1fcad9e69ca59c8e89ca76bff125d6632b682f4b5d1cc7319a4308d7",
+        "333e045eb4457bab4b5d4ad630c0dcac2bed05b51ea0594b9560295b3dfcbb63",
+        "33f6544b74a0264beee1fc3cc2b9a6e3de7a73915eed4ec6c7fe6daac776487d",
+        "5d54d90bbf26833a9791c2667b0074149f0cbddc33a0f36715cf3395d73cf817"
+      ],
+      "usage": {
+        "prompt_tokens": 4074,
+        "completion_tokens": 1756,
+        "total_tokens": 5830,
+        "cost": 0.084666,
+        "is_byok": false,
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "cost_details": {
+          "upstream_inference_cost": 0.084666,
+          "upstream_inference_prompt_cost": 0.031986,
+          "upstream_inference_completions_cost": 0.05268
+        },
+        "completion_tokens_details": {
+          "reasoning_tokens": 0,
+          "image_tokens": 1756
+        }
+      },
+      "seconds": 53.601,
+      "raw_sha256": "af2757e61feb601125b210cda8241180e8b3e083bc2e4071bc7032bafa98a4fa",
+      "native_size": [
+        1024,
+        1024
+      ]
+    },
+    {
+      "group": "downtown",
+      "name": "downtown_2",
+      "status": "complete",
+      "prompt": "Use case: style-transfer / contextual continuation. Image 1 is the exact scene and geometry. Image 2 is ONLY pixel-art style, never layout or an object source. Image 3 is this exact scene with already approved pixel art pasted at its correct coordinates. Image 4 is a context mask: WHITE pixels mark completed art to preserve exactly; BLACK pixels are the region to redraw. Produce ONE continuous pixel-art city scene, seamlessly continuing roads, walls, roof edges, tree crowns and palette from the completed art. Preserve camera, crop, building count, silhouettes and positions from Image 1. Crisp pixel clusters, warm paving, fresh greens, clear cool roofs. No split panels, no masks in output, no text, no added buildings, no farmland from style reference. ",
+      "options": {
+        "model": "openai/gpt-image-2.5-sunburst",
+        "n": 1,
+        "quality": "high",
+        "aspect_ratio": "1:1",
+        "background": "opaque",
+        "provider": {
+          "only": [
+            "openai"
+          ],
+          "allow_fallbacks": false
+        }
+      },
+      "reference_sha256": [
+        "354aaf1608d205b2be8ac7ef4421d34f8c6862e44b056f19ed87957ff591610e",
+        "333e045eb4457bab4b5d4ad630c0dcac2bed05b51ea0594b9560295b3dfcbb63",
+        "ddfa966430ebfc482cde64231402196b56f66d0fcb8ebf51b773ee3301f548c7",
+        "7ae1b630352a0490148328ce99800e3085b67c4a198147dcda5a1c95c705a4a5"
+      ],
+      "usage": {
+        "prompt_tokens": 4074,
+        "completion_tokens": 1756,
+        "total_tokens": 5830,
+        "cost": 0.084666,
+        "is_byok": false,
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "cost_details": {
+          "upstream_inference_cost": 0.084666,
+          "upstream_inference_prompt_cost": 0.031986,
+          "upstream_inference_completions_cost": 0.05268
+        },
+        "completion_tokens_details": {
+          "reasoning_tokens": 0,
+          "image_tokens": 1756
+        }
+      },
+      "seconds": 50.957,
+      "raw_sha256": "7390486790ddad756c2db432b1a0f8cb90ac74098c79bbc84b1617da1302f3c6",
+      "native_size": [
+        1024,
+        1024
+      ]
+    },
+    {
+      "group": "downtown",
+      "name": "downtown_3",
+      "status": "complete",
+      "prompt": "Use case: style-transfer / contextual continuation. Image 1 is the exact scene and geometry. Image 2 is ONLY pixel-art style, never layout or an object source. Image 3 is this exact scene with already approved pixel art pasted at its correct coordinates. Image 4 is a context mask: WHITE pixels mark completed art to preserve exactly; BLACK pixels are the region to redraw. Produce ONE continuous pixel-art city scene, seamlessly continuing roads, walls, roof edges, tree crowns and palette from the completed art. Preserve camera, crop, building count, silhouettes and positions from Image 1. Crisp pixel clusters, warm paving, fresh greens, clear cool roofs. No split panels, no masks in output, no text, no added buildings, no farmland from style reference. ",
+      "options": {
+        "model": "openai/gpt-image-2.5-sunburst",
+        "n": 1,
+        "quality": "high",
+        "aspect_ratio": "1:1",
+        "background": "opaque",
+        "provider": {
+          "only": [
+            "openai"
+          ],
+          "allow_fallbacks": false
+        }
+      },
+      "reference_sha256": [
+        "5dc53358d2417c7fadbac2b189029c1293c49bda0f5b028bb25332ca8f9b4b6f",
+        "333e045eb4457bab4b5d4ad630c0dcac2bed05b51ea0594b9560295b3dfcbb63",
+        "65bbda4f8de6b1f0767df5dfec841f535c47f004d04dcb6a777580a8949c9555",
+        "ec9da166003541582ea9a61d2bf44ff72a1fdf0ea58aa8a979b4e3be6c88ca77"
+      ],
+      "usage": {
+        "prompt_tokens": 4074,
+        "completion_tokens": 1756,
+        "total_tokens": 5830,
+        "cost": 0.084666,
+        "is_byok": false,
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "cost_details": {
+          "upstream_inference_cost": 0.084666,
+          "upstream_inference_prompt_cost": 0.031986,
+          "upstream_inference_completions_cost": 0.05268
+        },
+        "completion_tokens_details": {
+          "reasoning_tokens": 0,
+          "image_tokens": 1756
+        }
+      },
+      "seconds": 52.025,
+      "raw_sha256": "b71729ebc7e5cbedfd9d830d38412e08d30a3686523cb2918a6c94cf4f5236f1",
+      "native_size": [
+        1024,
+        1024
+      ]
+    },
+    {
+      "group": "namsan",
+      "name": "namsan_0",
+      "status": "complete",
+      "prompt": "Use case: style-transfer / contextual continuation. Image 1 is the exact scene and geometry. Image 2 is ONLY pixel-art style, never layout or an object source. Image 3 is this exact scene with already approved pixel art pasted at its correct coordinates. Image 4 is a context mask: WHITE pixels mark completed art to preserve exactly; BLACK pixels are the region to redraw. Produce ONE continuous pixel-art city scene, seamlessly continuing roads, walls, roof edges, tree crowns and palette from the completed art. Preserve camera, crop, building count, silhouettes and positions from Image 1. Crisp pixel clusters, warm paving, fresh greens, clear cool roofs. No split panels, no masks in output, no text, no added buildings, no farmland from style reference. This is mountainous Namsan, Seoul: keep the actual slopes, ridgelines, summit elevation, winding paths and forest layering, never flatten the hill. Image 5 is a close crop of the same source showing N Seoul Tower: preserve its slender shaft, broad observation deck, antenna and base IF present in Image 1. Never duplicate it or add it to other quadrants. ",
+      "options": {
+        "model": "openai/gpt-image-2.5-sunburst",
+        "n": 1,
+        "quality": "high",
+        "aspect_ratio": "1:1",
+        "background": "opaque",
+        "provider": {
+          "only": [
+            "openai"
+          ],
+          "allow_fallbacks": false
+        }
+      },
+      "reference_sha256": [
+        "a364a2869380b5ded6cca987b6191e321f25ba098899a36d8886c98aec5d493a",
+        "333e045eb4457bab4b5d4ad630c0dcac2bed05b51ea0594b9560295b3dfcbb63",
+        "a364a2869380b5ded6cca987b6191e321f25ba098899a36d8886c98aec5d493a",
+        "d69112264db6c2c1b6f6bc930b7d7cf38c27a4fead1b5000259265c5405c66ef",
+        "d0eb6062f6f906f906a251c1b91fedfddc5d5387ba02a70328fed1fd841f1ff7"
+      ],
+      "usage": {
+        "prompt_tokens": 4246,
+        "completion_tokens": 1756,
+        "total_tokens": 6002,
+        "cost": 0.085778,
+        "is_byok": false,
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "cost_details": {
+          "upstream_inference_cost": 0.085778,
+          "upstream_inference_prompt_cost": 0.033098,
+          "upstream_inference_completions_cost": 0.05268
+        },
+        "completion_tokens_details": {
+          "reasoning_tokens": 0,
+          "image_tokens": 1756
+        }
+      },
+      "seconds": 51.008,
+      "raw_sha256": "d0742aa2c6f533cf84a9d09bd7646408606adf565ffaf00a7f0a9a9d96f0afdd",
+      "native_size": [
+        1024,
+        1024
+      ]
+    },
+    {
+      "group": "namsan",
+      "name": "namsan_1",
+      "status": "complete",
+      "prompt": "Use case: style-transfer / contextual continuation. Image 1 is the exact scene and geometry. Image 2 is ONLY pixel-art style, never layout or an object source. Image 3 is this exact scene with already approved pixel art pasted at its correct coordinates. Image 4 is a context mask: WHITE pixels mark completed art to preserve exactly; BLACK pixels are the region to redraw. Produce ONE continuous pixel-art city scene, seamlessly continuing roads, walls, roof edges, tree crowns and palette from the completed art. Preserve camera, crop, building count, silhouettes and positions from Image 1. Crisp pixel clusters, warm paving, fresh greens, clear cool roofs. No split panels, no masks in output, no text, no added buildings, no farmland from style reference. This is mountainous Namsan, Seoul: keep the actual slopes, ridgelines, summit elevation, winding paths and forest layering, never flatten the hill. Image 5 is a close crop of the same source showing N Seoul Tower: preserve its slender shaft, broad observation deck, antenna and base IF present in Image 1. Never duplicate it or add it to other quadrants. ",
+      "options": {
+        "model": "openai/gpt-image-2.5-sunburst",
+        "n": 1,
+        "quality": "high",
+        "aspect_ratio": "1:1",
+        "background": "opaque",
+        "provider": {
+          "only": [
+            "openai"
+          ],
+          "allow_fallbacks": false
+        }
+      },
+      "reference_sha256": [
+        "5f94f67bb3ff6728bef879002434846f94abfda89b82de3f436928f9692febbe",
+        "333e045eb4457bab4b5d4ad630c0dcac2bed05b51ea0594b9560295b3dfcbb63",
+        "19d1b81f479279140e6b6a57960e386bf4dfe4ab71d70bf322ef4ff7ba1916bc",
+        "5d54d90bbf26833a9791c2667b0074149f0cbddc33a0f36715cf3395d73cf817",
+        "d0eb6062f6f906f906a251c1b91fedfddc5d5387ba02a70328fed1fd841f1ff7"
+      ],
+      "usage": {
+        "prompt_tokens": 4246,
+        "completion_tokens": 1756,
+        "total_tokens": 6002,
+        "cost": 0.085778,
+        "is_byok": false,
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "cost_details": {
+          "upstream_inference_cost": 0.085778,
+          "upstream_inference_prompt_cost": 0.033098,
+          "upstream_inference_completions_cost": 0.05268
+        },
+        "completion_tokens_details": {
+          "reasoning_tokens": 0,
+          "image_tokens": 1756
+        }
+      },
+      "seconds": 51.248,
+      "raw_sha256": "f746ed9f1c41d3811850cb4562f4515ce41eb1e5e3ce9a8bd56126f5f0462d8e",
+      "native_size": [
+        1024,
+        1024
+      ]
+    },
+    {
+      "group": "namsan",
+      "name": "namsan_2",
+      "status": "complete",
+      "prompt": "Use case: style-transfer / contextual continuation. Image 1 is the exact scene and geometry. Image 2 is ONLY pixel-art style, never layout or an object source. Image 3 is this exact scene with already approved pixel art pasted at its correct coordinates. Image 4 is a context mask: WHITE pixels mark completed art to preserve exactly; BLACK pixels are the region to redraw. Produce ONE continuous pixel-art city scene, seamlessly continuing roads, walls, roof edges, tree crowns and palette from the completed art. Preserve camera, crop, building count, silhouettes and positions from Image 1. Crisp pixel clusters, warm paving, fresh greens, clear cool roofs. No split panels, no masks in output, no text, no added buildings, no farmland from style reference. This is mountainous Namsan, Seoul: keep the actual slopes, ridgelines, summit elevation, winding paths and forest layering, never flatten the hill. Image 5 is a close crop of the same source showing N Seoul Tower: preserve its slender shaft, broad observation deck, antenna and base IF present in Image 1. Never duplicate it or add it to other quadrants. ",
+      "options": {
+        "model": "openai/gpt-image-2.5-sunburst",
+        "n": 1,
+        "quality": "high",
+        "aspect_ratio": "1:1",
+        "background": "opaque",
+        "provider": {
+          "only": [
+            "openai"
+          ],
+          "allow_fallbacks": false
+        }
+      },
+      "reference_sha256": [
+        "c9abd9c5c31a546fc8a51fc52dc1d61132cacfe28a050bb752c29ad2fa4806a6",
+        "333e045eb4457bab4b5d4ad630c0dcac2bed05b51ea0594b9560295b3dfcbb63",
+        "4c3b99010961549747c7cd7378b926a4756f3d16c2c0f9ad644478e8d0bb649f",
+        "7ae1b630352a0490148328ce99800e3085b67c4a198147dcda5a1c95c705a4a5",
+        "d0eb6062f6f906f906a251c1b91fedfddc5d5387ba02a70328fed1fd841f1ff7"
+      ],
+      "usage": {
+        "prompt_tokens": 4246,
+        "completion_tokens": 1756,
+        "total_tokens": 6002,
+        "cost": 0.085778,
+        "is_byok": false,
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "cost_details": {
+          "upstream_inference_cost": 0.085778,
+          "upstream_inference_prompt_cost": 0.033098,
+          "upstream_inference_completions_cost": 0.05268
+        },
+        "completion_tokens_details": {
+          "reasoning_tokens": 0,
+          "image_tokens": 1756
+        }
+      },
+      "seconds": 52.217,
+      "raw_sha256": "3ab0a3ca40cd830fb991e610a086cf67e52f3e2fa1e45a1861e9de7208750bdd",
+      "native_size": [
+        1024,
+        1024
+      ]
+    },
+    {
+      "group": "namsan",
+      "name": "namsan_3",
+      "status": "complete",
+      "prompt": "Use case: style-transfer / contextual continuation. Image 1 is the exact scene and geometry. Image 2 is ONLY pixel-art style, never layout or an object source. Image 3 is this exact scene with already approved pixel art pasted at its correct coordinates. Image 4 is a context mask: WHITE pixels mark completed art to preserve exactly; BLACK pixels are the region to redraw. Produce ONE continuous pixel-art city scene, seamlessly continuing roads, walls, roof edges, tree crowns and palette from the completed art. Preserve camera, crop, building count, silhouettes and positions from Image 1. Crisp pixel clusters, warm paving, fresh greens, clear cool roofs. No split panels, no masks in output, no text, no added buildings, no farmland from style reference. This is mountainous Namsan, Seoul: keep the actual slopes, ridgelines, summit elevation, winding paths and forest layering, never flatten the hill. Image 5 is a close crop of the same source showing N Seoul Tower: preserve its slender shaft, broad observation deck, antenna and base IF present in Image 1. Never duplicate it or add it to other quadrants. ",
+      "options": {
+        "model": "openai/gpt-image-2.5-sunburst",
+        "n": 1,
+        "quality": "high",
+        "aspect_ratio": "1:1",
+        "background": "opaque",
+        "provider": {
+          "only": [
+            "openai"
+          ],
+          "allow_fallbacks": false
+        }
+      },
+      "reference_sha256": [
+        "4de7ac7667c2de5ec38a7657005b1e96a0b6bfa93d1a162a15148ad3e9a6beec",
+        "333e045eb4457bab4b5d4ad630c0dcac2bed05b51ea0594b9560295b3dfcbb63",
+        "1668cd27c666757382e545d5da44f7c161de4d12984c02c51116581a1b73c800",
+        "ec9da166003541582ea9a61d2bf44ff72a1fdf0ea58aa8a979b4e3be6c88ca77",
+        "d0eb6062f6f906f906a251c1b91fedfddc5d5387ba02a70328fed1fd841f1ff7"
+      ],
+      "usage": {
+        "prompt_tokens": 4246,
+        "completion_tokens": 1756,
+        "total_tokens": 6002,
+        "cost": 0.085778,
+        "is_byok": false,
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "cost_details": {
+          "upstream_inference_cost": 0.085778,
+          "upstream_inference_prompt_cost": 0.033098,
+          "upstream_inference_completions_cost": 0.05268
+        },
+        "completion_tokens_details": {
+          "reasoning_tokens": 0,
+          "image_tokens": 1756
+        }
+      },
+      "seconds": 46.47,
+      "raw_sha256": "298c630aaa9cbdc37c4d391bde143a3b0e684c5c945beaf8967d154a351094cb",
+      "native_size": [
+        1024,
+        1024
+      ]
+    },
+    {
+      "group": "downtown_repair",
+      "name": "downtown_repair0",
+      "status": "complete",
+      "prompt": "Use case: precise-object-edit. Image 1 is the pixel-art scene to repair. Image 2 is the exact original geometry. Image 3 is an EDIT GUIDE, not art: WHITE is the only repair region; keep BLACK regions unchanged. Connect broken roof edges, roads, walls and foliage across generation seams. Keep camera, scale, terrain and existing style unchanged. No new buildings, no labels, no blur. Repair the central crossing of tile seams, keeping palace buildings and walls connected.",
+      "options": {
+        "model": "openai/gpt-image-2.5-sunburst",
+        "n": 1,
+        "quality": "high",
+        "aspect_ratio": "1:1",
+        "background": "opaque",
+        "provider": {
+          "only": [
+            "openai"
+          ],
+          "allow_fallbacks": false
+        }
+      },
+      "reference_sha256": [
+        "34e766ab03e45c74740adb9f0bcd55e54e3b56e24230a9af47288e22aa7e25fc",
+        "dc49f0fa7ec8308b2b8eaef1159a4cb423661d7e99decc0a062038fcd8279a1b",
+        "956b3f1f7b08aac39f0aab652d0c183973d519df166564cb0486887b66c25706"
+      ],
+      "usage": {
+        "prompt_tokens": 3208,
+        "completion_tokens": 1756,
+        "total_tokens": 4964,
+        "cost": 0.077936,
+        "is_byok": false,
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "cost_details": {
+          "upstream_inference_cost": 0.077936,
+          "upstream_inference_prompt_cost": 0.025256,
+          "upstream_inference_completions_cost": 0.05268
+        },
+        "completion_tokens_details": {
+          "reasoning_tokens": 0,
+          "image_tokens": 1756
+        }
+      },
+      "seconds": 50.236,
+      "raw_storage": "original_response_bytes",
+      "raw_sha256": "4ce507272b84f6ae975d9238a5bd4dfd2eb71bf2696207c02647c74d03b876d8",
+      "native_size": [
+        1024,
+        1024
+      ]
+    },
+    {
+      "group": "downtown_repair",
+      "name": "downtown_repair1",
+      "status": "complete",
+      "prompt": "Use case: precise-object-edit. Image 1 is the pixel-art scene to repair. Image 2 is the exact original geometry. Image 3 is an EDIT GUIDE, not art: WHITE is the only repair region; keep BLACK regions unchanged. Connect broken roof edges, roads, walls and foliage across generation seams. Keep camera, scale, terrain and existing style unchanged. No new buildings, no labels, no blur. Repair the upper vertical seam through city buildings; preserve complete, single building silhouettes.",
+      "options": {
+        "model": "openai/gpt-image-2.5-sunburst",
+        "n": 1,
+        "quality": "high",
+        "aspect_ratio": "1:1",
+        "background": "opaque",
+        "provider": {
+          "only": [
+            "openai"
+          ],
+          "allow_fallbacks": false
+        }
+      },
+      "reference_sha256": [
+        "7bb5e9ce29446ce669c83bfedd77a26f6a728fd111789531ce7f7512fa443a29",
+        "68ad4db593ee00af725bbb0e6f50dd8f0cc0baed46af08236ccb45f011737ab9",
+        "e7e412ba5ca52da8d6713d85939f044735c0e787a2134a8373055d4b806722fb"
+      ],
+      "usage": {
+        "prompt_tokens": 3209,
+        "completion_tokens": 1756,
+        "total_tokens": 4965,
+        "cost": 0.077941,
+        "is_byok": false,
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "cost_details": {
+          "upstream_inference_cost": 0.077941,
+          "upstream_inference_prompt_cost": 0.025261,
+          "upstream_inference_completions_cost": 0.05268
+        },
+        "completion_tokens_details": {
+          "reasoning_tokens": 0,
+          "image_tokens": 1756
+        }
+      },
+      "seconds": 42.557,
+      "raw_storage": "original_response_bytes",
+      "raw_sha256": "002476f7f2017f7f95d591aeba5e0f4fbd105a2a81cb164d7ce741099cad9b73",
+      "native_size": [
+        1024,
+        1024
+      ]
+    },
+    {
+      "group": "namsan_repair",
+      "name": "namsan_repair0",
+      "status": "complete",
+      "prompt": "Use case: precise-object-edit. Image 1 is the pixel-art scene to repair. Image 2 is the exact original geometry. Image 3 is an EDIT GUIDE, not art: WHITE is the only repair region; keep BLACK regions unchanged. Connect broken roof edges, roads, walls and foliage across generation seams. Keep camera, scale, terrain and existing style unchanged. No new buildings, no labels, no blur. Restore the single N Seoul Tower silhouette and its summit foundation; retain the mountain ridge. Image 4 is the source tower detail: match its observation deck, narrow shaft and antenna.",
+      "options": {
+        "model": "openai/gpt-image-2.5-sunburst",
+        "n": 1,
+        "quality": "high",
+        "aspect_ratio": "1:1",
+        "background": "opaque",
+        "provider": {
+          "only": [
+            "openai"
+          ],
+          "allow_fallbacks": false
+        }
+      },
+      "reference_sha256": [
+        "f7d8ae5b99d8546345fb7ae0835f4ed3bbbe22a33f6b496a229a8e72c317f858",
+        "bbc16bb2bd36d5e52edf70c43a78b28a3723129bca6420e86edb73d66118dc97",
+        "b2fd8b717648e72a760a278c09d9834da0c1cdf7af9fa16fb2c1011fe8d2f79c",
+        "d0eb6062f6f906f906a251c1b91fedfddc5d5387ba02a70328fed1fd841f1ff7"
+      ],
+      "usage": {
+        "prompt_tokens": 3323,
+        "completion_tokens": 1756,
+        "total_tokens": 5079,
+        "cost": 0.078763,
+        "is_byok": false,
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "cost_details": {
+          "upstream_inference_cost": 0.078763,
+          "upstream_inference_prompt_cost": 0.026083,
+          "upstream_inference_completions_cost": 0.05268
+        },
+        "completion_tokens_details": {
+          "reasoning_tokens": 0,
+          "image_tokens": 1756
+        }
+      },
+      "seconds": 41.179,
+      "raw_storage": "original_response_bytes",
+      "raw_sha256": "36ed107977865c951adf2396d1b08b1bfd3b753f18fb779d103b68a798f3b75a",
+      "native_size": [
+        1024,
+        1024
+      ]
+    },
+    {
+      "group": "character",
+      "name": "traveler",
+      "status": "complete",
+      "prompt": "Use case: stylized-concept. One original full-body tiny pixel-art city traveler, three-quarter view from above matching a 30-degree tilted city map, facing lower right. Teal jacket, small warm orange backpack, dark trousers, clear two feet, friendly simple silhouette. Crisp 32-pixel game sprite design enlarged with nearest-neighbor, limited palette. Exactly one character centered with padding, no sheet, no text, no floor, no scenery or cast shadow. Genuinely transparent background. Reference is ONLY palette and pixel treatment; do not copy any existing character.",
+      "options": {
+        "model": "openai/gpt-image-2.5-sunburst",
+        "n": 1,
+        "quality": "high",
+        "aspect_ratio": "1:1",
+        "background": "transparent",
+        "provider": {
+          "only": [
+            "openai"
+          ],
+          "allow_fallbacks": false
+        }
+      },
+      "reference_sha256": [
+        "333e045eb4457bab4b5d4ad630c0dcac2bed05b51ea0594b9560295b3dfcbb63"
+      ],
+      "usage": {
+        "prompt_tokens": 932,
+        "completion_tokens": 1756,
+        "total_tokens": 2688,
+        "cost": 0.05974,
+        "is_byok": false,
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "cost_details": {
+          "upstream_inference_cost": 0.05974,
+          "upstream_inference_prompt_cost": 0.00706,
+          "upstream_inference_completions_cost": 0.05268
+        },
+        "completion_tokens_details": {
+          "reasoning_tokens": 0,
+          "image_tokens": 1756
+        }
+      },
+      "seconds": 33.043,
+      "raw_storage": "original_response_bytes",
+      "raw_sha256": "6673da2afcc26143460c7ab4c726a5ead7bac0607c74eb402d02d28436ae96df",
+      "native_size": [
+        1024,
+        1024
+      ]
+    }
+  ],
+  "verification": {
+    "request_count": 12,
+    "total_cost_usd": 0.976156,
+    "request_seconds": 579.191,
+    "scenes": {
+      "downtown": {
+        "known_pixels_preserved": true,
+        "protected_patch_pixels_preserved": true,
+        "edges": {
+          "context": {
+            "768": {
+              "vertical": 19.781,
+              "horizontal": 20.014
+            },
+            "896": {
+              "vertical": 45.625,
+              "horizontal": 57.521
+            }
+          },
+          "final": {
+            "768": {
+              "vertical": 18.879,
+              "horizontal": 18.64
+            },
+            "896": {
+              "vertical": 30.556,
+              "horizontal": 44.288
+            }
+          },
+          "baseline": {
+            "768": {
+              "vertical": 57.615,
+              "horizontal": 60.572
+            },
+            "896": {
+              "vertical": 15.882,
+              "horizontal": 18.756
+            }
+          }
+        }
+      },
+      "namsan": {
+        "known_pixels_preserved": true,
+        "protected_patch_pixels_preserved": true,
+        "edges": {
+          "context": {
+            "768": {
+              "vertical": 16.332,
+              "horizontal": 14.683
+            },
+            "896": {
+              "vertical": 24.451,
+              "horizontal": 24.985
+            }
+          },
+          "final": {
+            "768": {
+              "vertical": 14.761,
+              "horizontal": 14.219
+            },
+            "896": {
+              "vertical": 19.641,
+              "horizontal": 21.162
+            }
+          }
+        }
+      }
+    },
+    "note": "Edge RGB differences are diagnostics only; not a building/terrain continuity pass."
+  },
+  "user_visual_approval": false,
+  "raw_storage_note": "First 8 map outputs preserve decoded RGB pixels as PNG; last 4 preserve original response bytes. All referenced images remain local, not committed.",
+  "validation": {
+    "python_tests": 57,
+    "node_contracts": 3,
+    "browser_viewport_scenes": 8,
+    "legacy_browser": true,
+    "object_browser": true,
+    "missing_and_corrupt_assets_fail_closed": true,
+    "external_browser_requests": 0
+  }
+}

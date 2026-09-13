@@ -1,0 +1,17 @@
+{
+  "baseline_run": "20260913T154045571223Z",
+  "namsan_capture": "work/vworld/seam_lab/20260913T172824302822Z",
+  "namsan_source_sha256": "f30439a2ac81427125a9ff25fa37231485c51d653558f2f6a273b8ba3f838477",
+  "namsan_visual_approved": true,
+  "namsan_review_note": "Tower, summit and slopes visually present; global tilesLoaded was false. Far city textures are coarse; not survey-grade terrain.",
+  "tower_reference_box": [742, 635, 830, 855],
+  "repairs": {
+    "downtown": [
+      {"context_box": [384, 384, 1408, 1408], "edit_box": [640, 640, 1152, 1152], "instruction": "Repair the central crossing of tile seams, keeping palace buildings and walls connected."},
+      {"context_box": [384, 0, 1408, 1024], "edit_box": [736, 80, 1056, 640], "instruction": "Repair the upper vertical seam through city buildings; preserve complete, single building silhouettes."}
+    ],
+    "namsan": [
+      {"context_box": [256, 128, 1280, 1152], "edit_box": [576, 256, 960, 960], "instruction": "Restore the single N Seoul Tower silhouette and its summit foundation; retain the mountain ridge."}
+    ]
+  }
+}

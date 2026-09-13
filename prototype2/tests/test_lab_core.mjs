@@ -1,0 +1,16 @@
+import assert from 'node:assert/strict';
+import {routePoint,hitSpot,validOverlay} from '../web/pilot/lab-core.js';
+const points=[{xy:[0,0]},{xy:[100,0],behind:['wall']},{xy:[100,100]}];
+assert.deepEqual(routePoint(points,.25).xy,[50,0]);
+assert.deepEqual(routePoint(points,.75).xy,[100,50]);
+assert.deepEqual(routePoint(points,.75).behind,['wall']);
+assert.deepEqual(routePoint(points,1).xy,[100,100]);
+assert.equal(routePoint([{xy:[0,0]},{xy:[0,0]}],.5).direction,1);
+const spots=[{id:'a',xy:[100,100]},{id:'b',xy:[200,100]},{id:'c',xy:[300,100]}];
+assert.equal(hitSpot(spots,{x:140,y:100},.5).id,'a');
+assert.equal(hitSpot(spots,{x:140,y:100},1),null);
+const data={image_sha256:'test',spots,route:{points},occluders:[{id:'wall',polygon:[[0,0],[100,0],[100,100]]}]};
+assert.equal(validOverlay(data,'test'),data);
+assert.throws(()=>validOverlay(data,'other'));
+assert.throws(()=>validOverlay({...data,occluders:[]},'test'));
+console.log('Lab core: image-space picking, route interpolation, occlusion references and image binding passed');

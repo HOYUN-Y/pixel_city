@@ -1,6 +1,9 @@
 import {PilotMap} from './map.js';
 import {ObjectMap} from './objects.js';
+import {LabMap} from './lab.js';
+import {bootLab,labPanel} from './lab-ui.js';
 const objectView = new URLSearchParams(location.search).get('view') === 'objects';
+const labView = new URLSearchParams(location.search).get('view') === 'seam-lab';
 const $=s=>document.querySelector(s), mobile=()=>innerWidth<900;
 const definitions={chat:['AI 가이드','#3A2A1E',400,560],feed:['피드','#6FA657',420,560],book:['도감','#8CC5D8',440,520],spot:['명소','#F2C14E',380,600],upload:['올리기','#E8735A',380,600],post:['픽셀 엽서','#8CC5D8',400,480],route:['추천 코스','#6FA657',400,540]};
 const names=['덕수궁','궁궐 산책길','도심 풍경','서울의 오후','한옥 지붕','담장 길','작은 정원'];
@@ -11,6 +14,7 @@ const soon=(label,cls='')=>`<button class="${cls}" data-soon aria-disabled="true
 const sample='<div class="sample-note">시안 예시 · 서비스 미연결 · 실제 데이터가 아닙니다</div>';
 function routeCard(){return `<div class="sample-card"><div class="sample-art">AI 추천 코스 · 정적 예시</div><div class="copy"><h3>고궁 산책 · 반나절 코스</h3><p>경로·시간·거리 계산은 아직 연결하지 않았어요.</p><ol class="steps"><li>1. 궁궐 둘러보기</li><li>2. 담장 따라 걷기</li><li>3. 도심 풍경 감상하기</li></ol><div class="actions">${soon('지도에 표시','primary')}${soon('저장')}</div></div></div>`;}
 function panel(key){
+  if(labView&&map.overlay&&['spot','route'].includes(key))return labPanel(map,key);
   const chat=`${sample}<div class="bubble">안녕하세요! Pixel City 가이드 화면입니다.<br>지금은 지도를 둘러보실 수 있어요. AI 대화는 준비 중입니다.</div><div class="chips">${['반나절 고궁 코스','저녁 먹거리','비 오는 날 실내'].map(x=>soon(x)).join('')}</div><form class="panel-form"><input aria-label="가이드 질문" placeholder="가이드에게 물어보기 · 준비 중" autocomplete="off"><button data-soon aria-disabled="true" aria-label="질문 전송 준비 중">↑</button></form><button class="wide" data-open="route">추천 코스 시안 보기</button>`;
   if(key==='chat')return chat;
   if(key==='route')return sample+routeCard();
@@ -78,7 +82,7 @@ addEventListener('resize',()=>{const now=mobile();if(now!==lastMobile){if(now&&s
 $('#preview-state').onchange=e=>{const v=e.target.value;if(v==='card')$('#card-modal').showModal();else if(v){open(v,e.target);if(v==='route')$('#route-bar').hidden=false;}e.target.value='';};
 
 function failed(error){$('#map-message').hidden=false;$('#map-message h1').textContent='시험 지도를 표시할 수 없습니다';$('#map-message p').textContent=error.message;$('#map-message').dataset.state='error';for(const id of ['zoom-in','zoom-out','fit'])$('#'+id).disabled=true;}
-const map=new (objectView ? ObjectMap : PilotMap)($('#map'),m=>{
+const map=new (objectView ? ObjectMap : labView ? LabMap : PilotMap)($('#map'),m=>{
   $('#zoom-label').textContent=Math.round(m.scale*100)+'%';$('#zoom-in').disabled=!m.ready||m.scale>=m.maxScale;$('#zoom-out').disabled=!m.ready||m.scale<=m.minScale;
   const x=Math.max(0,m.center.x-m.w/(2*m.scale)),y=Math.max(0,m.center.y-m.h/(2*m.scale));
   const right=Math.min(1536,m.center.x+m.w/(2*m.scale)),bottom=Math.min(1536,m.center.y+m.h/(2*m.scale));
@@ -89,9 +93,10 @@ $('#zoom-in').onclick=()=>map.zoom(map.scale*1.25);$('#zoom-out').onclick=()=>ma
 $('#debug-zoom').onchange=e=>{map.setDebug(e.target.checked);$('#double-zoom').disabled=!e.target.checked;};
 document.querySelectorAll('[data-scale]').forEach(b=>b.onclick=()=>map.zoom(Number(b.dataset.scale)));
 $('#seam-lines').onchange=e=>{if(objectView)map.showGeometry=e.target.checked;else map.showSeams=e.target.checked;map.update();};
-$('#map-mode').onchange=e=>{map.mode=e.target.value;if(map.base&&!objectView)$('#mini-image').src=new URL(map.mode==='ai'?'preview.png':'source.png',map.base);map.update();};
-async function json(url){const r=await fetch(url,{cache:'no-store'});if(!r.ok)throw Error(objectView?'객체형 데모 에셋을 찾을 수 없습니다. 저장소의 assets/object_pilot 폴더를 확인해 주세요.':'완료된 2×2 생성 결과가 없습니다. 생성 기록을 확인해 주세요.');return r.json();}
+$('#map-mode').onchange=e=>{if(labView){map.setMode(e.target.value);return;}map.mode=e.target.value;if(map.base&&!objectView)$('#mini-image').src=new URL(map.mode==='ai'?'preview.png':'source.png',map.base);map.update();};
+async function json(url){const r=await fetch(url,{cache:'no-store'});if(!r.ok)throw Error(objectView?'객체형 데모 에셋을 찾을 수 없습니다. 저장소의 assets/object_pilot 폴더를 확인해 주세요.':labView?'연결·남산 시험의 로컬 생성물이 없습니다. 상세 실행 안내의 산출물 경로를 확인해 주세요.':'완료된 2×2 생성 결과가 없습니다. 생성 기록을 확인해 주세요.');return r.json();}
 async function boot(){try{
+  if(labView){await bootLab(map,json,{open,close,render});return;}
   if(objectView){
     const base=new URL('../../assets/object_pilot/',location.href),manifest=await json(new URL('manifest.json',base));
     await map.load(manifest,base);$('#map-message').hidden=true;$('#map-message').dataset.state='ready';
