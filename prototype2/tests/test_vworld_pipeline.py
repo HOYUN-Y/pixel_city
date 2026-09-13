@@ -75,6 +75,23 @@ class VWorldPipelineTest(unittest.TestCase):
         self.assertEqual(metrics["translation_px"], [0, 0])
         self.assertEqual(metrics["edge_recall"], 1.0)
 
+    def test_rpg_decorations_are_deterministic_transparent_layer(self):
+        items = [{"kind": "tree", "x": 10, "y": 12},
+                 {"kind": "person", "x": 20, "y": 20},
+                 {"kind": "car", "x": 28, "y": 25}]
+        a = vp.decoration_layer(40, items)
+        b = vp.decoration_layer(40, items)
+        self.assertEqual(a.mode, "RGBA")
+        self.assertEqual(a.tobytes(), b.tobytes())
+        self.assertEqual(a.getpixel((0, 0))[3], 0)
+        self.assertGreater(int((np.asarray(a)[..., 3] > 0).sum()), 20)
+
+    def test_clean_vworld_removes_top_and_footer_without_size_change(self):
+        im = Image.fromarray(np.repeat(np.arange(20, dtype=np.uint8)[:, None, None], 20 * 3, axis=1).reshape(20, 20, 3))
+        cleaned = vp._clean_vworld(im, 3, 2)
+        self.assertEqual(cleaned.size, im.size)
+        self.assertGreater(np.asarray(cleaned)[0].mean(), np.asarray(im)[0].mean())
+
 
 if __name__ == "__main__":
     unittest.main()

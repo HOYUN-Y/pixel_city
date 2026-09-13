@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet><meta name="design_doc_mode" content="canvas"><style>body{margin:0;background:#EFE4CC;font-family:Pretendard,system-ui,sans-serif;color:#3A2A1E}a{color:#B85C3A}a:hover{color:#8B3E22}.dv-turn{padding:40px 44px 32px;border-bottom:1px solid rgba(58,42,30,.12);scroll-margin-top:16px}.dv-thd{display:flex;align-items:baseline;gap:10px;margin:0 0 20px}.dv-tid{font:600 10px ui-monospace,Menlo,monospace;padding:3px 7px;background:#3A2A1E;color:#fff;border-radius:4px;text-decoration:none}.dv-tname{font:600 13px/1.2 system-ui,sans-serif;color:#3A2A1E}.dv-opts{display:flex;flex-wrap:wrap;gap:28px;align-items:flex-start}.dv-opt{flex:none;display:flex;flex-direction:column;gap:9px;scroll-margin-top:16px}.dv-oid{font:600 10.5px ui-monospace,Menlo,monospace;padding:3px 7px;background:rgba(58,42,30,.1);color:#3A2A1E;border-radius:5px;text-decoration:none}.dv-olabel{display:flex;align-items:baseline;gap:8px;font:400 11px/1.3 system-ui,sans-serif;color:rgba(58,42,30,.6)}.dv-opt:target .dv-oid{background:#E8735A;color:#fff}.dv-next{margin:22px 0 0;font:12px/1.5 system-ui,sans-serif;color:rgba(58,42,30,.55)}</style></helmet>
+<section class="dv-turn" id="t1">
+<div class="dv-thd"><a class="dv-tid" href="#t1">1</a><span class="dv-tname">광화문 픽셀 시티 — 메인 지도 화면, UI 톤 × 시간대 변형 (모두 조작 가능)</span></div>
+<div style="max-width:720px;font-size:13px;line-height:1.6;color:#5A4634;margin:-8px 0 22px">
+전제: 저장소 prototype2의 디오라마 렌더(경복궁 구역)를 실제 지도 타일로 사용. 지도는 2.5D 아이소메트릭 픽셀, UI는 그 위에 얹는 오버레이. 하단 시트 하나에 <b>AI 가이드 · 피드 · 도감</b> 세 탭을 두고, 지도는 항상 배경으로 남긴다. 각 옵션은 같은 프로토타입이며 룩과 시간대만 다르다 — 드래그로 지도 이동, 칩 탭으로 질문, 카드 "지도에 표시"로 루트 그리기, 핀 탭 → 명소 상세 → 방문 인증 → 카드 획득.
+</div>
+<div class="dv-opts">
+<div class="dv-opt" id="1a"><div class="dv-olabel"><a class="dv-oid" href="#1a">1a</a>모던 오버레이 · 낮 — 유리질 패널, 둥근 모서리, 픽셀은 지도와 핀에만</div><dc-import name="Pixel City Prototype" ui-style="modern" time-of-day="day" weather="clear" hint-size="460px,930px"></dc-import></div>
+<div class="dv-opt" id="1b"><div class="dv-olabel"><a class="dv-oid" href="#1b">1b</a>스타듀 패널 · 노을 — 나무 테두리, 각진 패널, 픽셀 폰트 제목</div><dc-import name="Pixel City Prototype" ui-style="pixel" time-of-day="dusk" weather="clear" hint-size="460px,930px"></dc-import></div>
+<div class="dv-opt" id="1c"><div class="dv-olabel"><a class="dv-oid" href="#1c">1c</a>모던 오버레이 · 밤 + 비 — 날씨/시간대가 지도 톤을 바꾸는 예</div><dc-import name="Pixel City Prototype" ui-style="modern" time-of-day="night" weather="rain" hint-size="460px,930px"></dc-import></div>
+</div>
+<p class="dv-next">다음 시도: "<a class="dv-oid" href="#1b">1b</a> 패널에 <a class="dv-oid" href="#1a">1a</a>의 둥근 칩만 섞어줘" · "핀을 건물 스프라이트 위에 앉는 작은 깃발로" · "도감을 별도 전체화면으로" · "가이드를 NPC 캐릭터로 지도 위에 세워줘"</p>
+</section>
+</x-dc>
+</body>
+</html>

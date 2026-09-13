@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+  <title>Pixel City · 덕수궁 2×2 시험 지도</title>
+  <link rel="stylesheet" href="style.css">
+  <script type="module" src="app.js"></script>
+</head>
+<body>
+  <main id="map-stage" aria-label="덕수궁·시청 픽셀 지도">
+    <canvas id="map" tabindex="0" aria-label="시험 지도. 드래그로 이동, 휠이나 두 손가락으로 확대·축소"></canvas>
+    <div id="map-message" role="status"><span class="loading-mark">▦</span><h1>시험 지도를 준비하고 있어요</h1><p>실행 기록을 확인하는 중입니다.</p></div>
+  </main>
+  <header class="toolbar">
+    <div class="brand"><span class="brand-mark"></span><strong>PIXEL CITY</strong><span class="region">덕수궁 · 시청</span><span class="pilot-badge">2×2 PILOT</span></div>
+    <button class="search" data-open="chat"><span class="ai-mark">AI</span><span>가이드에게 물어보기 <small>· 준비 중</small></span><kbd>↵</kbd></button>
+    <button class="mobile-time" data-soon aria-disabled="true" aria-label="시간대 변경 준비 중"><span>🟨</span><small>낮</small></button>
+    <div class="layers" aria-label="미연결 지도 레이어">
+      <button data-soon aria-disabled="true">명소</button><button data-soon aria-disabled="true">사용자 스팟</button><button data-soon aria-disabled="true">지하철</button><button data-soon aria-disabled="true">문화재</button>
+    </div>
+    <div class="toolbar-right"><div class="daytime"><button class="selected" data-soon aria-disabled="true">🟨 낮</button><button data-soon aria-disabled="true">🟧 노을</button><button data-soon aria-disabled="true">🟪 밤</button></div><button data-soon aria-disabled="true">☂ 비</button><button class="avatar" data-soon aria-disabled="true" aria-label="프로필 준비 중">HY</button></div>
+  </header>
+  <nav class="dock" aria-label="시안 화면"><button data-open="chat"><b>AI</b><span>가이드</span></button><button data-open="feed"><b>▤</b><span>피드</span></button><button data-open="book"><b>◫</b><span>도감</span></button><button data-open="upload"><b>＋</b><span>올리기</span></button></nav>
+  <div id="windows"></div>
+  <section id="sheet" aria-label="모바일 시안 패널"><button id="sheet-handle" aria-label="하단 시트 펼치기" aria-expanded="false"><span></span></button><nav class="sheet-tabs" aria-label="모바일 탭"><button data-open="chat">AI 가이드</button><button data-open="feed">피드</button><button data-open="book">도감</button></nav><div id="sheet-body"></div></section>
+  <button class="upload-fab" data-open="upload" aria-label="올리기 시안 열기">＋</button>
+  <aside class="map-tools" aria-label="지도 조작"><div class="zoom-stack"><button id="zoom-in" aria-label="지도 확대">＋</button><output id="zoom-label">—</output><button id="zoom-out" aria-label="지도 축소">−</button><button id="fit" aria-label="지도 전체 보기">⛶</button></div><div class="minimap" aria-label="현재 지도 위치"><img id="mini-image" alt="시험 지도 전체"><div id="mini-viewport"></div><span>2×2 TEST AREA</span></div></aside>
+  <details id="inspection"><summary>⌕ 지도 검수</summary><div class="inspection-body">
+    <div class="inspection-title">SEAM & ZOOM LAB <span>로컬 검수</span></div>
+    <label>비교 화면 <select id="map-mode"><option value="ai">AI 합성본</option><option value="source">VWorld 원본</option></select></label>
+    <label><input id="seam-lines" type="checkbox"> 조각 경계·검수 위치 표시</label>
+    <label><input id="debug-zoom" type="checkbox"> 검수용 200% 허용</label>
+    <div class="presets"><button data-scale="0.25">25%</button><button data-scale="0.5">50%</button><button data-scale="1">100%</button><button data-scale="2" id="double-zoom" disabled>200%</button></div>
+    <p>원본 1px = 화면 CSS 1px가 100%입니다.<br>2×2 연결 시험이며 전체 지도·실측 정합은 미검증입니다.</p>
+    <p id="run-info">생성 결과 연결 대기</p><a id="run-report" hidden target="_blank" rel="noopener">생성·검수 기록 ↗</a>
+    <hr><label>시안 상태 미리보기 <select id="preview-state"><option value="">선택하세요</option><option value="route">추천 코스 · 루트 바</option><option value="spot">명소 상세</option><option value="card">카드 획득 모달</option><option value="post">픽셀 엽서</option></select></label>
+    <small>미연결 기능은 시안 예시입니다. 실제 전송·저장·인증은 하지 않습니다.</small>
+  </div></details>
+  <footer id="attribution">국토교통부 / VWorld · AI 재해석 · 로컬 검수용</footer>
+  <div id="toast" role="status" hidden></div>
+  <div id="route-bar" hidden><div><small>시안 예시 · 경로 미연결</small><strong>고궁 산책 · 반나절 코스</strong></div><button data-soon aria-disabled="true">다음 →</button><button data-close-route aria-label="루트 바 닫기">✕</button></div>
+  <dialog id="card-modal" aria-labelledby="card-title"><button class="modal-close" data-close-card aria-label="카드 시안 닫기">✕</button><p id="card-title">NEW CARD! <small>시안 예시</small></p><div class="collectible"><span>RARE</span><b>▥</b><strong>덕수궁</strong><small>PIXEL CITY COLLECTION</small></div><p>획득·방문 처리는 하지 않았습니다.</p><button data-close-card>닫기</button></dialog>
+</body>
+</html>

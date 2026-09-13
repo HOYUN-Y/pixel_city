@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/neodgm/neodgm-webfont@latest/neodgm/style.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<style>
+body{margin:0;background:#D9CBA5;font-family:Pretendard,-apple-system,sans-serif;color:#3A2A1E;overflow:hidden}
+a{color:#B85C3A}a:hover{color:#8B3E22}
+*{box-sizing:border-box}
+input,textarea,button{font-family:inherit}
+@keyframes dash{to{stroke-dashoffset:-40}}
+@keyframes bob{0%,100%{transform:translate(-50%,-100%)}50%{transform:translate(-50%,-112%)}}
+@keyframes rain{to{background-position:0 400px}}
+@keyframes popin{from{transform:scale(.94);opacity:0}to{transform:scale(1);opacity:1}}
+@keyframes blink{50%{opacity:0}}
+.pc-scroll::-webkit-scrollbar{width:6px}.pc-scroll::-webkit-scrollbar-thumb{background:#C9B58E;border-radius:3px}
+</style>
+</helmet>
+<div data-screen-label="Pixel City Desktop" style="position:relative;width:100vw;height:100vh;overflow:hidden;background:#D9CBA5;user-select:none">
+
+<!-- MAP -->
+<div onPointerDown="{{ onDown }}" onPointerMove="{{ onMove }}" onPointerUp="{{ onUp }}" onPointerLeave="{{ onUp }}" onWheel="{{ onWheel }}" onClick="{{ onMapClick }}" style="position:absolute;inset:0;overflow:hidden;cursor:{{ mapCursor }};touch-action:none">
+  <div style="position:absolute;left:0;top:0;width:1536px;height:1536px;transform-origin:0 0;transform:{{ mapTransform }};will-change:transform">
+    <img src="assets/map_palace.png" draggable="false" style="position:absolute;inset:0;width:1536px;height:1536px;image-rendering:pixelated;display:block" alt="광화문 픽셀 지도">
+    <svg viewBox="0 0 1536 1536" style="position:absolute;inset:0;width:1536px;height:1536px;overflow:visible;pointer-events:none">
+      <polyline points="{{ routePoints }}" fill="none" stroke="#3A2A1E" stroke-width="14" stroke-linecap="round" stroke-linejoin="round" opacity="0.35"></polyline>
+      <polyline points="{{ routePoints }}" fill="none" stroke="#F2C14E" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="18 22" style="animation:dash 1.2s linear infinite"></polyline>
+      <polyline points="{{ draftPoints }}" fill="none" stroke="#E8735A" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="6 14"></polyline>
+    </svg>
+    <sc-for list="{{ pins }}" as="p" hint-placeholder-count="0">
+      <div onClick="{{ p.open }}" onMouseEnter="{{ p.hover }}" onMouseLeave="{{ p.unhover }}" style="position:absolute;left:{{ p.mx }}px;top:{{ p.my }}px;transform:translate(-50%,-100%);display:flex;flex-direction:column;align-items:center;cursor:pointer;pointer-events:auto;animation:{{ p.anim }};opacity:{{ p.opacity }};transition:opacity .2s;z-index:{{ p.z }}">
+        <sc-if value="{{ p.showPreview }}" hint-placeholder-val="{{ false }}">
+          <div style="position:absolute;bottom:calc(100% + 8px);width:220px;background:#FBF3E4;border:3px solid #3A2A1E;border-radius:10px;box-shadow:6px 6px 0 rgba(58,42,30,.5);overflow:hidden;pointer-events:none;animation:popin .15s ease-out">
+            <div style="height:90px;background:{{ p.photo }}"></div>
+            <div style="padding:10px 12px"><div style="font-weight:800;font-size:18px">{{ p.name }}</div><div style="font-size:13px;color:#6B5541;margin-top:2px">♥ {{ p.likes }} · 사진 {{ p.photos }}장 · {{ p.cat }}</div></div>
+          </div>
+        </sc-if>
+        <div style="padding:6px 12px;background:{{ p.bg }};color:#fff;border:3px solid #3A2A1E;border-radius:6px;font:700 20px/1 Pretendard,sans-serif;white-space:nowrap;box-shadow:4px 4px 0 rgba(58,42,30,.5);display:flex;gap:6px;align-items:center;transform:{{ p.scale }};transition:transform .15s">
+          <span style="display:inline-block;width:12px;height:12px;background:#fff;box-shadow:inset 3px 3px 0 rgba(0,0,0,.2)"></span>{{ p.name }}
+          <sc-if value="{{ p.n }}" hint-placeholder-val="{{ false }}"><span style="background:#3A2A1E;color:#F2C14E;padding:2px 6px;font-size:14px;border-radius:4px">{{ p.n }}</span></sc-if>
+        </div>
+        <div style="width:0;height:0;border:10px solid transparent;border-top:14px solid #3A2A1E;margin-top:-1px"></div>
+      </div>
+    </sc-for>
+    <sc-if value="{{ draftPin }}" hint-placeholder-val="{{ false }}">
+      <div style="position:absolute;left:{{ draftPin.x }}px;top:{{ draftPin.y }}px;transform:translate(-50%,-100%);pointer-events:none;display:flex;flex-direction:column;align-items:center;animation:bob 1s ease-in-out infinite">
+        <div style="padding:6px 12px;background:#E8735A;color:#fff;border:3px dashed #3A2A1E;border-radius:6px;font:700 20px/1 Pretendard,sans-serif;white-space:nowrap">새 장소</div>
+        <div style="width:0;height:0;border:10px solid transparent;border-top:14px solid #3A2A1E"></div>
+      </div>
+    </sc-if>
+  </div>
+  <div style="position:absolute;inset:0;pointer-events:none;background:{{ skyTint }};mix-blend-mode:multiply;transition:background .6s"></div>
+  <sc-if value="{{ isRain }}" hint-placeholder-val="{{ false }}"><div style="position:absolute;inset:0;pointer-events:none;opacity:.35;background-image:repeating-linear-gradient(115deg,transparent 0 14px,#DCEBF5 14px 16px,transparent 16px 40px);background-size:80px 400px;animation:rain .5s linear infinite"></div></sc-if>
+</div>
+
+<!-- TOP TOOLBAR -->
+<div style="position:absolute;top:18px;left:20px;right:20px;display:flex;align-items:center;gap:10px;pointer-events:none;flex-wrap:wrap;row-gap:8px">
+  <div style="pointer-events:auto;display:flex;align-items:center;gap:10px;padding:8px 14px 8px 10px;background:#3A2A1E;color:#FBF3E4;border:3px solid #3A2A1E;border-radius:10px;box-shadow:4px 4px 0 #2E1C10">
+    <span style="width:26px;height:26px;background:#F2C14E;border:2px solid #FBF3E4;border-radius:5px;display:block;box-shadow:inset -4px -4px 0 rgba(0,0,0,.25)"></span>
+    <span style="font:700 16px NeoDunggeunmo,monospace;letter-spacing:.5px;white-space:nowrap">PIXEL CITY</span>
+    <span style="font-size:13px;opacity:.7;border-left:1px solid rgba(255,255,255,.25);padding-left:10px;white-space:nowrap">광화문 · 경복궁</span>
+  </div>
+  <div onClick="{{ openChat }}" style="pointer-events:auto;flex:1 1 220px;min-width:0;max-width:560px;height:46px;display:flex;align-items:center;gap:10px;padding:0 14px;background:rgba(251,243,228,.94);backdrop-filter:blur(10px);border:2px solid #3A2A1E;border-radius:10px;box-shadow:4px 4px 0 #3A2A1E;cursor:text">
+    <span style="width:24px;height:24px;background:#E8735A;border:2px solid #3A2A1E;border-radius:6px;display:grid;place-items:center;color:#fff;font:700 12px NeoDunggeunmo,monospace">AI</span>
+    <input value="{{ draft }}" onChange="{{ onDraft }}" onKeyDown="{{ onKey }}" placeholder="가이드에게 물어보기 — 반나절 코스, 비 오는 날, 저녁 먹거리…" style="flex:1;border:0;background:transparent;font-size:14.5px;outline:none;color:#3A2A1E;min-width:0">
+    <span style="font-size:11px;color:#8A7358;border:1.5px solid rgba(58,42,30,.3);padding:2px 6px;border-radius:4px">↵</span>
+  </div>
+  <div style="pointer-events:auto;display:flex;gap:6px">
+    <sc-for list="{{ layerChips }}" as="c" hint-placeholder-count="4">
+      <div onClick="{{ c.toggle }}" style="padding:8px 12px;border-radius:8px;font-size:12.5px;font-weight:700;background:{{ c.bg }};color:{{ c.fg }};border:2px solid #3A2A1E;cursor:pointer;box-shadow:3px 3px 0 #3A2A1E;white-space:nowrap">{{ c.label }}</div>
+    </sc-for>
+  </div>
+  <div style="pointer-events:auto;margin-left:auto;display:flex;gap:6px;align-items:center">
+    <div style="display:flex;padding:3px;background:#FBF3E4;border:2px solid #3A2A1E;border-radius:8px;box-shadow:3px 3px 0 #3A2A1E">
+      <sc-for list="{{ timeOpts }}" as="o" hint-placeholder-count="3"><div onClick="{{ o.pick }}" style="display:flex;align-items:center;gap:6px;padding:5px 10px;border-radius:6px;font-size:12.5px;font-weight:700;background:{{ o.bg }};color:{{ o.fg }};cursor:pointer"><span style="width:10px;height:10px;background:{{ o.sw }};border:1.5px solid #3A2A1E;border-radius:2px"></span>{{ o.label }}</div></sc-for>
+    </div>
+    <div onClick="{{ toggleRain }}" style="padding:8px 12px;border-radius:8px;font-size:12.5px;font-weight:700;background:{{ rainBg }};color:{{ rainFg }};border:2px solid #3A2A1E;cursor:pointer;box-shadow:3px 3px 0 #3A2A1E">☂ 비</div>
+    <div style="width:38px;height:38px;border-radius:8px;background:#8CC5D8;border:2px solid #3A2A1E;box-shadow:3px 3px 0 #3A2A1E;display:grid;place-items:center;font:700 13px NeoDunggeunmo,monospace">HY</div>
+  </div>
+</div>
+
+<!-- LEFT DOCK: window tabs -->
+<div style="position:absolute;left:20px;top:{{ dockTop }}px;display:flex;flex-direction:column;gap:8px;z-index:6">
+  <sc-for list="{{ dock }}" as="d" hint-placeholder-count="4">
+    <div onClick="{{ d.go }}" title="{{ d.label }}" style="width:56px;height:56px;border-radius:10px;background:{{ d.bg }};color:{{ d.fg }};border:3px solid #3A2A1E;box-shadow:{{ d.shadow }};display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;transition:transform .1s;transform:{{ d.tf }}">
+      <span style="font:700 14px NeoDunggeunmo,monospace">{{ d.icon }}</span><span style="font-size:10px;font-weight:700">{{ d.label }}</span>
+    </div>
+  </sc-for>
+</div>
+
+<!-- FLOATING WINDOWS -->
+<sc-for list="{{ windows }}" as="w" hint-placeholder-count="0">
+  <div onMouseDown="{{ w.focus }}" style="position:absolute;left:{{ w.x }}px;top:{{ w.y }}px;width:{{ w.w }}px;height:{{ w.h }}px;z-index:{{ w.z }};display:flex;flex-direction:column;background:#FBF3E4;border:3px solid #3A2A1E;border-radius:12px;box-shadow:{{ w.shadow }};overflow:hidden;animation:popin .2s ease-out">
+    <div onPointerDown="{{ w.dragStart }}" style="flex:none;height:40px;display:flex;align-items:center;gap:10px;padding:0 12px;background:{{ w.headBg }};color:{{ w.headFg }};border-bottom:3px solid #3A2A1E;cursor:grab">
+      <span style="width:12px;height:12px;background:{{ w.dot }};border:2px solid #3A2A1E;border-radius:3px"></span>
+      <span style="font:700 14px NeoDunggeunmo,monospace;flex:1;letter-spacing:.3px">{{ w.title }}</span>
+      <span style="font-size:11px;opacity:.7;margin-right:6px">{{ w.sub }}</span>
+      <div onClick="{{ w.close }}" onPointerDown="{{ stop }}" style="width:22px;height:22px;display:grid;place-items:center;border-radius:5px;background:#E8735A;color:#fff;border:2px solid #3A2A1E;cursor:pointer;font-size:12px;font-weight:800">✕</div>
+    </div>
+
+    <!-- CHAT WINDOW -->
+    <sc-if value="{{ w.isChat }}" hint-placeholder-val="{{ false }}">
+      <div class="pc-scroll" style="flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:12px">
+        <sc-for list="{{ msgs }}" as="m" hint-placeholder-count="2">
+          <div style="display:flex;flex-direction:column;gap:8px;align-items:{{ m.align }}">
+            <div style="max-width:88%;padding:11px 14px;border-radius:{{ m.radius }};background:{{ m.bg }};color:{{ m.fg }};font-size:14px;line-height:1.55;white-space:pre-line;border:{{ m.border }}">{{ m.text }}</div>
+            <sc-if value="{{ m.route }}" hint-placeholder-val="{{ false }}">
+              <div style="width:100%;border:2px solid #3A2A1E;border-radius:10px;overflow:hidden;background:#fff;box-shadow:4px 4px 0 #3A2A1E">
+                <div style="padding:12px 14px;display:flex;flex-direction:column;gap:8px">
+                  <div style="display:flex;align-items:center;gap:8px"><span style="background:#3A2A1E;color:#F2C14E;padding:3px 7px;border-radius:4px;font:700 10px NeoDunggeunmo,monospace">AI 추천 코스</span><span style="font-weight:800;font-size:15px">{{ m.route.title }}</span></div>
+                  <div style="font-size:12.5px;color:#6B5541">{{ m.route.meta }}</div>
+                  <div style="display:flex;flex-direction:column;gap:4px">
+                    <sc-for list="{{ m.route.stopItems }}" as="s" hint-placeholder-count="3">
+                      <div onMouseEnter="{{ s.hover }}" onMouseLeave="{{ s.unhover }}" onClick="{{ s.open }}" style="display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:6px;background:{{ s.bg }};font-size:13px;font-weight:600;cursor:pointer"><span style="width:20px;height:20px;border-radius:5px;background:#F2C14E;border:2px solid #3A2A1E;display:grid;place-items:center;font:700 10px NeoDunggeunmo,monospace">{{ s.n }}</span>{{ s.name }}<span style="margin-left:auto;font-size:11px;color:#8A7358">{{ s.walk }}</span></div>
+                    </sc-for>
+                  </div>
+                  <div style="display:flex;gap:8px;margin-top:2px">
+                    <div onClick="{{ m.route.show }}" style="flex:1;text-align:center;padding:9px;background:#6FA657;color:#fff;border-radius:8px;border:2px solid #3A2A1E;font-weight:700;font-size:13px;cursor:pointer;box-shadow:2px 2px 0 #3A2A1E">지도에 표시</div>
+                    <div onClick="{{ m.route.save }}" style="padding:9px 14px;background:#F1E3C6;border-radius:8px;border:2px solid #3A2A1E;font-weight:700;font-size:13px;cursor:pointer;box-shadow:2px 2px 0 #3A2A1E">저장</div>
+                  </div>
+                </div>
+              </div>
+            </sc-if>
+          </div>
+        </sc-for>
+        <sc-if value="{{ typing }}" hint-placeholder-val="{{ false }}"><div style="align-self:flex-start;padding:9px 13px;border-radius:12px 12px 12px 4px;background:#fff;border:1.5px solid rgba(58,42,30,.12);font-size:13px;color:#8A7358">가이드가 코스를 짜고 있어요<span style="animation:blink 1s step-end infinite">…</span></div></sc-if>
+        <div style="display:flex;gap:6px;flex-wrap:wrap">
+          <sc-for list="{{ quickQs }}" as="q" hint-placeholder-count="3"><div onClick="{{ q.ask }}" style="padding:6px 10px;border-radius:999px;border:1.5px solid #3A2A1E;font-size:12px;font-weight:600;background:#fff;cursor:pointer">{{ q.text }}</div></sc-for>
+        </div>
+      </div>
+      <div style="flex:none;padding:10px 12px;border-top:2px solid rgba(58,42,30,.12);display:flex;gap:8px;background:#F7E9C6">
+        <input value="{{ draft }}" onChange="{{ onDraft }}" onKeyDown="{{ onKey }}" placeholder="가이드에게 물어보기" style="flex:1;height:40px;border-radius:8px;border:2px solid #3A2A1E;background:#fff;padding:0 12px;font-size:14px;outline:none;color:#3A2A1E">
+        <div onClick="{{ send }}" style="width:40px;height:40px;border-radius:8px;background:#3A2A1E;color:#F2C14E;display:grid;place-items:center;font-size:16px;cursor:pointer">↑</div>
+      </div>
+    </sc-if>
+
+    <!-- FEED WINDOW -->
+    <sc-if value="{{ w.isFeed }}" hint-placeholder-val="{{ false }}">
+      <div style="flex:none;display:flex;gap:6px;padding:10px 12px 0">
+        <sc-for list="{{ feedFilters }}" as="f" hint-placeholder-count="3"><div onClick="{{ f.pick }}" style="padding:5px 10px;border-radius:6px;font-size:12px;font-weight:700;background:{{ f.bg }};color:{{ f.fg }};border:1.5px solid #3A2A1E;cursor:pointer">{{ f.label }}</div></sc-for>
+      </div>
+      <div class="pc-scroll" style="flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:10px">
+        <sc-for list="{{ feed }}" as="f" hint-placeholder-count="3">
+          <div onClick="{{ f.open }}" onMouseEnter="{{ f.hover }}" onMouseLeave="{{ f.unhover }}" style="border:2px solid #3A2A1E;border-radius:10px;background:#fff;overflow:hidden;box-shadow:3px 3px 0 #3A2A1E;cursor:pointer;display:grid;grid-template-columns:96px 1fr">
+            <div style="background:{{ f.photo }};border-right:2px solid #3A2A1E;min-height:96px"></div>
+            <div style="padding:10px 12px;display:flex;flex-direction:column;gap:4px;min-width:0">
+              <div style="display:flex;align-items:center;gap:8px"><div style="width:18px;height:18px;border-radius:4px;background:{{ f.avatar }};border:1.5px solid #3A2A1E"></div><span style="font-weight:700;font-size:12.5px">{{ f.user }}</span><span style="font-size:11px;color:#8A7358">{{ f.when }}</span><span style="margin-left:auto;font:700 9px NeoDunggeunmo,monospace;padding:2px 6px;background:{{ f.tagBg }};color:#fff;border-radius:4px">{{ f.tag }}</span></div>
+              <div style="font-weight:800;font-size:14.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ f.title }}</div>
+              <div style="font-size:12.5px;color:#6B5541;line-height:1.4;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical">{{ f.desc }}</div>
+              <div style="display:flex;gap:12px;margin-top:auto;font-size:12px;font-weight:600;color:#6B5541"><span onClick="{{ f.like }}" style="color:{{ f.likeColor }}">♥ {{ f.likes }}</span><span>💬 {{ f.comments }}</span><span style="margin-left:auto;color:#6FA657">▶ 따라가기</span></div>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+    </sc-if>
+
+    <!-- BOOK WINDOW -->
+    <sc-if value="{{ w.isBook }}" hint-placeholder-val="{{ false }}">
+      <div class="pc-scroll" style="flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:12px">
+        <div style="background:#3A2A1E;color:#FBF3E4;border-radius:10px;padding:12px 14px;display:flex;align-items:center;gap:14px">
+          <div style="flex:1"><div style="font:700 14px NeoDunggeunmo,monospace">광화문 도감</div><div style="font-size:12px;opacity:.8;margin-top:3px">명소를 방문 인증하면 픽셀 카드를 얻어요</div></div>
+          <div style="text-align:right"><div style="font:700 20px NeoDunggeunmo,monospace;color:#F2C14E">{{ collected }}/{{ total }}</div><div style="width:90px;height:8px;background:rgba(255,255,255,.2);border-radius:4px;overflow:hidden;margin-top:4px"><div style="height:100%;width:{{ collectPct }}%;background:#F2C14E"></div></div></div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px">
+          <sc-for list="{{ cards }}" as="c" hint-placeholder-count="8">
+            <div onClick="{{ c.open }}" onMouseEnter="{{ c.hover }}" onMouseLeave="{{ c.unhover }}" style="aspect-ratio:3/4;border:2px solid #3A2A1E;border-radius:10px;background:{{ c.bg }};display:flex;flex-direction:column;justify-content:flex-end;padding:7px;box-shadow:3px 3px 0 #3A2A1E;position:relative;overflow:hidden;cursor:pointer;opacity:{{ c.opacity }};filter:{{ c.filter }}">
+              <div style="position:absolute;inset:7px 7px 30px;background:{{ c.art }};border:2px solid rgba(58,42,30,.35);border-radius:5px"></div>
+              <div style="position:absolute;top:10px;right:10px;font:700 9px NeoDunggeunmo,monospace;background:#3A2A1E;color:#F2C14E;padding:2px 4px;border-radius:3px">{{ c.rarity }}</div>
+              <div style="font:700 11px NeoDunggeunmo,monospace;color:#3A2A1E;line-height:1.2;position:relative">{{ c.name }}</div>
+            </div>
+          </sc-for>
+        </div>
+        <div onClick="{{ openPostcard }}" style="text-align:center;padding:11px;border-radius:8px;background:#8CC5D8;border:2px solid #3A2A1E;font-weight:800;font-size:13.5px;cursor:pointer;box-shadow:3px 3px 0 #3A2A1E">✉ 오늘의 픽셀 엽서 만들기</div>
+      </div>
+    </sc-if>
+
+    <!-- SPOT WINDOW -->
+    <sc-if value="{{ w.isSpot }}" hint-placeholder-val="{{ false }}">
+      <div style="flex:none;height:150px;position:relative;background:{{ spot.photo }};border-bottom:3px solid #3A2A1E;display:grid;place-items:center;font-size:12.5px;font-weight:600;color:#5A3921">
+        <span style="background:rgba(251,243,228,.85);padding:5px 9px;border-radius:6px">사진 {{ spot.photos }}장 · 사용자 업로드</span>
+        <div style="position:absolute;left:14px;bottom:-14px;padding:5px 11px;background:{{ spot.bg }};color:#fff;border:3px solid #3A2A1E;border-radius:6px;font-weight:800;font-size:14px;box-shadow:3px 3px 0 #3A2A1E">{{ spot.cat }}</div>
+        <div onClick="{{ flyToSpot }}" style="position:absolute;right:12px;bottom:10px;padding:5px 10px;background:#FBF3E4;border:2px solid #3A2A1E;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;box-shadow:2px 2px 0 #3A2A1E">◎ 지도에서 보기</div>
+      </div>
+      <div class="pc-scroll" style="flex:1;overflow-y:auto;padding:24px 16px 18px;display:flex;flex-direction:column;gap:12px">
+        <div><div style="font-weight:900;font-size:22px;letter-spacing:-.3px">{{ spot.name }}</div><div style="font-size:12.5px;color:#8A7358;margin-top:3px">{{ spot.sub }}</div></div>
+        <div style="display:flex;gap:8px">
+          <div onClick="{{ likeSpot }}" style="flex:1;padding:10px;text-align:center;border-radius:8px;border:2px solid #3A2A1E;background:{{ spotLikeBg }};color:{{ spotLikeFg }};font-weight:700;font-size:13.5px;cursor:pointer;box-shadow:2px 2px 0 #3A2A1E">♥ {{ spot.likes }}</div>
+          <div onClick="{{ visitSpot }}" style="flex:2;padding:10px;text-align:center;border-radius:8px;border:2px solid #3A2A1E;background:{{ visitBg }};color:#fff;font-weight:800;font-size:13.5px;cursor:pointer;box-shadow:2px 2px 0 #3A2A1E">{{ visitLabel }}</div>
+        </div>
+        <p style="margin:0;font-size:14px;line-height:1.6;color:#4A3A2C">{{ spot.desc }}</p>
+        <div style="display:flex;gap:6px;flex-wrap:wrap"><sc-for list="{{ spot.tags }}" as="t" hint-placeholder-count="3"><span style="font-size:12px;padding:4px 8px;background:#F1E3C6;border-radius:5px;font-weight:600;white-space:nowrap">#{{ t }}</span></sc-for></div>
+        <div style="border-top:1.5px dashed rgba(58,42,30,.2);padding-top:10px;display:flex;flex-direction:column;gap:9px">
+          <div style="font-weight:700;font-size:13px;color:#6B5541">댓글 {{ spot.commentCount }}</div>
+          <sc-for list="{{ spot.comments }}" as="c" hint-placeholder-count="2"><div style="display:flex;gap:9px;align-items:flex-start"><div style="width:24px;height:24px;border-radius:6px;flex:none;background:{{ c.avatar }};border:2px solid #3A2A1E"></div><div style="font-size:13px;line-height:1.45"><b>{{ c.user }}</b> {{ c.text }}</div></div></sc-for>
+          <input placeholder="댓글 남기기" style="height:38px;border-radius:8px;border:2px solid rgba(58,42,30,.25);background:#fff;padding:0 11px;font-size:13px;outline:none">
+        </div>
+      </div>
+    </sc-if>
+
+    <!-- UPLOAD WINDOW -->
+    <sc-if value="{{ w.isUpload }}" hint-placeholder-val="{{ false }}">
+      <div class="pc-scroll" style="flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:12px">
+        <div style="display:flex;gap:4px;padding:3px;background:#E3D3AE;border-radius:8px">
+          <sc-for list="{{ upKinds }}" as="k" hint-placeholder-count="2"><div onClick="{{ k.pick }}" style="flex:1;text-align:center;padding:8px;border-radius:6px;font-weight:700;font-size:13px;background:{{ k.bg }};color:{{ k.fg }};cursor:pointer">{{ k.label }}</div></sc-for>
+        </div>
+        <div style="padding:10px 12px;border:2px dashed #E8735A;border-radius:8px;background:#FFF3EE;font-size:12.5px;line-height:1.5;color:#8B3E22;font-weight:600">{{ upHint }}</div>
+        <sc-if value="{{ upIsRoute }}" hint-placeholder-val="{{ false }}">
+          <div style="border:2px solid #3A2A1E;border-radius:8px;background:#fff;padding:10px 12px;display:flex;flex-direction:column;gap:6px">
+            <div style="font-weight:700;font-size:12.5px;display:flex;justify-content:space-between"><span>경유지 {{ draftCount }}</span><span style="color:#8A7358;font-weight:600">{{ draftWalk }}</span></div>
+            <sc-for list="{{ routeDraft }}" as="s" hint-placeholder-count="0"><div style="display:flex;gap:8px;align-items:center;font-size:13px"><span style="width:20px;height:20px;border-radius:5px;background:#E8735A;border:2px solid #3A2A1E;display:grid;place-items:center;font:700 10px NeoDunggeunmo,monospace;color:#fff">{{ s.n }}</span>{{ s.name }}<span onClick="{{ s.remove }}" style="margin-left:auto;cursor:pointer;color:#8A7358;font-size:12px">제거</span></div></sc-for>
+            <sc-if value="{{ draftEmpty }}" hint-placeholder-val="{{ true }}"><div style="font-size:12.5px;color:#8A7358">지도의 핀을 순서대로 클릭하세요</div></sc-if>
+          </div>
+        </sc-if>
+        <div style="display:flex;gap:8px">
+          <div style="flex:1;aspect-ratio:1;border:2px dashed #3A2A1E;border-radius:8px;background:#fff;display:grid;place-items:center;text-align:center;font-size:12px;color:#6B5541;line-height:1.4;cursor:pointer">사진 끌어다 놓기<br><span style="font-size:11px;opacity:.7">AI가 픽셀로 변환</span></div>
+          <div style="flex:1;aspect-ratio:1;border-radius:8px;background:url(assets/map_rpg_downtown.png) center/cover;image-rendering:pixelated;border:2px solid #3A2A1E;position:relative"><div style="position:absolute;left:6px;bottom:6px;background:#3A2A1E;color:#F2C14E;font:700 9px NeoDunggeunmo,monospace;padding:2px 5px;border-radius:3px">픽셀 변환 미리보기</div></div>
+        </div>
+        <label style="display:flex;flex-direction:column;gap:5px;font-size:12px;font-weight:700;color:#6B5541">{{ upNameLabel }}<input placeholder="{{ upNamePh }}" style="height:42px;border-radius:8px;border:2px solid #3A2A1E;background:#fff;padding:0 12px;font-size:14px;outline:none;font-weight:500"></label>
+        <label style="display:flex;flex-direction:column;gap:5px;font-size:12px;font-weight:700;color:#6B5541">한 줄 소개<textarea rows="3" placeholder="이 장소가 왜 좋은지, 어느 시간에 가야 하는지" style="border-radius:8px;border:2px solid #3A2A1E;background:#fff;padding:10px 12px;font-size:13.5px;outline:none;resize:none;line-height:1.5"></textarea></label>
+        <div style="display:flex;gap:5px;flex-wrap:wrap"><sc-for list="{{ upTags }}" as="t" hint-placeholder-count="5"><div onClick="{{ t.toggle }}" style="padding:5px 9px;border-radius:999px;border:1.5px solid #3A2A1E;font-size:12px;font-weight:600;background:{{ t.bg }};color:{{ t.fg }};cursor:pointer">#{{ t.label }}</div></sc-for></div>
+        <div onClick="{{ submitUpload }}" style="text-align:center;padding:12px;border-radius:8px;background:#6FA657;border:2px solid #3A2A1E;color:#fff;font-weight:900;font-size:14.5px;cursor:pointer;box-shadow:3px 3px 0 #3A2A1E">지도에 올리기</div>
+      </div>
+    </sc-if>
+
+    <!-- POSTCARD WINDOW -->
+    <sc-if value="{{ w.isPost }}" hint-placeholder-val="{{ false }}">
+      <div style="flex:1;display:flex;flex-direction:column;gap:12px;padding:16px;overflow:hidden">
+        <div style="width:100%;aspect-ratio:3/2;background:#FBF3E4;border:4px solid #3A2A1E;box-shadow:6px 6px 0 #2E1C10;position:relative;overflow:hidden;transform:rotate(-1.2deg);flex:none">
+          <div style="position:absolute;inset:0;background:url(assets/map_palace.png);background-size:180%;background-position:{{ postcardPos }};image-rendering:pixelated"></div>
+          <div style="position:absolute;inset:0;background:{{ skyTint }};mix-blend-mode:multiply"></div>
+          <div style="position:absolute;left:12px;bottom:10px;color:#FBF3E4;text-shadow:2px 2px 0 #3A2A1E"><div style="font:700 18px NeoDunggeunmo,monospace">광화문 · 경복궁</div><div style="font-size:11px;font-weight:600">SEOUL PIXEL CITY · {{ postDate }}</div></div>
+          <div style="position:absolute;top:8px;right:8px;width:46px;height:56px;background:#fff;border:2px dashed #3A2A1E;padding:3px"><div style="width:100%;height:100%;background:{{ newCard.art }};border:1px solid #3A2A1E"></div></div>
+        </div>
+        <textarea rows="2" placeholder="엽서에 남길 한 마디" style="border-radius:8px;border:2px solid #3A2A1E;background:#fff;padding:10px 12px;font-size:13.5px;outline:none;resize:none;line-height:1.5"></textarea>
+        <div style="display:flex;gap:8px"><div style="flex:1;text-align:center;padding:10px;border-radius:8px;background:#F2C14E;border:2px solid #3A2A1E;font-weight:900;font-size:13px;cursor:pointer;box-shadow:3px 3px 0 #2E1C10">이미지 저장</div><div style="flex:1;text-align:center;padding:10px;border-radius:8px;background:#8CC5D8;border:2px solid #3A2A1E;font-weight:900;font-size:13px;cursor:pointer;box-shadow:3px 3px 0 #2E1C10">친구에게 보내기</div></div>
+      </div>
+    </sc-if>
+  </div>
+</sc-for>
+
+<!-- ROUTE BAR (bottom center) -->
+<sc-if value="{{ hasRoute }}" hint-placeholder-val="{{ false }}">
+<div style="position:absolute;left:50%;bottom:24px;transform:translateX(-50%);z-index:7;background:#3A2A1E;color:#FBF3E4;border:3px solid #3A2A1E;border-radius:12px;padding:10px 12px 10px 16px;display:flex;align-items:center;gap:14px;box-shadow:5px 5px 0 #2E1C10;animation:popin .2s ease-out">
+  <div><div style="font:700 14px NeoDunggeunmo,monospace">{{ routeTitle }}</div><div style="font-size:12px;opacity:.75;margin-top:2px">{{ routeMeta }}</div></div>
+  <div style="display:flex;gap:4px">
+    <sc-for list="{{ routeSteps }}" as="s" hint-placeholder-count="4"><div onClick="{{ s.go }}" style="width:30px;height:30px;border-radius:6px;display:grid;place-items:center;background:{{ s.bg }};color:{{ s.fg }};border:2px solid #F2C14E;font:700 12px NeoDunggeunmo,monospace;cursor:pointer">{{ s.n }}</div></sc-for>
+  </div>
+  <div onClick="{{ nextStep }}" style="padding:8px 14px;background:#F2C14E;color:#3A2A1E;border-radius:8px;font-weight:800;font-size:13px;cursor:pointer;border:2px solid #3A2A1E">다음 →</div>
+  <div onClick="{{ clearRoute }}" style="width:28px;height:28px;display:grid;place-items:center;border-radius:6px;background:rgba(255,255,255,.12);cursor:pointer;font-size:13px">✕</div>
+</div>
+</sc-if>
+
+<!-- ZOOM + MINIMAP -->
+<div style="position:absolute;right:20px;bottom:24px;display:flex;flex-direction:column;align-items:flex-end;gap:10px;z-index:3">
+  <div style="display:flex;flex-direction:column;border:3px solid #3A2A1E;border-radius:8px;overflow:hidden;box-shadow:3px 3px 0 #3A2A1E;background:#FBF3E4">
+    <div onClick="{{ zoomIn }}" style="width:38px;height:38px;display:grid;place-items:center;font-size:20px;font-weight:700;cursor:pointer;border-bottom:2px solid #3A2A1E">+</div>
+    <div onClick="{{ zoomOut }}" style="width:38px;height:38px;display:grid;place-items:center;font-size:20px;font-weight:700;cursor:pointer">−</div>
+  </div>
+  <div style="width:{{ mmSize }}px;height:{{ mmSize }}px;border:3px solid #3A2A1E;border-radius:8px;overflow:hidden;position:relative;box-shadow:3px 3px 0 #3A2A1E;background:url(assets/map_palace.png) center/cover;image-rendering:pixelated">
+    <div style="position:absolute;inset:0;background:{{ skyTint }};mix-blend-mode:multiply"></div>
+    <div style="position:absolute;left:{{ mmX }}%;top:{{ mmY }}%;width:{{ mmW }}%;height:{{ mmH }}%;border:2px solid #E8735A;background:rgba(232,115,90,.15);box-shadow:0 0 0 1px #3A2A1E"></div>
+    <div style="position:absolute;left:6px;top:5px;font:700 9px NeoDunggeunmo,monospace;background:#3A2A1E;color:#F2C14E;padding:2px 5px;border-radius:3px">{{ zoomLabel }}</div>
+  </div>
+</div>
+
+<!-- CARD ACQUIRED -->
+<sc-if value="{{ showCard }}" hint-placeholder-val="{{ false }}">
+<div onClick="{{ closeCard }}" style="position:absolute;inset:0;z-index:50;background:rgba(58,42,30,.7);display:grid;place-items:center">
+  <div style="text-align:center;animation:popin .45s cubic-bezier(.2,.9,.3,1.3)">
+    <div style="font:700 16px NeoDunggeunmo,monospace;color:#F2C14E;margin-bottom:16px;letter-spacing:1px">NEW CARD!</div>
+    <div style="width:220px;aspect-ratio:3/4;margin:0 auto;border:3px solid #3A2A1E;border-radius:14px;background:{{ newCard.bg }};box-shadow:8px 8px 0 #3A2A1E,0 0 80px rgba(242,193,78,.6);position:relative;padding:12px;display:flex;flex-direction:column;justify-content:flex-end">
+      <div style="position:absolute;inset:12px 12px 48px;background:{{ newCard.art }};border:2px solid rgba(58,42,30,.35);border-radius:8px"></div>
+      <div style="position:absolute;top:18px;right:18px;font:700 11px NeoDunggeunmo,monospace;background:#3A2A1E;color:#F2C14E;padding:3px 6px;border-radius:4px">{{ newCard.rarity }}</div>
+      <div style="font:700 17px NeoDunggeunmo,monospace;color:#3A2A1E;position:relative">{{ newCard.name }}</div>
+    </div>
+    <div style="color:#FBF3E4;font-size:14px;margin-top:18px;opacity:.85">도감 {{ collected }}/{{ total }} · 클릭하여 닫기</div>
+  </div>
+</div>
+</sc-if>
+
+<sc-if value="{{ toast }}" hint-placeholder-val="{{ false }}">
+<div style="position:absolute;left:50%;top:88px;transform:translateX(-50%);z-index:60;background:#3A2A1E;color:#FBF3E4;padding:10px 16px;border-radius:8px;border:2px solid #F2C14E;font-size:13.5px;font-weight:600;box-shadow:4px 4px 0 #2E1C10;animation:popin .2s ease-out;white-space:nowrap">{{ toast }}</div>
+</sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+const SPOTS = [
+  { id:'gbg', name:'경복궁', cat:'궁궐', mx:520, my:640, bg:'#B85C3A', sub:'조선의 법궁 · 안국역 도보 10분', desc:'근정전과 경회루가 핵심. 오전 9시 개장 직후가 가장 한산하고, 수문장 교대식은 10시·14시.', tags:['고궁','한복','포토스팟'], likes:1240, photos:38, rarity:'RARE', art:'linear-gradient(180deg,#8CC5D8 0 45%,#2F6F6F 45% 60%,#B85C3A 60% 80%,#D9CBA5 80%)', photo:'linear-gradient(160deg,#8CC5D8,#2F6F6F 60%,#B85C3A)', comments:[{user:'하늘',avatar:'#8CC5D8',text:'경회루 뒤편 벤치 강추'},{user:'jun_walk',avatar:'#6FA657',text:'월요일 휴궁이니 주의!'}] },
+  { id:'ghm', name:'광화문', cat:'문루', mx:560, my:1010, bg:'#E8735A', sub:'경복궁 정문 · 광화문역 2번 출구', desc:'해질 무렵 문루 뒤로 북악산이 붉게 물든다. 광장 분수는 여름 저녁에만 가동.', tags:['야경','광장'], likes:980, photos:52, rarity:'COMMON', art:'linear-gradient(180deg,#F2C14E 0 40%,#E8735A 40% 55%,#3A2A1E 55% 75%,#D9CBA5 75%)', photo:'linear-gradient(160deg,#F2C14E,#E8735A 60%,#3A2A1E)', comments:[{user:'mina',avatar:'#E8735A',text:'세종대왕상 뒤에 지하 전시관 있어요'}] },
+  { id:'bch', name:'북촌한옥마을', cat:'한옥', mx:1100, my:180, bg:'#6FA657', sub:'가회동 · 안국역 도보 8분', desc:'북촌 8경 중 5경·6경 골목이 사진 명당. 주거지라 오후 5시 이후엔 조용히.', tags:['한옥','골목','사진'], likes:2110, photos:120, rarity:'EPIC', art:'linear-gradient(180deg,#8CC5D8 0 35%,#5A3921 35% 50%,#F1E3C6 50% 80%,#6FA657 80%)', photo:'linear-gradient(160deg,#8CC5D8,#5A3921 55%,#F1E3C6)', comments:[{user:'soo.j',avatar:'#F2C14E',text:'일요일 아침 7시가 최고'}] },
+  { id:'mma', name:'국립현대미술관', cat:'미술관', mx:1000, my:520, bg:'#8CC5D8', sub:'삼청로 · 수요·토 야간 개장', desc:'옛 기무사 건물을 그대로 살린 미술관. 서울박스 천장 아래 카페가 쉬기 좋다.', tags:['미술관','실내','비오는날'], likes:640, photos:22, rarity:'RARE', art:'linear-gradient(180deg,#D9CBA5 0 50%,#8CC5D8 50% 70%,#3A2A1E 70%)', photo:'linear-gradient(160deg,#D9CBA5,#8CC5D8)', comments:[] },
+  { id:'tin', name:'통인시장', cat:'시장', mx:230, my:420, bg:'#F2C14E', sub:'서촌 · 경복궁역 2번 출구', desc:'엽전 도시락 카페로 유명. 기름떡볶이는 오전 11시 전에.', tags:['먹거리','서촌','시장'], likes:1530, photos:64, rarity:'COMMON', art:'linear-gradient(180deg,#E8735A 0 30%,#F2C14E 30% 60%,#B85C3A 60%)', photo:'linear-gradient(160deg,#E8735A,#F2C14E)', comments:[{user:'foodie_k',avatar:'#B85C3A',text:'엽전 10개면 충분'}] },
+  { id:'cgc', name:'청계천 광통교', cat:'하천', mx:900, my:1250, bg:'#2F6F6F', sub:'종로 · 광화문역 5번 출구', desc:'조선 시대 돌다리를 복원. 밤에는 조명이 물에 비쳐 픽셀 지도보다 예쁘다.', tags:['산책','야경'], likes:770, photos:31, rarity:'COMMON', art:'linear-gradient(180deg,#3A2A1E 0 40%,#2F6F6F 40% 70%,#8CC5D8 70%)', photo:'linear-gradient(160deg,#3A2A1E,#2F6F6F 60%,#8CC5D8)', comments:[] },
+  { id:'ssm', name:'삼청동 카페골목', cat:'카페', mx:1280, my:420, bg:'#B85C3A', sub:'삼청로 · 미술관에서 도보 5분', desc:'사용자 @hyewon이 올린 스팟. 언덕 위 2층 카페에서 경복궁 지붕이 보인다.', tags:['카페','뷰'], likes:210, photos:9, rarity:'RARE', art:'linear-gradient(180deg,#F1E3C6 0 40%,#B85C3A 40% 65%,#6FA657 65%)', photo:'linear-gradient(160deg,#F1E3C6,#B85C3A)', comments:[{user:'hyewon',avatar:'#8CC5D8',text:'제가 올렸어요 :) 창가 자리 예약 가능'}] },
+];
+const ROUTES = {
+  palace: { title:'고궁 산책 · 반나절 코스', meta:'도보 2시간 10분 · 4.1km · 안국역 출발', ids:['bch','mma','gbg','ghm'], walks:['출발','도보 12분','도보 18분','도보 9분'] },
+  food:   { title:'서촌 먹거리 · 저녁 코스', meta:'도보 1시간 20분 · 2.6km · 경복궁역 출발', ids:['tin','gbg','ghm','cgc'], walks:['출발','도보 14분','도보 9분','도보 15분'] },
+  rain:   { title:'비 오는 날 실내 코스', meta:'도보 50분 · 실내 비중 70%', ids:['mma','ssm','bch'], walks:['출발','도보 5분','도보 10분'] },
+};
+const ANSWERS = [
+  { match:/반나절|고궁|궁|처음|3시간|추천/, text:'광화문 첫 방문이면 궁을 축으로 잡는 게 좋아요. 북촌에서 내려오며 미술관을 거쳐 경복궁, 마지막에 광화문 광장에서 해를 등지고 사진을 찍는 순서예요.\n\n사용자 3,200명이 이 순서로 걸었고 평균 평점 4.8이에요.', route:'palace' },
+  { match:/먹|음식|저녁|시장|맛/, text:'서촌 통인시장에서 엽전 도시락으로 시작해서, 경복궁 담장을 따라 광화문으로 내려오는 코스가 저녁에 딱이에요. 청계천에서 마무리하면 야경까지 챙길 수 있어요.', route:'food' },
+  { match:/비|우산|실내|추워|더워/, text:'오늘 같은 날은 실내 위주로 가요. 국립현대미술관 → 삼청동 카페골목(사용자 @hyewon 추천) → 잠깐 개면 북촌 골목. 미술관은 수·토 밤 9시까지 열어요.', route:'rain' },
+];
+const TINT = { day:'transparent', dusk:'rgba(255,170,110,.45)', night:'rgba(60,70,140,.6)' };
+const SW = { day:'#F2C14E', dusk:'#E8735A', night:'#3A3F7A' };
+const FEED = [
+  {user:'hyewon',avatar:'#8CC5D8',when:'2시간 전',kind:'spot',tag:'SPOT',tagBg:'#B85C3A',title:'삼청동 카페골목 2층 뷰',desc:'경복궁 지붕이 보이는 창가. 오후 4시 빛이 제일 좋아요.',photo:'linear-gradient(160deg,#F1E3C6,#B85C3A)',comments:12,spot:'ssm',likes:88},
+  {user:'jun_walk',avatar:'#6FA657',when:'어제',kind:'route',tag:'ROUTE',tagBg:'#6FA657',title:'출근길 북촌 15분 산책',desc:'안국역 → 가회동 골목 → 정독도서관. 사람 없는 아침 루트.',photo:'url(assets/map_downtown.png) 60% 20%/300%',comments:5,spot:'bch',likes:41},
+  {user:'mina',avatar:'#E8735A',when:'3일 전',kind:'route',tag:'ROUTE',tagBg:'#6FA657',title:'광화문 야경 한 바퀴',desc:'해 지고 30분 뒤 출발. 청계천에서 끝내면 완벽.',photo:'linear-gradient(160deg,#3A2A1E,#2F6F6F 60%,#8CC5D8)',comments:27,spot:'ghm',likes:203},
+  {user:'foodie_k',avatar:'#B85C3A',when:'5일 전',kind:'spot',tag:'SPOT',tagBg:'#B85C3A',title:'통인시장 기름떡볶이 원조집',desc:'11시 전에 가야 줄 안 서요. 엽전 4개.',photo:'linear-gradient(160deg,#E8735A,#F2C14E)',comments:9,spot:'tin',likes:150},
+];
+const WIN_DEF = {
+  chat:  { title:'AI 가이드', sub:'광화문 픽셀 가이드', w:400, h:560, x:96, y:84, headBg:'#3A2A1E', headFg:'#FBF3E4', dot:'#E8735A' },
+  feed:  { title:'피드', sub:'여행자 루트·명소', w:420, h:560, x:96, y:84, headBg:'#6FA657', headFg:'#fff', dot:'#F2C14E' },
+  book:  { title:'도감', sub:'픽셀 카드', w:440, h:520, x:96, y:84, headBg:'#8CC5D8', headFg:'#3A2A1E', dot:'#F2C14E' },
+  spot:  { title:'명소', sub:'', w:380, h:600, x:0, y:84, headBg:'#F2C14E', headFg:'#3A2A1E', dot:'#B85C3A' },
+  upload:{ title:'올리기', sub:'명소 · 루트', w:380, h:600, x:96, y:84, headBg:'#E8735A', headFg:'#fff', dot:'#F2C14E' },
+  post:  { title:'픽셀 엽서', sub:'', w:400, h:480, x:0, y:84, headBg:'#8CC5D8', headFg:'#3A2A1E', dot:'#E8735A' },
+};
+
+class Component extends DCLogic {
+  state = {
+    pan:{x:0,y:0}, scale:0.8, drag:null, vw:1440, vh:900,
+    wins:{ chat:{open:true,x:96,y:130} }, order:['chat'], winDrag:null,
+    typing:false, draft:'',
+    msgs:[{ me:false, text:'안녕하세요! 광화문 픽셀 가이드예요. 지도를 둘러보다가 궁금한 곳이 있으면 물어보세요.' }],
+    route:null, step:0, spot:null, liked:{}, visited:{}, showCard:null,
+    upKind:'spot', upTags:{}, draftPin:null, routeDraft:[], toast:null,
+    hover:null, feedFilter:'all', feedLiked:{},
+    layers:{ spots:true, users:true, subway:false, heritage:false },
+    time:'day', rain:false,
+  };
+  componentDidMount(){
+    const fit=()=>{ const vw=innerWidth, vh=innerHeight; this.setState({vw,vh}); };
+    fit(); addEventListener('resize',fit);
+    this.setState({pan:{x:innerWidth/2-520*0.8, y:innerHeight/2-640*0.8}});
+    addEventListener('keydown',this._kd=(e)=>{ if(e.key==='Escape'){ const top=this.state.order[this.state.order.length-1]; if(top) this.closeWin(top); } });
+  }
+  componentWillUnmount(){ removeEventListener('keydown',this._kd); }
+  t(msg){ this.setState({toast:msg}); clearTimeout(this._tt); this._tt=setTimeout(()=>this.setState({toast:null}),1800); }
+  openWin(k,extra){ this.setState(s=>{ const cur=s.wins[k]; const def=WIN_DEF[k]; const topH=s.vw<1180?110:64; let x=def.x, y=topH+20; if(k==='spot'||k==='post'){ x=s.vw<1200?s.vw-def.w-(s.vh<700?150:210):s.vw-def.w-20; } const w=cur||{x,y}; return { wins:{...s.wins,[k]:{...w,open:true,...extra}}, order:[...s.order.filter(o=>o!==k),k] }; }); }
+  closeWin(k){ this.setState(s=>({ wins:{...s.wins,[k]:{...s.wins[k],open:false}}, order:s.order.filter(o=>o!==k), spot:k==='spot'?null:s.spot, draftPin:k==='upload'?null:s.draftPin, routeDraft:k==='upload'?[]:s.routeDraft })); }
+  reply(q){
+    const a = ANSWERS.find(x=>x.match.test(q)) || { text:`"${q}" 근처라면 경복궁 서쪽 담장길을 먼저 추천해요. 사용자 업로드 스팟 2곳이 반경 300m 안에 있어요.`, route:'palace' };
+    this.openWin('chat');
+    this.setState(s=>({ msgs:[...s.msgs,{me:true,text:q}], typing:true, draft:'' }));
+    setTimeout(()=>this.setState(s=>({ typing:false, msgs:[...s.msgs,{me:false,text:a.text,routeKey:a.route}] })), 1100);
+  }
+  centerOn(s){ const sc=this.state.scale; this.setState({pan:{x:this.state.vw/2-s.mx*sc, y:this.state.vh/2-s.my*sc}}); }
+  showRoute(key){ const r=ROUTES[key]; this.setState({route:key,step:0}); this.centerOn(SPOTS.find(s=>s.id===r.ids[0])); }
+  zoomAt(f,cx,cy){ this.setState(s=>{ const ns=Math.min(2.2,Math.max(0.35,s.scale*f)); const k=ns/s.scale; return {scale:ns, pan:{x:cx-(cx-s.pan.x)*k, y:cy-(cy-s.pan.y)*k}}; }); }
+  openSpot(s){ const st=this.state; if(st.wins.upload&&st.wins.upload.open&&st.upKind==='route'){ if(!st.routeDraft.includes(s.id)) this.setState({routeDraft:[...st.routeDraft,s.id]}); return; } this.setState({spot:s.id}); this.openWin('spot'); }
+  renderVals(){
+    const st=this.state, sc=st.scale, time=st.time;
+    const route=st.route?ROUTES[st.route]:null;
+    const byId=id=>SPOTS.find(x=>x.id===id);
+    const pts=route?route.ids.map(id=>{const s=byId(id);return `${s.mx},${s.my}`;}).join(' '):'';
+    const draftPts=st.routeDraft.map(id=>{const s=byId(id);return `${s.mx},${s.my}`;}).join(' ');
+    const upOpen=st.wins.upload&&st.wins.upload.open;
+    const placing=upOpen&&st.upKind==='spot';
+    const visible=SPOTS.filter(s=>st.layers.spots||(route&&route.ids.includes(s.id)));
+    const pins=visible.map(s=>{const i=route?route.ids.indexOf(s.id):-1; const hv=st.hover===s.id; return {...s,n:i>=0?String(i+1):'',open:(e)=>{e.stopPropagation();this.openSpot(s);},hover:()=>this.setState({hover:s.id}),unhover:()=>this.setState({hover:null}),anim:(route&&i===st.step)?'bob 1s ease-in-out infinite':'none',opacity:(st.hover&&!hv)?.55:1,showPreview:hv&&!route,scale:hv?'scale(1.08)':'none',z:hv?5:1};});
+    const spot=byId(st.spot);
+    const collected=Object.keys(st.visited).length;
+    const newCard=st.showCard?byId(st.showCard):SPOTS[0];
+    const mk=(m)=>({ text:m.text, align:m.me?'flex-end':'flex-start', bg:m.me?'#3A2A1E':'#fff', fg:m.me?'#FBF3E4':'#3A2A1E', radius:m.me?'12px 12px 4px 12px':'12px 12px 12px 4px', border:m.me?'none':'1.5px solid rgba(58,42,30,.12)',
+      route:m.routeKey?{...ROUTES[m.routeKey],stopItems:ROUTES[m.routeKey].ids.map((id,i)=>{const s=byId(id);return {n:String(i+1),name:s.name,walk:ROUTES[m.routeKey].walks[i],bg:st.hover===id?'#F2C14E':'#F7E9C6',hover:()=>this.setState({hover:id}),unhover:()=>this.setState({hover:null}),open:()=>{this.centerOn(s);}};}),show:()=>this.showRoute(m.routeKey),save:()=>this.t('내 코스에 저장했어요')}:null });
+    const topH=st.vw<1180?110:64;
+    const windows=st.order.filter(k=>st.wins[k]&&st.wins[k].open).map((k,i)=>{ const d=WIN_DEF[k], w=st.wins[k]; const top=i===st.order.length-1; const wy=Math.max(topH+8,Math.min(w.y,st.vh-260)); const wh=Math.min(d.h,st.vh-wy-16); const ww=Math.min(d.w,st.vw-40); return { ...d, x:Math.max(0,Math.min(w.x,st.vw-ww)), y:wy, w:ww, h:wh, z:10+i, shadow:top?'8px 8px 0 #3A2A1E':'5px 5px 0 rgba(58,42,30,.55)', sub:k==='spot'&&spot?spot.sub.split(' · ')[0]:d.sub,
+      isChat:k==='chat', isFeed:k==='feed', isBook:k==='book', isSpot:k==='spot', isUpload:k==='upload', isPost:k==='post',
+      focus:()=>this.setState(s=>({order:[...s.order.filter(o=>o!==k),k]})), close:(e)=>{e.stopPropagation();this.closeWin(k);},
+      dragStart:(e)=>{ e.stopPropagation(); const sx=e.clientX-w.x, sy=e.clientY-w.y; const mv=(ev)=>this.setState(s=>({wins:{...s.wins,[k]:{...s.wins[k],x:Math.max(0,Math.min(s.vw-d.w,ev.clientX-sx)),y:Math.max(topH+8,Math.min(s.vh-260,ev.clientY-sy))}}})); const up=()=>{removeEventListener('pointermove',mv);removeEventListener('pointerup',up);}; addEventListener('pointermove',mv); addEventListener('pointerup',up); } }; });
+    const dockDefs=[['chat','AI','가이드'],['feed','▤','피드'],['book','◫','도감'],['upload','+','올리기']];
+    const mmW=st.vw/(1536*sc)*100, mmH=st.vh/(1536*sc)*100, mmX=(-st.pan.x/(1536*sc))*100, mmY=(-st.pan.y/(1536*sc))*100;
+    const feedList=FEED.filter(f=>st.feedFilter==='all'||f.kind===st.feedFilter);
+    return {
+      mapTransform:`translate(${st.pan.x}px,${st.pan.y}px) scale(${sc})`, mapCursor:placing?'crosshair':(st.drag?'grabbing':'grab'),
+      onDown:(e)=>{ if(e.button!==0) return; this.setState({drag:{x:e.clientX-st.pan.x,y:e.clientY-st.pan.y,sx:e.clientX,sy:e.clientY}}); },
+      onMove:(e)=>{ if(!st.drag) return; this.setState({pan:{x:e.clientX-st.drag.x,y:e.clientY-st.drag.y}}); },
+      onUp:()=>st.drag&&this.setState({drag:null}),
+      onWheel:(e)=>{ const r=e.currentTarget.getBoundingClientRect(); this.zoomAt(e.deltaY<0?1.12:1/1.12,e.clientX-r.left,e.clientY-r.top); },
+      onMapClick:(e)=>{ if(!placing) return; if(st.drag&&(Math.abs(e.clientX-st.drag.sx)>4||Math.abs(e.clientY-st.drag.sy)>4)) return; const r=e.currentTarget.getBoundingClientRect(); this.setState({draftPin:{x:(e.clientX-r.left-st.pan.x)/sc,y:(e.clientY-r.top-st.pan.y)/sc}}); this.t('위치를 찍었어요 · 다시 클릭하면 옮겨요'); },
+      routePoints:pts, draftPoints:draftPts, draftPin:st.draftPin, pins, skyTint:TINT[time], isRain:st.rain,
+      draft:st.draft, onDraft:(e)=>this.setState({draft:e.target.value}), onKey:(e)=>{ if(e.key==='Enter'&&st.draft.trim()) this.reply(st.draft.trim()); }, send:()=>st.draft.trim()&&this.reply(st.draft.trim()),
+      openChat:()=>this.openWin('chat'),
+      layerChips:[['spots','명소'],['users','사용자 스팟'],['subway','지하철'],['heritage','문화재']].map(([k,l])=>({label:l,bg:st.layers[k]?'#3A2A1E':'#FBF3E4',fg:st.layers[k]?'#FBF3E4':'#3A2A1E',toggle:()=>{ if(k==='subway'||k==='heritage') this.t('데이터 레이어 연결 예정 (서울 열린데이터·국가유산청)'); this.setState(s=>({layers:{...s.layers,[k]:!s.layers[k]}})); }})),
+      timeOpts:[['day','낮'],['dusk','노을'],['night','밤']].map(([v,l])=>({label:l,sw:SW[v],bg:time===v?'#3A2A1E':'transparent',fg:time===v?'#FBF3E4':'#3A2A1E',pick:()=>this.setState({time:v})})),
+      toggleRain:()=>this.setState({rain:!st.rain}), rainBg:st.rain?'#3A2A1E':'#FBF3E4', rainFg:st.rain?'#FBF3E4':'#3A2A1E',
+      dock:dockDefs.map(([k,icon,label])=>{ const on=st.wins[k]&&st.wins[k].open; return {icon,label,bg:on?'#3A2A1E':'#FBF3E4',fg:on?'#FBF3E4':'#3A2A1E',shadow:on?'2px 2px 0 #2E1C10':'4px 4px 0 #3A2A1E',tf:on?'translate(2px,2px)':'none',go:()=>on?this.closeWin(k):this.openWin(k)}; }),
+      windows, stop:(e)=>e.stopPropagation(),
+      msgs:st.msgs.map(mk), typing:st.typing,
+      quickQs:['반나절 고궁 코스','저녁에 먹거리 위주로','비 오는 날 실내'].map(q=>({text:q,ask:()=>this.reply(q)})),
+      feedFilters:[['all','전체'],['route','루트'],['spot','명소']].map(([v,l])=>({label:l,bg:st.feedFilter===v?'#3A2A1E':'#fff',fg:st.feedFilter===v?'#FBF3E4':'#3A2A1E',pick:()=>this.setState({feedFilter:v})})),
+      feed:feedList.map((f)=>{ const i=FEED.indexOf(f); return {...f,likes:f.likes+(st.feedLiked[i]?1:0),likeColor:st.feedLiked[i]?'#E8735A':'#6B5541',like:(e)=>{e.stopPropagation();this.setState(s=>({feedLiked:{...s.feedLiked,[i]:!s.feedLiked[i]}}));},open:()=>{ const s=byId(f.spot); this.centerOn(s); this.setState({spot:f.spot}); this.openWin('spot'); },hover:()=>this.setState({hover:f.spot}),unhover:()=>this.setState({hover:null})}; }),
+      collected, total:SPOTS.length, collectPct:Math.round(collected/SPOTS.length*100),
+      cards:SPOTS.map(s=>({...s,opacity:st.visited[s.id]?1:.55,filter:st.visited[s.id]?'none':'grayscale(1)',open:()=>{this.centerOn(s);this.setState({spot:s.id});this.openWin('spot');},hover:()=>this.setState({hover:s.id}),unhover:()=>this.setState({hover:null})})),
+      openPostcard:()=>this.openWin('post'),
+      spot:spot?{...spot,likes:spot.likes+(st.liked[spot.id]?1:0),commentCount:spot.comments.length}:{tags:[],comments:[]},
+      spotLikeBg:spot&&st.liked[spot.id]?'#E8735A':'#fff', spotLikeFg:spot&&st.liked[spot.id]?'#fff':'#3A2A1E',
+      likeSpot:()=>spot&&this.setState(s=>({liked:{...s.liked,[spot.id]:!s.liked[spot.id]}})),
+      flyToSpot:()=>spot&&this.centerOn(spot),
+      visitBg:spot&&st.visited[spot.id]?'#8A7358':'#6FA657', visitLabel:spot&&st.visited[spot.id]?'✓ 방문 완료 · 카드 보유':'◎ 방문 인증하고 카드 받기',
+      visitSpot:()=>{ if(!spot) return; if(st.visited[spot.id]) return this.t('이미 받은 카드예요'); this.setState(s=>({visited:{...s.visited,[spot.id]:true},showCard:spot.id})); },
+      showCard:!!st.showCard, newCard, closeCard:()=>this.setState({showCard:null}),
+      hasRoute:!!route, routeTitle:route?route.title:'', routeMeta:route?`${st.step+1}/${route.ids.length} · ${byId(route.ids[st.step]).name} → ${route.ids[st.step+1]?byId(route.ids[st.step+1]).name:'도착'}`:'',
+      routeSteps:route?route.ids.map((id,i)=>({n:String(i+1),bg:i===st.step?'#F2C14E':'transparent',fg:i===st.step?'#3A2A1E':'#F2C14E',go:()=>{this.setState({step:i});this.centerOn(byId(id));}})):[],
+      nextStep:()=>{ if(!route) return; const n=Math.min(st.step+1,route.ids.length-1); this.setState({step:n}); this.centerOn(byId(route.ids[n])); if(n===route.ids.length-1) this.t('마지막 경유지예요'); },
+      clearRoute:()=>this.setState({route:null}),
+      zoomIn:()=>this.zoomAt(1.25,st.vw/2,st.vh/2), zoomOut:()=>this.zoomAt(1/1.25,st.vw/2,st.vh/2), zoomLabel:`Z ${sc.toFixed(2)}`,
+      mmX,mmY,mmW,mmH, mmSize:st.vh<700?120:180, dockTop:topH+20,
+      upKinds:[['spot','◎ 명소'],['route','〰 루트']].map(([k,l])=>({label:l,bg:st.upKind===k?'#fff':'transparent',fg:st.upKind===k?'#3A2A1E':'#8A7358',pick:()=>this.setState({upKind:k,draftPin:null,routeDraft:[]})})),
+      upIsRoute:st.upKind==='route', upHint:st.upKind==='route'?'지도의 핀을 순서대로 클릭해 경유지를 추가하세요. 주황 점선이 루트가 됩니다.':(st.draftPin?'위치가 찍혔어요. 지도를 다시 클릭하면 옮겨요.':'지도를 클릭해 장소 위치를 찍어주세요.'),
+      routeDraft:st.routeDraft.map((id,i)=>({n:String(i+1),name:byId(id).name,remove:()=>this.setState(s=>({routeDraft:s.routeDraft.filter(x=>x!==id)}))})), draftCount:st.routeDraft.length, draftEmpty:st.routeDraft.length===0, draftWalk:st.routeDraft.length>1?`예상 도보 ${st.routeDraft.length*14}분`:'',
+      upNameLabel:st.upKind==='route'?'루트 이름':'장소 이름', upNamePh:st.upKind==='route'?'예: 출근길 북촌 15분 산책':'예: 삼청동 2층 카페 창가',
+      upTags:['한옥','카페','야경','먹거리','사진','아이랑','비오는날'].map(l=>({label:l,bg:st.upTags[l]?'#3A2A1E':'#fff',fg:st.upTags[l]?'#FBF3E4':'#3A2A1E',toggle:()=>this.setState(s=>({upTags:{...s.upTags,[l]:!s.upTags[l]}}))})),
+      submitUpload:()=>{ if(st.upKind==='spot'&&!st.draftPin) return this.t('먼저 지도를 클릭해 위치를 찍어주세요'); if(st.upKind==='route'&&st.routeDraft.length<2) return this.t('경유지를 2곳 이상 선택해주세요'); this.closeWin('upload'); this.openWin('feed'); this.t('업로드 완료! 검수 후 지도에 표시돼요'); },
+      postcardPos:`${Math.round(Math.max(0,Math.min(100,(-st.pan.x+st.vw/2)/(1536*sc)*100)))}% ${Math.round(Math.max(0,Math.min(100,(-st.pan.y+st.vh/2)/(1536*sc)*100)))}%`, postDate:'2026.09.13',
+      toast:st.toast,
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -429,6 +429,194 @@ def direct_comparison(region="downtown"):
     return root / "comparison.png"
 
 
+def _clean_vworld(source, top, bottom=24):
+    """Remove VWorld labels/UI before diffusion while retaining the source file."""
+    content = source.crop((0, top, source.width, source.height - bottom))
+    return content.resize(source.size, Image.Resampling.LANCZOS)
+
+
+def decoration_layer(size, items):
+    """Small deterministic game decorations drawn on the logical pixel grid."""
+    layer = Image.new("RGBA", (size, size), (0, 0, 0, 0))
+    draw = ImageDraw.Draw(layer)
+    for item in items:
+        x, y, kind = item["x"], item["y"], item["kind"]
+        if kind == "tree":
+            draw.rectangle((x - 1, y + 3, x + 1, y + 7), fill="#6f4e37")
+            draw.rectangle((x - 4, y - 2, x + 4, y + 4), fill="#396047")
+            draw.rectangle((x - 3, y - 4, x + 2, y + 2), fill="#5f8552")
+            draw.point((x - 2, y - 3), fill="#9caf68")
+        elif kind == "person":
+            draw.rectangle((x, y, x + 1, y + 1), fill="#edc49a")
+            draw.rectangle((x - 1, y + 2, x + 2, y + 4), fill="#b45f52")
+            draw.point((x - 1, y + 5), fill="#34404b")
+            draw.point((x + 2, y + 5), fill="#34404b")
+        elif kind == "car":
+            draw.rectangle((x - 3, y, x + 3, y + 3), fill="#d6b45f")
+            draw.rectangle((x - 1, y - 1, x + 2, y), fill="#8fb3b2")
+            draw.point((x - 2, y + 4), fill="#293641")
+            draw.point((x + 2, y + 4), fill="#293641")
+        else:
+            raise ValueError(f"Unknown decoration kind: {kind}")
+    return layer
+
+
+def _rpg_work_image(result, work_size, background_colors):
+    small = result.resize((work_size, work_size), Image.Resampling.BOX)
+    # One logical-pixel median pass removes photographic speckle while leaving
+    # roofs, windows and streets large enough to read.
+    small = small.filter(ImageFilter.MedianFilter(3))
+    return small.quantize(colors=background_colors, method=Image.Quantize.MEDIANCUT).convert("RGB")
+
+
+def _rpg_generate(pipe, torch, device, ai, rpg, init, control, strength):
+    return pipe(
+        prompt=rpg["prompt"], negative_prompt=rpg["negative"], image=init,
+        control_image=control, strength=strength, num_inference_steps=ai["steps"],
+        guidance_scale=ai["guidance"], controlnet_conditioning_scale=ai["control_scale"],
+        generator=torch.Generator(device).manual_seed(rpg["seed"])).images[0]
+
+
+def _compose_rpg(work_bg, decor, clean, colors):
+    guide = clean.resize(work_bg.size, Image.Resampling.BOX).filter(ImageFilter.MedianFilter(5))
+    major = _edge(guide)
+    outlined = np.asarray(work_bg).copy()
+    outlined[major] = np.clip(outlined[major].astype(np.float32) * .55, 0, 255).astype(np.uint8)
+    composed = Image.alpha_composite(Image.fromarray(outlined).convert("RGBA"), decor).convert("RGB")
+    return composed.quantize(colors=colors, method=Image.Quantize.MEDIANCUT).convert("RGB")
+
+
+def rpg_pilot(region="downtown"):
+    cfg, ai, rpg = read(CONFIG), read(CONFIG)["ai"], read(CONFIG)["rpg"]
+    if region != rpg["region"]:
+        raise ValueError(f"The reviewed RPG pilot region is {rpg['region']}")
+    source_path = WORK / f"{region}_source.png"
+    direct_path = EVAL / "direct" / f"{region}_s45.png"
+    if not source_path.exists() or not direct_path.exists():
+        raise RuntimeError("RPG pilot requires the VWorld capture and Direct 0.45 candidate")
+    source = Image.open(source_path).convert("RGB")
+    clean = _clean_vworld(source, rpg["label_crop_top_px"])
+    torch, device, pipe = _local_pipeline(ai)
+    inference_size = ai["inference_size"]
+    init = clean.resize((inference_size, inference_size), Image.Resampling.LANCZOS)
+    control = _canny(init)
+    root = EVAL / "rpg"
+    root.mkdir(parents=True, exist_ok=True)
+    decor = decoration_layer(rpg["work_size"], rpg["decorations"])
+    decor.resize(source.size, Image.Resampling.NEAREST).save(root / "decorations.png")
+    candidates = []
+    background_colors = rpg["palette_colors"] - 8
+    repeat_identical = None
+    for strength in rpg["strengths"]:
+        repeat_identical = None
+        generated = _rpg_generate(pipe, torch, device, ai, rpg, init, control, strength)
+        work_bg = _rpg_work_image(generated, rpg["work_size"], background_colors)
+        composed = _compose_rpg(work_bg, decor, clean, rpg["palette_colors"])
+        art = composed.resize(source.size, Image.Resampling.NEAREST)
+        background = work_bg.resize(source.size, Image.Resampling.NEAREST)
+        stem = f"{region}_rpg_s{int(round(strength * 100)):02d}"
+        background.save(root / f"{stem}_background.png")
+        footer = Image.new("RGB", (art.width, rpg["footer_px"]), "#202832")
+        ImageDraw.Draw(footer).text(
+            (12, 12), "SOURCE: VWORLD WEBGL 3D / LOCAL COZY LIFE-SIM PIXEL INTERPRETATION",
+            fill="#f1e7cf", font=ImageFont.load_default())
+        published = Image.new("RGB", (art.width, art.height + footer.height))
+        published.paste(art, (0, 0)); published.paste(footer, (0, art.height))
+        path = root / f"{stem}.png"
+        published.save(path)
+        metrics = direct_metrics(clean, art, rpg["pixel_size"])
+        colors = len(composed.getcolors(maxcolors=1 << 20) or [])
+        block = np.asarray(art).reshape(rpg["work_size"], rpg["pixel_size"],
+                                        rpg["work_size"], rpg["pixel_size"], 3)
+        grid_exact = bool(np.all(block == block[:, :1, :, :1]))
+        passed = (metrics["edge_recall"] >= rpg["edge_recall_min"] and
+                  metrics["translation_max_px"] <= rpg["translation_px_max"] and
+                  colors <= rpg["palette_colors"] and grid_exact)
+        if strength == rpg["recommended_strength"]:
+            repeated = _rpg_generate(pipe, torch, device, ai, rpg, init, control, strength)
+            repeated_bg = _rpg_work_image(repeated, rpg["work_size"], background_colors)
+            repeated_composed = _compose_rpg(
+                repeated_bg, decor, clean, rpg["palette_colors"])
+            repeat_identical = repeated_composed.tobytes() == composed.tobytes()
+            passed = passed and repeat_identical
+        candidates.append({"strength": strength, "seed": rpg["seed"], "file": path.name,
+                           "background": f"{stem}_background.png", "metrics": metrics,
+                           "palette_colors": colors, "pixel_grid_exact": grid_exact,
+                           "repeat_identical": repeat_identical,
+                           "sha256": digest_bytes(path.read_bytes()),
+                           "automatic_gate_passed": passed})
+        print(stem, metrics, f"colors={colors}", "PASS" if passed else "FAIL", flush=True)
+    report = {"region": region, "input": str(source_path.relative_to(P2)),
+              "input_sha256": digest_bytes(source_path.read_bytes()), "model": ai["model"],
+              "controlnet": ai["controlnet"], "local_only": True,
+              "prompt": rpg["prompt"], "negative": rpg["negative"],
+              "work_size": rpg["work_size"], "pixel_size": rpg["pixel_size"],
+              "palette_colors": rpg["palette_colors"],
+              "recommended_strength": rpg["recommended_strength"], "candidates": candidates,
+              "validation_passed": all(c["automatic_gate_passed"] for c in candidates),
+              "status": "awaiting_user_visual_review"}
+    write(root / "report.json", report)
+    rpg_comparison(region)
+    return report
+
+
+def rpg_finalize(region="downtown"):
+    """Rebuild candidate composites from frozen AI backgrounds without inference."""
+    root, rpg = EVAL / "rpg", read(CONFIG)["rpg"]
+    report = read(root / "report.json")
+    source = Image.open(WORK / f"{region}_source.png").convert("RGB")
+    clean = _clean_vworld(source, rpg["label_crop_top_px"])
+    decor = decoration_layer(rpg["work_size"], rpg["decorations"])
+    for item in report["candidates"]:
+        work_bg = Image.open(root / item["background"]).convert("RGB").resize(
+            (rpg["work_size"], rpg["work_size"]), Image.Resampling.NEAREST)
+        composed = _compose_rpg(work_bg, decor, clean, rpg["palette_colors"])
+        art = composed.resize(source.size, Image.Resampling.NEAREST)
+        footer = Image.new("RGB", (art.width, rpg["footer_px"]), "#202832")
+        ImageDraw.Draw(footer).text(
+            (12, 12), "SOURCE: VWORLD WEBGL 3D / LOCAL COZY LIFE-SIM PIXEL INTERPRETATION",
+            fill="#f1e7cf", font=ImageFont.load_default())
+        published = Image.new("RGB", (art.width, art.height + footer.height))
+        published.paste(art, (0, 0)); published.paste(footer, (0, art.height))
+        path = root / item["file"]
+        published.save(path)
+        metrics = direct_metrics(clean, art, rpg["pixel_size"])
+        colors = len(composed.getcolors(maxcolors=1 << 20) or [])
+        item.update(metrics=metrics, palette_colors=colors, pixel_grid_exact=True,
+                    sha256=digest_bytes(path.read_bytes()))
+        if item["strength"] != rpg["recommended_strength"]:
+            item["repeat_identical"] = None
+        deterministic = (item["repeat_identical"] is True
+                         if item["strength"] == rpg["recommended_strength"] else True)
+        item["automatic_gate_passed"] = (
+            metrics["edge_recall"] >= rpg["edge_recall_min"] and
+            metrics["translation_max_px"] <= rpg["translation_px_max"] and
+            colors <= rpg["palette_colors"] and deterministic)
+    report["validation_passed"] = all(c["automatic_gate_passed"] for c in report["candidates"])
+    write(root / "report.json", report)
+    rpg_comparison(region)
+    return report
+
+
+def rpg_comparison(region="downtown"):
+    root, rpg = EVAL / "rpg", read(CONFIG)["rpg"]
+    report = read(root / "report.json")
+    source = Image.open(WORK / f"{region}_source.png").convert("RGB")
+    direct = Image.open(EVAL / "direct" / f"{region}_s45.png").convert("RGB").crop((0, 0, *source.size))
+    entries = [(source, "VWORLD SOURCE"), (direct, "DIRECT 0.45")]
+    for item in report["candidates"]:
+        image = Image.open(root / item["file"]).convert("RGB").crop((0, 0, *source.size))
+        entries.append((image, f"COZY RPG / {item['strength']:.2f}"))
+    thumb = rpg["work_size"]
+    sheet = Image.new("RGB", (thumb * len(entries), thumb + 34), "#eee5d4")
+    draw = ImageDraw.Draw(sheet)
+    for col, (image, label) in enumerate(entries):
+        draw.text((col * thumb + 8, 9), label, fill="#343e48", font=ImageFont.load_default())
+        sheet.paste(image.resize((thumb, thumb), Image.Resampling.BOX), (col * thumb, 34))
+    sheet.save(root / "comparison.png")
+    return root / "comparison.png"
+
+
 def reference_init(source, base, object_id, seed):
     """Transfer regional VWorld colours without claiming facade identity."""
     src = np.asarray(source.convert("RGB"), dtype=np.float32)
@@ -570,10 +758,24 @@ def probe():
 if __name__ == "__main__":
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("command", choices=("probe", "capture", "analyze", "generate", "validate",
-                                        "compare", "direct-pilot", "direct-compare"))
+                                        "compare", "direct-pilot", "direct-compare",
+                                        "rpg-pilot", "rpg-finalize", "rpg-compare",
+                                        "qwen-prepare", "qwen-pilot"))
     ap.add_argument("--region", default="downtown")
+    ap.add_argument("--variant", choices=("bf16", "q8"), default="bf16")
+    ap.add_argument("--smoke-only", action="store_true", help="Qwen: only run the 512px compatibility check")
     args = ap.parse_args()
+    if args.command.startswith("qwen-"):
+        import qwen_style
+        if args.command == "qwen-prepare":
+            qwen_style.prepare(variant=args.variant)
+        else:
+            qwen_style.pilot(args.region, smoke_only=args.smoke_only, variant=args.variant)
+        raise SystemExit(0)
     {"probe": probe, "capture": capture_pilots, "analyze": analyze,
      "generate": local_ai, "validate": validate_generated,
      "compare": comparison, "direct-pilot": lambda: direct_pilot(args.region),
-     "direct-compare": lambda: direct_comparison(args.region)}[args.command]()
+     "direct-compare": lambda: direct_comparison(args.region),
+     "rpg-pilot": lambda: rpg_pilot(args.region),
+     "rpg-finalize": lambda: rpg_finalize(args.region),
+     "rpg-compare": lambda: rpg_comparison(args.region)}[args.command]()

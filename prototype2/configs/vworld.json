@@ -41,5 +41,29 @@
     "edge_density_min": 0.70,
     "edge_density_max": 2.00,
     "translation_px_max": 6
+  },
+  "rpg": {
+    "region": "downtown",
+    "strengths": [0.50, 0.60, 0.70],
+    "recommended_strength": 0.60,
+    "work_size": 384,
+    "pixel_size": 4,
+    "palette_colors": 48,
+    "seed": 20260913,
+    "footer_px": 40,
+    "label_crop_top_px": 96,
+    "edge_recall_min": 0.70,
+    "translation_px_max": 4,
+    "prompt": "Seoul city scene as a cozy life-sim pixel RPG background, preserve the exact VWorld camera and recognizable real buildings, clear chunky building silhouettes, simplified Korean tiled roofs, readable window clusters, clean roads and green spaces, hand-crafted 16-bit game art, warm natural palette, crisp hard-edged pixels, sparse tiny pedestrians cars and street trees",
+    "negative": "photograph, photorealistic noise, blurry gradients, antialiasing, changed skyline, moved road, missing landmark, new large building, dense crowd, oversized objects, text, letters, labels, logo, watermark",
+    "decorations": [
+      {"kind": "tree", "x": 146, "y": 229},
+      {"kind": "tree", "x": 190, "y": 247},
+      {"kind": "person", "x": 174, "y": 252},
+      {"kind": "person", "x": 210, "y": 244},
+      {"kind": "person", "x": 251, "y": 231},
+      {"kind": "car", "x": 277, "y": 184},
+      {"kind": "car", "x": 306, "y": 198}
+    ]
   }
 }

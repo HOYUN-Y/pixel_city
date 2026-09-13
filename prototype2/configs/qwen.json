@@ -1,0 +1,26 @@
+{
+  "model": "Qwen/Qwen-Image-Edit-2511",
+  "revision": "6f3ccc0b56e431dc6a0c2b2039706d7d26f22cb9",
+  "q8": {
+    "model": "unsloth/Qwen-Image-Edit-2511-GGUF",
+    "revision": "0d33d9692b4b26212297240d87b0d4719aa4fd06",
+    "file": "qwen-image-edit-2511-Q8_0.gguf",
+    "bytes": 21761817184,
+    "sha256": "ab4f0622fb002fccaaa679a2ecce6fd1b3190d8ea28a5b7b2b17b8669bc24afa"
+  },
+  "region": "downtown",
+  "source": "work/vworld/downtown_source.png",
+  "source_sha256": "f391dc88c7181c34f7f77d698b5f9eadc1dbb680bd2d7c5701f04b0111fea334",
+  "style_reference": "work/references/pixel_style.png",
+  "style_sha256": "1f74c762ed3f7c307f4b856630c09f986f4a5194f2a198040052580b07afeae5",
+  "crop": [320, 512, 1088, 1280],
+  "size": 1024,
+  "steps": 40,
+  "true_cfg_scale": 4.0,
+  "guidance_scale": 1.0,
+  "seeds": [20260913, 20260914],
+  "smoke_size": 512,
+  "smoke_steps": 4,
+  "prompt": "Use case: style-transfer. Image 1 is the ONLY scene and geometry reference: a tilted perspective map of Deoksugung and nearby Seoul buildings. Image 2 is ONLY an art-style reference, never a layout or object source. Redraw Image 1 as a beautifully hand-crafted pixel-art city game background using the crisp pixel clusters, bright natural colors and carefully organized detail of Image 2. Keep the exact camera, framing, building locations, large silhouettes, roof orientations, relative heights, palace walls, courtyards and connected paths of Image 1. Preserve recognizable Korean tiled roofs and the distinct facade features of each real building, but reinterpret roof tiles and window rows as clean readable pixel patterns. Render existing vegetation as distinct leafy crowns with compact shadows, not photographic smears. Use fresh greens, warm sunlit paving, cool roof colors, clear material boundaries and restrained consistent shading. Make roofs, walls, windows and trees individually readable. Change the visual rendering, not the city layout. Do not import farms, barns, crops, ponds, characters or objects from Image 2. No additional buildings, no moved roads, no captions or labels. Output only the redrawn scene from Image 1.",
+  "negative_prompt": "photographic texture, blurry smears, muddy colors, painterly brush strokes, farm layout, copied farm assets, additional buildings, missing buildings, changed viewpoint, moved roads, text, labels, collage, split screen"
+}
