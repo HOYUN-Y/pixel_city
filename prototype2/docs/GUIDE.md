@@ -61,12 +61,14 @@ README의 서버 명령은 저장소 루트에서 실행한다. 새 지도는 Gi
 생성·합성·검수 파일은 `prototype2/eval/vworld/seam_lab/runs/20260913T173009999136Z/`에 있다.
 
 다음은 **추가 과금 없는** 명령이다.
+JavaScript 검증은 Node 22 이상을 사용한다. Node 20.15 환경에서는 `.mjs` 검증 명령에
+`--experimental-default-type=module`을 추가한다(Node 24에는 해당 옵션을 넣지 않는다).
 
 ```bash
 prototype2/.venv/bin/python prototype2/scripts/seam_lab.py publish --run 20260913T173009999136Z
 prototype2/.venv/bin/python prototype2/scripts/seam_lab.py verify --run 20260913T173009999136Z
 prototype2/.venv/bin/python -m unittest discover -s prototype2/tests -p 'test_*.py'
-node --experimental-default-type=module prototype2/tests/test_lab_core.mjs
+node prototype2/tests/test_lab_core.mjs
 prototype2/.venv/bin/python prototype2/tests/lab_browser_check.py --run 20260913T173009999136Z
 ```
 
