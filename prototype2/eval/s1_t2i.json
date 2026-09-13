@@ -1,0 +1,47 @@
+{
+  "control": "/Users/lyuhoyun/Documents/GitHub/pixel_city/prototype2/inputs_zoom/conditions/edge.png",
+  "results": [
+    {
+      "name": "s1_t2i_st080_seed3.png",
+      "recall": 0.937139,
+      "precision": 0.106838,
+      "f1": 0.19181,
+      "edge_density_ratio": 14.790075
+    },
+    {
+      "name": "s1_t2i_st080_seed2.png",
+      "recall": 0.972105,
+      "precision": 0.104588,
+      "f1": 0.188857,
+      "edge_density_ratio": 14.793837
+    },
+    {
+      "name": "s1_t2i_st050_seed3.png",
+      "recall": 0.999286,
+      "precision": 0.091422,
+      "f1": 0.167519,
+      "edge_density_ratio": 23.838534
+    },
+    {
+      "name": "s1_t2i_st080_seed1.png",
+      "recall": 0.978917,
+      "precision": 0.089255,
+      "f1": 0.163595,
+      "edge_density_ratio": 15.941161
+    },
+    {
+      "name": "s1_t2i_st050_seed2.png",
+      "recall": 0.986701,
+      "precision": 0.087775,
+      "f1": 0.16121,
+      "edge_density_ratio": 22.254038
+    },
+    {
+      "name": "s1_t2i_st050_seed1.png",
+      "recall": 0.999092,
+      "precision": 0.084046,
+      "f1": 0.155049,
+      "edge_density_ratio": 24.185469
+    }
+  ]
+}

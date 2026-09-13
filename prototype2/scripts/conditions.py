@@ -1,15 +1,17 @@
-"""P2-1 — 공간데이터 렌더를 이미지 모델용 조건(condition) 이미지 4종으로 내보낸다.
+"""P2-1 — 공간데이터 렌더를 구조 잠금형 스타일링용 조건 이미지로 내보낸다.
 
-`web/data/{city,layers,meta}.json`만 읽는다. V-World 키도, 원본 WFS 캐시도 필요 없다.
-네 장 모두 같은 카메라·같은 크기로 그리므로 픽셀 좌표가 서로 정확히 대응한다.
+`inputs/snapshot/{city,layers,meta}.json`만 읽는다. V-World 키도, 원본 WFS 캐시도 필요 없다.
+여섯 채널 모두 같은 카메라·같은 크기로 그리므로 픽셀 좌표가 서로 정확히 대응한다.
 
     inputs/source/base_rgb.png      현재 팔레트 렌더 (기준선 / img2img 입력)
     inputs/source/camera.json       재투영용 카메라 (P2-7에서 POI를 다시 얹을 때 쓴다)
     inputs/conditions/edge.png      면 경계 흰 선 (painter 순서라 은면 제거됨)
     inputs/conditions/height.png    높이 명암
     inputs/conditions/mask.png      클래스별 단색 ID
+    inputs/conditions/surface.png   지면/도로/지붕/밝은 벽/어두운 벽 ID
+    inputs/conditions/object_id.png 건물 인덱스+1을 RGB 24비트로 저장
 
-투영은 `poc/iso2.py`의 것을 그대로 import 한다. 렌더러를 세 번째로 복제하지 않는다.
+투영은 `geometry.py`의 고정된 계약을 사용한다. prototype1 실행 코드를 import하지 않는다.
 
     python prototype2/scripts/conditions.py
     python prototype2/scripts/conditions.py --check
@@ -17,13 +19,11 @@
 import argparse, json, os, sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-P1 = os.path.join(ROOT, "prototype1")        # 09-04 저장소 재편 — poc/web이 여기로 들어갔다
-sys.path.insert(0, os.path.join(P1, "poc"))
-import iso2                                  # noqa: E402  proj / depth / expand / STYLE
-from export import dec_ring                  # noqa: E402  델타 인코딩 역변환
+import geometry as iso2                     # frozen projection and style
+from geometry import dec_ring
 from PIL import Image, ImageDraw             # noqa: E402
 
-DATA = os.path.join(P1, "web", "data")
+DATA = str(iso2.DATA)
 BBOX = (126.9740, 37.5760, 126.9820, 37.5820)   # 경복궁~삼청동. poc/gyeongbok.png와 동일
 PAD = 8
 
@@ -39,10 +39,18 @@ MASK = {
 }
 GROUND_GRAY = 16        # 지면. bg(0)와 구분되어야 프레임 밖을 잘라낼 수 있다
 HMAX = 60.0             # height.png 정규화 상한(m). 구역 최고층 건물 기준
+SURFACE = {"bg": 0, "ground": 16, "road": 32, "park": 48, "water": 64,
+           "heri": 80, "roof": 160, "wall_lit": 192, "wall_dark": 224}
+
+
+def object_color(object_id):
+    return ((object_id >> 16) & 255, (object_id >> 8) & 255, object_id & 255)
 
 
 def load():
-    j = lambda n: json.load(open(os.path.join(DATA, f"{n}.json"), encoding="utf-8"))
+    def j(name):
+        with open(os.path.join(DATA, f"{name}.json"), encoding="utf-8") as f:
+            return json.load(f)
     return j("city"), j("layers"), j("meta")
 
 
@@ -63,38 +71,43 @@ def camera(meta, bbox, size):
 
 
 class Sheet:
-    """네 장을 한 번에 그린다. 같은 폴리곤을 같은 순서로 칠하므로 은면 처리가 일치한다."""
+    """여섯 채널을 같은 순서로 그려 은면 처리를 일치시킨다."""
 
     def __init__(self, cam):
         n = cam["size"]
         self.cam = cam
         self.im = {k: Image.new("RGB", (n, n), c) for k, c in
                    (("rgb", tuple(iso2.STYLE["colors"]["bg"])), ("edge", (0, 0, 0)),
-                    ("height", (0, 0, 0)), ("mask", MASK["bg"]))}
+                    ("height", (0, 0, 0)), ("mask", MASK["bg"]),
+                    ("surface", (SURFACE["bg"],) * 3), ("object_id", (0, 0, 0)))}
         self.dr = {k: ImageDraw.Draw(v) for k, v in self.im.items()}
 
     def S(self, e, n, h):
         u, v = iso2.proj(e, n, h, self.cam["scale"])
         return (u + self.cam["cx"], v + self.cam["cy"])
 
-    def face(self, pts, rgb, cls, h):
+    def face(self, pts, rgb, cls, h, surface="ground", object_id=0):
         """한 면. 네 장 전부 채워야 painter 순서로 뒤가 가려진다."""
         # 대부분의 건물이 3~15m라 선형이면 전부 어둡게 뭉친다. sqrt로 저층부를 벌린다.
         g = round(GROUND_GRAY + (255 - GROUND_GRAY) * min(h / HMAX, 1.0) ** 0.5)
         self.dr["rgb"].polygon(pts, fill=rgb)
         self.dr["height"].polygon(pts, fill=(g, g, g))
         self.dr["mask"].polygon(pts, fill=MASK.get(cls, MASK["bld"]))
+        self.dr["surface"].polygon(pts, fill=(SURFACE[surface],) * 3)
+        self.dr["object_id"].polygon(pts, fill=object_color(object_id))
         self.dr["edge"].polygon(pts, fill=(0, 0, 0), outline=(255, 255, 255))
 
     def line(self, pts, rgb, cls, w):
         self.dr["rgb"].line(pts, fill=rgb, width=w, joint="curve")
         self.dr["height"].line(pts, fill=(GROUND_GRAY,) * 3, width=w, joint="curve")
         self.dr["mask"].line(pts, fill=MASK[cls], width=w, joint="curve")
+        self.dr["surface"].line(pts, fill=(SURFACE[cls],) * 3, width=w, joint="curve")
+        self.dr["object_id"].line(pts, fill=(0, 0, 0), width=w, joint="curve")
         self.dr["edge"].line(pts, fill=(255, 255, 255), width=1, joint="curve")
 
     def save(self, out):
         d = {"rgb": os.path.join(out, "source", "base_rgb.png")}
-        for k in ("edge", "height", "mask"):
+        for k in ("edge", "height", "mask", "surface", "object_id"):
             d[k] = os.path.join(out, "conditions", f"{k}.png")
         for k, p in d.items():
             os.makedirs(os.path.dirname(p), exist_ok=True)
@@ -102,8 +115,8 @@ class Sheet:
         return d
 
 
-def render(city, layers, cam):
-    sh, C = Sheet(cam), iso2.STYLE["colors"]
+def render(city, layers, cam, sheet_type=Sheet):
+    sh, C = sheet_type(cam), iso2.STYLE["colors"]
     q = 10.0
     en = lambda ring: dec_ring(ring)
     # 크롭 밖 지오메트리는 버린다. 프레임 여백까지 남기려고 20% 넉넉히 잡는다.
@@ -123,7 +136,8 @@ def render(city, layers, cam):
         for r in layers.get(key, []):
             pts = en(r)
             if len(pts) >= 3 and inside(pts):
-                sh.face([sh.S(e, n, 0) for e, n in pts], tuple(col), cls, 0)
+                surface = "water" if cls == "water" else ("park" if cls == "park" else "heri")
+                sh.face([sh.S(e, n, 0) for e, n in pts], tuple(col), cls, 0, surface)
     for w10, r in sorted(layers.get("road", []), key=lambda x: x[0]):
         pts = en(r)
         if inside(pts):
@@ -142,20 +156,20 @@ def render(city, layers, cam):
             cls = "palace" if k == 2 else "hanok"
             roof, lit, dark = map(tuple, C["palace"] if k == 2 else C["hanok"])
             body = h * 0.5
-            walls(sh, pts, 0, body, lit, dark, cls, body)
+            walls(sh, pts, 0, body, lit, dark, cls, body, i + 1)
             eave = iso2.expand(pts, iso2.STYLE["eave"])
             shade = tuple(int(c * 0.72) for c in roof)
-            walls(sh, eave, body, h, roof, shade, cls, h)
-            sh.face([sh.S(e, n, h) for e, n in eave], roof, cls, h)
+            walls(sh, eave, body, h, roof, shade, cls, h, i + 1)
+            sh.face([sh.S(e, n, h) for e, n in eave], roof, cls, h, "roof", i + 1)
         else:
             cls = use if use in MASK else "bld"
             roof, lit, dark = pal.get(use, tuple(map(tuple, C["default"])))
-            walls(sh, pts, 0, h, lit, dark, cls, h)
-            sh.face([sh.S(e, n, h) for e, n in pts], roof, cls, h)
+            walls(sh, pts, 0, h, lit, dark, cls, h, i + 1)
+            sh.face([sh.S(e, n, h) for e, n in pts], roof, cls, h, "roof", i + 1)
     return sh
 
 
-def walls(sh, pts, h0, h1, lit, dark, cls, h):
+def walls(sh, pts, h0, h1, lit, dark, cls, h, object_id):
     import math
     a = math.radians(iso2.STYLE["alpha_deg"])
     for (e1, n1), (e2, n2) in zip(pts, pts[1:]):
@@ -163,8 +177,9 @@ def walls(sh, pts, h0, h1, lit, dark, cls, h):
         if nx * math.sin(a) + nz * math.cos(a) <= 0:       # 뒷면
             continue
         c = lit if abs(nx) / (math.hypot(nx, nz) + 1e-9) > 0.5 else dark
+        surface = "wall_lit" if c == lit else "wall_dark"
         sh.face([sh.S(e1, n1, h0), sh.S(e2, n2, h0),
-                 sh.S(e2, n2, h1), sh.S(e1, n1, h1)], c, cls, h)
+                 sh.S(e2, n2, h1), sh.S(e1, n1, h1)], c, cls, h, surface, object_id)
 
 
 def selfcheck():
@@ -177,6 +192,8 @@ def selfcheck():
     p0, p1 = Sheet(cam).S(0, 0, 0), Sheet(cam).S(0, 0, 20)
     assert p1[1] < p0[1], "높이가 화면 위쪽이어야 한다"
     assert len(set(MASK.values())) == len(MASK), "마스크 색 ID가 겹친다"
+    assert len(set(SURFACE.values())) == len(SURFACE), "surface ID가 겹친다"
+    assert object_color(6991) != (0, 0, 0)
     print("selfcheck ok")
 
 

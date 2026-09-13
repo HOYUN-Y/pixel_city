@@ -1,0 +1,17 @@
+{
+  "bbox": [126.970, 37.551, 126.996, 37.582],
+  "scale": 0.37630097861518014,
+  "tile_size": 1024,
+  "overlap": 128,
+  "pilot_tiles": ["r01_c02", "r01_c03", "r02_c02", "r02_c03"],
+  "base_seed": 20260912,
+  "model": "stabilityai/stable-diffusion-xl-base-1.0",
+  "controlnet": "diffusers/controlnet-canny-sdxl-1.0",
+  "prompt": "Seoul isometric pixel-art map, exact input layout, preserve every building footprint and road, Korean tiled roofs, curved eaves, dancheong beams, small windows, sparse trees and people, limited retro palette, crisp pixels, upper-left light",
+  "negative": "perspective view, photorealistic, blurry, soft gradients, antialiased, western architecture, gothic, invented roads, missing roads, new large buildings, water, lake, text, watermark, signature, logo, label",
+  "steps": 30,
+  "guidance": 7.0,
+  "control_scale": 0.8,
+  "palette_colors": 64,
+  "web_tile_size": 256
+}

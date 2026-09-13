@@ -1,0 +1,11 @@
+{
+  "source": "prototype1; frozen for prototype2, no live imports",
+  "files": {
+    "city.json": "fd8d6fe05338268330c351c22ea7bb18180fde941776a021c19e267c397d42b6",
+    "layers.json": "7d76371b533fedb3fffd58bdf8d0cba232ce0b22e15cc58f1341aa4eb792a2ad",
+    "meta.json": "7d763e348edc7124aa5a23b1c1ff1a05f7c4c536a34e044c2f851650c06d6a26",
+    "poi.json": "7cd891196ba2fbe391c124f33d09bf9fe54762c75b310fbfc001132ec60c44d8",
+    "style.json": "67b9d6f33643e648ac6ed1a9a879731d2fb74d304d7ef9507e9da355442675ae",
+    "tile_manifest.json": "69a2aa5bbf8488b5a9cd2de82a2bc5daab86f5ae8bf4a9c11cdc2a394552fead"
+  }
+}

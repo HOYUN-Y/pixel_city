@@ -9,9 +9,10 @@ retention은 순위를 매기는 보조 숫자다. 최종 판정은 사람이 �
 
     prototype2/.venv/bin/python prototype2/scripts/overlay.py
 """
-import argparse, glob, os
+import argparse, glob, json, os
 
-from PIL import Image, ImageChops, ImageFilter
+import numpy as np
+from PIL import Image, ImageFilter
 
 P2 = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CTL = os.path.join(P2, "inputs", "conditions", "edge.png")
@@ -26,16 +27,30 @@ def edges_of(img):
     return e.point(lambda v: 255 if v >= THRESH else 0)
 
 
-def retention(ctl, img):
+def metrics(ctl, img):
     src = ctl.convert("L").point(lambda v: 255 if v >= 128 else 0)
-    got = edges_of(img).filter(ImageFilter.MaxFilter(TOL * 2 + 1))   # 허용 오차만큼 굵힌다
-    hit = ImageChops.multiply(src, got)
-    n = sum(src.point(lambda v: v // 255).getdata())
-    return (sum(hit.point(lambda v: v // 255).getdata()) / n) if n else 0.0
+    raw = edges_of(img)
+    got_wide = raw.filter(ImageFilter.MaxFilter(TOL * 2 + 1))
+    src_wide = src.filter(ImageFilter.MaxFilter(TOL * 2 + 1))
+    s = np.asarray(src, dtype=np.uint8) > 0
+    g = np.asarray(raw, dtype=np.uint8) > 0
+    gw = np.asarray(got_wide, dtype=np.uint8) > 0
+    sw = np.asarray(src_wide, dtype=np.uint8) > 0
+    recall = float((s & gw).sum() / s.sum()) if s.any() else 0.0
+    precision = float((g & sw).sum() / g.sum()) if g.any() else 0.0
+    f1 = 2 * precision * recall / (precision + recall) if precision + recall else 0.0
+    return {"recall": recall, "precision": precision, "f1": f1,
+            "edge_density_ratio": float(g.sum() / s.sum()) if s.any() else 0.0,
+            "source_edge_pixels": int(s.sum()), "result_edge_pixels": int(g.sum())}
 
 
-def main(pattern):
-    ctl = Image.open(CTL).convert("L")
+def retention(ctl, img):
+    """이전 보고서 호환용. 신규 판정에는 metrics의 precision/F1도 함께 본다."""
+    return metrics(ctl, img)["recall"]
+
+
+def main(pattern, control=CTL, report=None):
+    ctl = Image.open(control).convert("L")
     red = Image.new("RGB", ctl.size, (255, 40, 40))
     os.makedirs(EVAL, exist_ok=True)
     rows = []
@@ -43,28 +58,41 @@ def main(pattern):
         img = Image.open(p).convert("RGB").resize(ctl.size, Image.LANCZOS)
         out = os.path.join(EVAL, "ov_" + os.path.basename(p))
         Image.composite(red, img, ctl.point(lambda v: int(v * 0.7))).save(out)
-        rows.append((retention(ctl, img), os.path.basename(p)))
-    for r, n in sorted(rows, reverse=True):
-        print(f"  retention {r:.3f}  {n}")
+        rows.append((metrics(ctl, img), os.path.basename(p)))
+    rows.sort(key=lambda x: x[0]["f1"], reverse=True)
+    for m, n in rows:
+        print(f"  F1 {m['f1']:.3f}  recall {m['recall']:.3f}  precision {m['precision']:.3f}"
+              f"  density {m['edge_density_ratio']:.2f}  {n}")
     if rows:
         print(f"오버레이 {len(rows)}장 -> {os.path.relpath(EVAL, P2)}/ov_*.png")
     else:
         print("결과 이미지가 없다. 먼저 s1_edit.py를 돌린다.")
+    if report:
+        os.makedirs(os.path.dirname(os.path.abspath(report)), exist_ok=True)
+        with open(report, "w", encoding="utf-8") as f:
+            json.dump({"control": os.path.abspath(control),
+                       "results": [{"name": n, **{k: round(v, 6) for k, v in m.items()}}
+                                   for m, n in rows]},
+                      f, ensure_ascii=False, indent=2)
     return rows
 
 
-def selfcheck():
-    ctl = Image.open(CTL).convert("L")
-    assert retention(ctl, ctl.convert("RGB")) > 0.5, "자기 자신은 대부분 유지돼야 한다"
-    assert retention(ctl, Image.new("RGB", ctl.size, (30, 30, 30))) < 0.05, "민무늬는 0에 가까워야"
+def selfcheck(control=CTL):
+    ctl = Image.open(control).convert("L")
+    own = metrics(ctl, ctl.convert("RGB"))
+    blank = metrics(ctl, Image.new("RGB", ctl.size, (30, 30, 30)))
+    assert own["recall"] > 0.5 and own["precision"] > 0.5, "자기 자신은 대부분 유지돼야 한다"
+    assert blank["recall"] < 0.05, "민무늬는 0에 가까워야"
     print("selfcheck ok")
 
 
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("--glob", default=os.path.join(P2, "outputs", "candidates", "*.png"))
+    ap.add_argument("--control", default=CTL, help="결과와 같은 구간의 edge.png")
+    ap.add_argument("--report", help="retention 결과 JSON 경로")
     ap.add_argument("--check", action="store_true")
     a = ap.parse_args()
-    selfcheck()
+    selfcheck(a.control)
     if not a.check:
-        main(a.glob)
+        main(a.glob, a.control, a.report)

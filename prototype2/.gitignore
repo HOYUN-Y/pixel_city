@@ -2,3 +2,9 @@ outputs/
 .venv/
 __pycache__/
 eval/ov_*.png
+work/
+web/tiles/
+web/data/generated/
+# VWorld captures and derived descriptors can be regenerated and may retain
+# third-party pixels; keep them out of source control.
+eval/vworld/

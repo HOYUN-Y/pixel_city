@@ -12,7 +12,7 @@ conditions.py가 만든 두 장을 쓴다.
     python prototype2/scripts/s1_edit.py --check     # 모델 없이 입력·설정만 검사
     python prototype2/scripts/s1_edit.py             # 9장 생성 (첫 실행은 ~10GB 내려받음)
 """
-import argparse, json, os, sys, time
+import argparse, hashlib, json, os, sys, time
 
 P2 = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CFG = os.path.join(P2, "configs", "s1.json")
@@ -32,6 +32,34 @@ def set_paths(indir, tag):
 
 def grid(cfg):
     return [(s, sd) for s in cfg["strengths"] for sd in cfg["seeds"]]
+
+
+def digest(path):
+    h = hashlib.sha256()
+    with open(path, "rb") as f:
+        for chunk in iter(lambda: f.read(1024 * 1024), b""):
+            h.update(chunk)
+    return h.hexdigest()
+
+
+def cached_revision(repo_id):
+    try:
+        from huggingface_hub import scan_cache_dir
+        repo = next(r for r in scan_cache_dir().repos if r.repo_id == repo_id)
+        return max(repo.revisions, key=lambda r: r.last_modified).commit_hash
+    except Exception:
+        return None
+
+
+def check_prompt_lengths(pipe, cfg):
+    for name in ("tokenizer", "tokenizer_2"):
+        tok = getattr(pipe, name, None)
+        if tok is None:
+            continue
+        for field in ("prompt", "negative"):
+            count = len(tok(cfg[field], truncation=False).input_ids)
+            if count > tok.model_max_length:
+                raise ValueError(f"{field}가 {name} 한도 초과: {count}>{tok.model_max_length}")
 
 
 def contact(cfg, base, paths, combos, cols=3, cell=340):
@@ -85,6 +113,7 @@ def main(cfg, limit, mode):
     pipe = Pipe.from_pretrained(cfg["base"], controlnet=cn,
                                 torch_dtype=torch.float16, variant="fp16").to(dev)
     pipe.set_progress_bar_config(disable=True)
+    check_prompt_lengths(pipe, cfg)
 
     base, ctl = Image.open(SRC).convert("RGB"), Image.open(CTL).convert("RGB")
     os.makedirs(OUT, exist_ok=True)
@@ -104,6 +133,10 @@ def main(cfg, limit, mode):
         img.save(p)
         # 설정을 결과 옆에 남긴다. 어느 장이 어떤 설정이었는지 나중에 못 찾으면 판정이 무의미하다.
         json.dump({**cfg, "strength": st, "seed": sd, "device": dev,
+                   "input_sha256": {os.path.basename(SRC): digest(SRC),
+                                     os.path.basename(CTL): digest(CTL)},
+                   "model_revision": cached_revision(cfg["base"]),
+                   "controlnet_revision": cached_revision(cfg["controlnet"]),
                    "sec": round(time.time() - t, 1)},
                   open(os.path.join(OUT, name + ".json"), "w"),
                   ensure_ascii=False, indent=1)
