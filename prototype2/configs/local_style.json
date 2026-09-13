@@ -1,0 +1,22 @@
+{
+  "model": "stabilityai/stable-diffusion-xl-base-1.0",
+  "size": 512,
+  "texture_size": 128,
+  "palette_colors": 64,
+  "steps": 24,
+  "guidance": 6.0,
+  "seeds": [11, 29],
+  "common": "seamless flat pixel art material swatch, orthographic game texture, limited Korean retro palette, crisp square pixels, even lighting, no perspective, no objects, no people, no text, no border",
+  "negative": "scene, building, room, landscape, person, animal, vehicle, text, logo, watermark, photo, realistic, perspective, gradient, blur",
+  "materials": {
+    "palace_roof": "traditional Korean palace blue-gray ceramic giwa roof tiles and subtle ridge ornament pattern",
+    "hanok_roof": "traditional Korean hanok charcoal gray ceramic giwa roof tile pattern",
+    "commercial_roof": "muted blue gray urban rooftop panels and small mechanical details pattern",
+    "residential_roof": "warm gray and brown compact residential rooftop tile pattern",
+    "civic_roof": "cool pale gray civic building rooftop panel pattern",
+    "wall": "cream plaster, muted brick and dark timber Korean facade material pattern",
+    "road": "dark charcoal city asphalt with sparse pale lane marking fragments",
+    "ground": "muted stone paving and earth texture with sparse tiny grass pixels",
+    "vegetation": "dense clusters of small dark and light green pixel leaves"
+  }
+}

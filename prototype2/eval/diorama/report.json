@@ -1,0 +1,36 @@
+{
+  "signature": {
+    "config": "b06a05f97250507d65a149670d4a48a22dc0ba4fc32166b2a55627cd7de3cfbf",
+    "renderer": "765cdda9570bb574fd6741584fabb7233e7f9206530b6095177122818df520cd",
+    "conditions": "f9c8de166e69502b64b58e04ee87e69f510036f306f066271eb1c561c1120d85",
+    "geometry": "eead49337f97526324245568b2e6e0bfd5afe03f32c8ff7e949fc82e5b2eae46",
+    "snapshot": "4ca518fde1c4a6c2e9907c8100aa9aa1c1c4f30985f10a1158ded1b785465d68",
+    "assets": "46421b50336d2d378802338a173f207173f18708b6457ac6ac2a0bf908a92cc5"
+  },
+  "status": "awaiting_user_visual_review",
+  "pilots": [
+    {
+      "id": "palace",
+      "changed_fraction": 0.9776984320746528,
+      "sha256": "a8731ead50158e98536dca663874f2eb4be681d2195a6c01b3954ae9468ab2f7",
+      "repeat_identical": true
+    },
+    {
+      "id": "downtown",
+      "changed_fraction": 0.9656808641221788,
+      "sha256": "1aed42851738450fcf735505aec048e370b1de858b3d6e93cd5728fd76b001fd",
+      "repeat_identical": true
+    },
+    {
+      "id": "namsan",
+      "changed_fraction": 0.96263673570421,
+      "sha256": "56b361e0e82e0f45ba32b8224bc68bd731b69d8d27058da26da0d0f8d71a6d0e",
+      "repeat_identical": true
+    }
+  ],
+  "validation_passed": true,
+  "worst_seam": 0.00058746337890625,
+  "core_masks_unchanged": true,
+  "extension_screen_px_max": 12,
+  "palette_colors": 48
+}

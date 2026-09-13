@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>서울 디오라마 · 대표 구역 비교</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f0e8da;color:#343e48;font:16px system-ui,sans-serif}main{max-width:1240px;margin:auto;padding:32px 20px}h1{font-size:30px;margin:0 0 12px}p{line-height:1.7;max-width:850px}nav{display:flex;gap:8px;flex-wrap:wrap;margin:22px 0}button,select{font:inherit;padding:10px 18px;border:1px solid #a59d8c;border-radius:8px;background:#fff9ee;color:inherit;cursor:pointer}button[aria-pressed=true]{background:#355763;color:#fff}label{display:block;margin:14px 0}#stage{position:relative;width:100%;aspect-ratio:1;background:#d7c8a7;border:1px solid #b8a88a;overflow:hidden}#stage img{position:absolute;inset:0;width:100%;height:100%;image-rendering:pixelated}#after{clip-path:inset(0 0 0 50%)}#line{position:absolute;left:50%;height:100%;border-left:2px solid #fff0cc;pointer-events:none}#slider{width:100%;accent-color:#355763}.tags{display:flex;justify-content:space-between;font-weight:600;margin:10px 0}a{color:#355763}small{display:block;line-height:1.6;margin-top:12px}#error{color:#a2372a}
+</style></head><body><main>
+<h1>서울 디오라마</h1>
+<p>경복궁 · 도심 · 남산 주변의 새 표현을 같은 카메라와 범위에서 비교합니다. 슬라이더를 움직이면 기존 결과와 새 시안을 겹쳐 볼 수 있습니다. 현재는 대표 구역 검수 단계이며 전체 지도에는 아직 적용하지 않았습니다.</p>
+<nav aria-label="대표 구역"><button data-scene="palace" aria-pressed="true">경복궁</button><button data-scene="downtown" aria-pressed="false">광화문·도심</button><button data-scene="namsan" aria-pressed="false">남산 주변</button></nav>
+<label>비교 기준 <select id="baseline"><option value="locked">기존 prototype2</option><option value="base">기본 기하 렌더</option></select></label>
+<div class="tags"><span id="beforeLabel">기존 prototype2</span><span>새 디오라마</span></div>
+<div id="stage"><img id="before" alt="동일 구역의 기존 렌더"><img id="after" alt="동일 구역의 서울 디오라마 시안"><div id="line"></div></div>
+<input id="slider" type="range" min="0" max="100" value="50" aria-label="기존과 디오라마 비교 경계">
+<p id="error" role="alert"></p>
+<p><a id="full" href="palace_diorama.png" target="_blank">새 시안 원본 보기</a> · <a href="comparison.png" target="_blank">세 구역 비교표</a></p>
+<small>기본 기하 렌더는 고정한 공간데이터에서 만든 비교용 이미지입니다. 다른 세션에서 진행 중인 prototype1의 최신 뷰어 캡처는 아닙니다. 로컬 SDXL 재질 에셋과 규칙 기반 렌더를 함께 사용했습니다. 녹지·창문·지붕 패턴은 미술적 표현이며 실측 세부 정보가 아닙니다.</small>
+</main><script>
+'use strict';let scene='palace';const before=document.querySelector('#before'),after=document.querySelector('#after'),slider=document.querySelector('#slider'),baseline=document.querySelector('#baseline');function update(){before.src=`${scene}_${baseline.value}.png`;after.src=`${scene}_diorama.png`;document.querySelector('#full').href=after.src;document.querySelector('#beforeLabel').textContent=baseline.selectedOptions[0].textContent;document.querySelector('#error').textContent=''}for(const b of document.querySelectorAll('[data-scene]'))b.onclick=()=>{scene=b.dataset.scene;for(const other of document.querySelectorAll('[data-scene]'))other.setAttribute('aria-pressed',String(other===b));update()};baseline.onchange=update;slider.oninput=()=>{after.style.clipPath=`inset(0 0 0 ${slider.value}%)`;document.querySelector('#line').style.left=slider.value+'%'};before.onerror=after.onerror=()=>{document.querySelector('#error').textContent='시안 이미지가 없습니다. pilot 생성 결과를 확인해주세요.'};update();
+</script></body></html>

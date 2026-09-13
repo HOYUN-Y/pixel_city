@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "art_pixel": 3,
+  "max_extension_art_pixels": 4,
+  "seed": 20260913,
+  "light": "upper-left",
+  "pilot_size": 1536,
+  "pilots": [
+    {"id": "palace", "label": "GYEONGBOKGUNG", "x": 1536, "y": 768},
+    {"id": "downtown", "label": "GWANGHWAMUN / CITY", "x": 2304, "y": 2304},
+    {"id": "namsan", "label": "NAMSAN / NEIGHBOURHOOD", "x": 6144, "y": 3072}
+  ],
+  "ramps": {
+    "stone": ["#998e77", "#b8a88a", "#d7c8a7", "#ede0bc"],
+    "road": ["#4c5962", "#65717a", "#84908e", "#b1b4a2"],
+    "green": ["#36574b", "#528064", "#80a36c", "#aec183"],
+    "water": ["#326774", "#4c8c97", "#7db5b6", "#b7d8cb"],
+    "palace": ["#254c55", "#3b7276", "#66928e", "#a6b9a0"],
+    "hanok": ["#414b57", "#606e78", "#839292", "#b3b7a5"],
+    "cream": ["#9c8a70", "#c2a982", "#e0c79e", "#f5e4bf"],
+    "brick": ["#8f5746", "#b57859", "#cf9c73", "#eac49a"],
+    "glass": ["#355763", "#54838e", "#84b1b2", "#bfd8cf"],
+    "timber": ["#593c35", "#815043", "#ac6a4a", "#d39865"],
+    "dancheong": ["#344f46", "#50816c", "#c17351", "#e6b773"],
+    "ink": ["#343e48", "#59615f", "#c9c6a8", "#fff0cc"]
+  }
+}

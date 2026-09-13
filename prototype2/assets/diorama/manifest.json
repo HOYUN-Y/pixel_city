@@ -1,0 +1,97 @@
+{
+  "model": "stabilityai/stable-diffusion-xl-base-1.0",
+  "revision": "462165984030d82259a11f4367a4eed129e94a7b",
+  "generation": "Previously generated on local Mac MPS; no new inference",
+  "selected": {
+    "palace_roof": {
+      "kind": "palace_roof",
+      "seed": 11,
+      "prompt": "traditional Korean palace blue-gray ceramic giwa roof tiles and subtle ridge ornament pattern, seamless flat pixel art material swatch, orthographic game texture, limited Korean retro palette, crisp square pixels, even lighting, no perspective, no objects, no people, no text, no border",
+      "raw": "raw/palace_roof_seed11.png",
+      "texture": "textures/palace_roof_seed11.png",
+      "seconds": 11.6,
+      "sha256": "db27afe14e57116dd0801e043de1b61815e850a855f3170f63aa100decfc5618",
+      "file": "palace_roof.png"
+    },
+    "hanok_roof": {
+      "kind": "hanok_roof",
+      "seed": 11,
+      "prompt": "traditional Korean hanok charcoal gray ceramic giwa roof tile pattern, seamless flat pixel art material swatch, orthographic game texture, limited Korean retro palette, crisp square pixels, even lighting, no perspective, no objects, no people, no text, no border",
+      "raw": "raw/hanok_roof_seed11.png",
+      "texture": "textures/hanok_roof_seed11.png",
+      "seconds": 11.2,
+      "sha256": "fa647f29267a188bbb6585381317da39b313f1855523dd94c9d558ff7004dcd7",
+      "file": "hanok_roof.png"
+    },
+    "commercial_roof": {
+      "kind": "commercial_roof",
+      "seed": 11,
+      "prompt": "muted blue gray urban rooftop panels and small mechanical details pattern, seamless flat pixel art material swatch, orthographic game texture, limited Korean retro palette, crisp square pixels, even lighting, no perspective, no objects, no people, no text, no border",
+      "raw": "raw/commercial_roof_seed11.png",
+      "texture": "textures/commercial_roof_seed11.png",
+      "seconds": 11.6,
+      "sha256": "b05c23ffff817e655092d59b6d3280f21a79448802360e5e245e734ab70f6c9f",
+      "file": "commercial_roof.png"
+    },
+    "residential_roof": {
+      "kind": "residential_roof",
+      "seed": 11,
+      "prompt": "warm gray and brown compact residential rooftop tile pattern, seamless flat pixel art material swatch, orthographic game texture, limited Korean retro palette, crisp square pixels, even lighting, no perspective, no objects, no people, no text, no border",
+      "raw": "raw/residential_roof_seed11.png",
+      "texture": "textures/residential_roof_seed11.png",
+      "seconds": 12.0,
+      "sha256": "6ffd0d6648bab266c41b29d30ba4682ec4263afe54d31d40e2fa3e3b573f0437",
+      "file": "residential_roof.png"
+    },
+    "civic_roof": {
+      "kind": "civic_roof",
+      "seed": 11,
+      "prompt": "cool pale gray civic building rooftop panel pattern, seamless flat pixel art material swatch, orthographic game texture, limited Korean retro palette, crisp square pixels, even lighting, no perspective, no objects, no people, no text, no border",
+      "raw": "raw/civic_roof_seed11.png",
+      "texture": "textures/civic_roof_seed11.png",
+      "seconds": 12.2,
+      "sha256": "6cfc6a5e149c17acfae673b0fc512ccba9922842878bea4609b418bb34a371f2",
+      "file": "civic_roof.png"
+    },
+    "wall": {
+      "kind": "wall",
+      "seed": 11,
+      "prompt": "cream plaster, muted brick and dark timber Korean facade material pattern, seamless flat pixel art material swatch, orthographic game texture, limited Korean retro palette, crisp square pixels, even lighting, no perspective, no objects, no people, no text, no border",
+      "raw": "raw/wall_seed11.png",
+      "texture": "textures/wall_seed11.png",
+      "seconds": 11.7,
+      "sha256": "fb28720bd95b49c2ada352de1e1c85ba4524121781cf15291b932d0afa745057",
+      "file": "wall.png"
+    },
+    "road": {
+      "kind": "road",
+      "seed": 11,
+      "prompt": "dark charcoal city asphalt with sparse pale lane marking fragments, seamless flat pixel art material swatch, orthographic game texture, limited Korean retro palette, crisp square pixels, even lighting, no perspective, no objects, no people, no text, no border",
+      "raw": "raw/road_seed11.png",
+      "texture": "textures/road_seed11.png",
+      "seconds": 11.9,
+      "sha256": "ecec618a7b67980d5c8d6e09a980349ca69b188f036674cd9a82d178c18be6f0",
+      "file": "road.png"
+    },
+    "ground": {
+      "kind": "ground",
+      "seed": 11,
+      "prompt": "muted stone paving and earth texture with sparse tiny grass pixels, seamless flat pixel art material swatch, orthographic game texture, limited Korean retro palette, crisp square pixels, even lighting, no perspective, no objects, no people, no text, no border",
+      "raw": "raw/ground_seed11.png",
+      "texture": "textures/ground_seed11.png",
+      "seconds": 12.3,
+      "sha256": "a56d3e816b59609702864f80b69316535505a11e80fd6c40e48e25844dd656b9",
+      "file": "ground.png"
+    },
+    "vegetation": {
+      "kind": "vegetation",
+      "seed": 11,
+      "prompt": "dense clusters of small dark and light green pixel leaves, seamless flat pixel art material swatch, orthographic game texture, limited Korean retro palette, crisp square pixels, even lighting, no perspective, no objects, no people, no text, no border",
+      "raw": "raw/vegetation_seed11.png",
+      "texture": "textures/vegetation_seed11.png",
+      "seconds": 12.7,
+      "sha256": "3c893bc2dffbd0e35eada93826c80ee6f655a5529a3632c3539d9cde7ba280a8",
+      "file": "vegetation.png"
+    }
+  }
+}
