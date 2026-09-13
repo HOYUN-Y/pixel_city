@@ -1,0 +1,45 @@
+{
+  "version": 1,
+  "api_version": "3.0",
+  "host": "localhost",
+  "port": 8767,
+  "capture_size": 1536,
+  "settle_seconds": 12,
+  "try_orthographic": false,
+  "camera": {
+    "heading_deg": 22.5,
+    "pitch_deg": -30.0,
+    "range_m": 500.0
+  },
+  "thresholds": {
+    "coverage_min": 0.70,
+    "alignment_median_px_max": 2.0,
+    "alignment_p95_px_max": 5.0,
+    "different_facade_fraction_min": 0.80,
+    "seam_mismatch_max": 0.005
+  },
+  "ai": {
+    "inference_size": 1024,
+    "model": "stabilityai/stable-diffusion-xl-base-1.0",
+    "controlnet": "diffusers/controlnet-canny-sdxl-1.0",
+    "steps": 30,
+    "guidance": 6.5,
+    "strength": 0.42,
+    "control_scale": 0.9,
+    "prompt": "isometric Seoul tourist diorama, authentic varied Korean building facades from the reference, crisp pixel art, preserve exact geometry, limited warm retro palette, upper-left light",
+    "negative": "changed footprint, moved building, invented road, missing building, photorealistic, blurry, antialiasing, text, watermark, logo"
+  },
+  "direct": {
+    "region": "downtown",
+    "strengths": [0.25, 0.35, 0.45],
+    "pixel_size": 2,
+    "palette_colors": 64,
+    "seed": 20260913,
+    "footer_px": 40,
+    "label_crop_top_px": 96,
+    "edge_recall_min": 0.80,
+    "edge_density_min": 0.70,
+    "edge_density_max": 2.00,
+    "translation_px_max": 6
+  }
+}
