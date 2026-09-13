@@ -44,6 +44,8 @@
   #info .close { position: absolute; top: 8px; right: 10px; cursor: pointer;
     color: var(--dim); border: 0; background: 0; font-size: 15px; line-height: 1; }
 
+  #src { margin-top: 7px; padding-top: 6px; border-top: 1px solid var(--line);
+         color: var(--dim); font-size: 10px; line-height: 1.45; }
   #legend { bottom: 12px; right: 12px; padding: 10px 12px; font-size: 11px; }
   #legend div { display: flex; align-items: center; gap: 6px; padding: 1px 0; }
   #legend i { width: 10px; height: 10px; border-radius: 2px; display: inline-block; }
@@ -66,6 +68,10 @@
     <input type="checkbox" id="ly-pixelate" checked> <b>픽셀화</b>
     <span style="color:var(--dim);font-size:11px">(끄면 이전 렌더)</span></label>
   <div id="stat"></div>
+  <!-- 출처 표기 — 건물/도로/지형은 물론 지붕색까지 공공 데이터에서 나온다.
+       지붕색은 V-World 정사영상에서 실측한 파생물이라 명기가 필요하다. -->
+  <div id="src">건물 · 도로 국토교통부 · 지형 국토지리정보원 ·
+    <b>정사영상 V-World</b> (지붕색 실측)</div>
 </div>
 
 <div id="zoom" class="panel"></div>
@@ -77,13 +83,16 @@
 </div>
 
 <div id="legend" class="panel">
-  <div style="color:var(--dim);margin-bottom:3px">지붕 = 주용도</div>
+  <!-- ⚠️ 지붕색은 이제 정사영상 실측이다. 아래 주용도 색은 표본 실패(2.7%)에만 쓰인다 —
+       "지붕 = 주용도"로 두면 범례가 화면과 어긋난다. -->
+  <div style="color:var(--dim);margin-bottom:2px">지붕 = <b>정사영상 실측</b></div>
+  <div style="color:var(--dim);font-size:10px;margin-bottom:4px">표본 실패 2.7%는 ↓ 주용도</div>
   <div><i style="background:#c8b08e"></i> 단독주택</div>
   <div><i style="background:#a8b6c6"></i> 제2종근생</div>
   <div><i style="background:#bec4ba"></i> 제1종근생</div>
   <div><i style="background:#92a4c0"></i> 업무시설</div>
   <div><i style="background:#ce9e96"></i> 숙박시설</div>
-  <div><i style="background:#847e8a"></i> 궁궐 · 한옥(기와)</div>
+  <div><i style="background:#847e8a"></i> 궁궐 전각 (기와 · 실측 제외)</div>
   <div style="color:var(--dim);margin:5px 0 3px">벽 = 구조 × 연식</div>
   <div><i style="background:#98a0ac"></i> 철근콘크리트</div>
   <div><i style="background:#b0846e"></i> 조적 · 벽돌</div>

@@ -220,29 +220,114 @@ function floorBands(b) {
   return (b.h / b.fl) * Math.cos(PHI) / s() >= BAND_MIN_PX ? b.fl : 1;
 }
 
-function walls(en, h0, h1, litC, darkC, z, bands) {
+/* 벽의 세로 구조(기둥·창). 층 띠와 달리 **면마다** 판정한다 — 같은 건물이라도 면 방향에
+ * 따라 화면 단축이 0.60~0.94배로 갈려서 건물 단위로는 정할 수 없기 때문이다.
+ * 그래서 게이트 입력은 줌도 높이도 아니고 "칸 하나가 화면에서 몇 아트픽셀이냐" 하나뿐이다.
+ *
+ * 0 없음 / 1 세로 리브(FAC_EVERY 베이마다) / 2 창문 칸.
+ * 양축 격자를 줌3(칸 3.1~3.2px)에 그으면 1px 선이 벽의 52~54%를 먹어 건물이 통째로
+ * 어두워진다 — 그래서 중간 단계가 "격자"가 아니라 "세로 리브"다.
+ */
+const facMode = cellPx => cellPx < FAC_MIN ? 0 : cellPx < FAC_WIN ? 1 : 2;
+
+// 건물의 베이 간격(m). 0이면 그리지 않는다. 목조는 창살이라 격자가 달라 제외(2-C/2-E).
+function facadeBay(b) {
+  if (b.kind || !FBAY) return 0;
+  const bay = FBAY[b.rg] || FBAY[''] || 0;
+  // 단축은 최대 1.0배이므로 bay/s()가 이미 문턱 아래면 **어느 면도** 안 켜진다.
+  // 이 한 줄이 줌0~2의 비용을 0으로 만든다 — 없으면 면마다 fpx()가 돌아 +67ms였다.
+  return bay / s() < FAC_MIN ? 0 : bay;
+}
+
+/* 면 방향 단위벡터가 화면에서 갖는 길이(아트픽셀/미터). 칸 폭 = 베이(m) x 이 값.
+ * **sx/sy를 쓰면 안 된다** — Math.round가 걸려 있어서 짧은 변에서 비가 폭발한다
+ * (실측: 0.05m 변이 1px로 반올림되면 칸이 70px로 잡혀 줌0에서도 파사드가 켜졌다).
+ * 그래서 반올림 없는 projU/projV로 직접 잰다. 단축은 방향에 따라 0.50~1.00배다.
+ */
+function fpx(de, dn) {
+  const L = Math.hypot(de, dn) || 1, k = s();
+  return Math.hypot(projU(de / L, dn / L, k), projV(de / L, dn / L, 0, k));
+}
+
+function walls(en, h0, h1, litC, darkC, z, bands, bay, facH0) {
   const sa = Math.sin(ALPHA), ca = Math.cos(ALPHA);
   for (let i = 0; i < en.length - 1; i++) {
     const [e1, n1] = en[i], [e2, n2] = en[i + 1];
     const nx = n2 - n1, nz = -(e2 - e1);
     if (nx * sa + nz * ca <= 0) continue;                    // 후면 제거
     const lit = Math.abs(nx) / (Math.hypot(nx, nz) + 1e-9) > 0.5;
-    poly([[sx(e1, n1), sy(e1, n1, h0, z)], [sx(e2, n2), sy(e2, n2, h0, z)],
-          [sx(e2, n2), sy(e2, n2, h1, z)], [sx(e1, n1), sy(e1, n1, h1, z)]],
-         lit ? litC : darkC, null);
+    const x1 = sx(e1, n1), x2 = sx(e2, n2);                  // 면마다 6회 -> 4회
+    poly([[x1, sy(e1, n1, h0, z)], [x2, sy(e2, n2, h0, z)],
+          [x2, sy(e2, n2, h1, z)], [x1, sy(e1, n1, h1, z)]], lit ? litC : darkC, null);
+    /* ---- 등급을 먼저 정한다 ----
+     * 창을 그릴 면에는 **층 띠를 그리지 않는다.** 창이 이미 층을 표현하는데 가로선까지
+     * 얹으면, sy()의 +-1px 반올림 지터로 계단처럼 물결치는 그 선이 반듯한 창과 겹쳐
+     * 벽이 지저분해진다(실측: 을지로 고층에서 눈에 띈다). 리브 면은 세로만 있으니 띠를 남긴다.
+     */
+    const lenM = bay ? Math.hypot(e2 - e1, n2 - n1) : 0;
+    const raw = lenM >= 0.5 ? facMode(bay * fpx(e2 - e1, n2 - n1)) : 0;
+    // 창문 칸은 가로 분할이 층마다 있을 때만 켠다 — 파라펫 1줄뿐인 벽엔 층 기준이 없다
+    const mode = raw === 2 && bands > 1 ? 2 : raw ? 1 : 0;
+    // 반올림이라 5.9m/3.5m는 2칸(2.95m씩)이 된다 — floor면 1칸으로 뭉개진다.
+    // 리브는 첫 선이 FAC_EVERY번째라 그만큼 칸이 없으면 아무것도 안 그려진다. 창은 1칸도 유효.
+    const nb = mode ? Math.max(1, Math.round(lenM / bay)) : 0;
+    const win = mode === 2, rib = mode === 1 && nb >= FAC_EVERY + 1;
+
     // ponytail: 띠는 lit 면에만, 색은 그 건물의 dark 재사용 -> 팔레트 추가 0색, 비용 절반.
-    // 어두운 면까지 필요하면 dark×0.8을 재질별로 등록해야 한다(+색) — 그때 올린다.
     // 간격은 sy()의 Math.round 때문에 +-1 아트픽셀 흔들린다. 고치려면 sy를 우회해야 하고
     // 그건 파이썬 렌더러와의 패리티를 깬다.
-    if (!bands || !lit) continue;
-    octx.strokeStyle = darkC; octx.lineWidth = 1;
-    octx.beginPath();
-    for (let k = 1; k <= (bands === 1 ? 1 : bands - 1); k++) {
-      const hb = bands === 1 ? h0 + (h1 - h0) * 0.92 : h0 + (h1 - h0) * k / bands;
-      octx.moveTo(sx(e1, n1) + 0.5, sy(e1, n1, hb, z) + 0.5);
-      octx.lineTo(sx(e2, n2) + 0.5, sy(e2, n2, hb, z) + 0.5);
+    if (bands && lit && !win) {
+      octx.strokeStyle = darkC; octx.lineWidth = 1;
+      octx.beginPath();
+      for (let k = 1; k <= (bands === 1 ? 1 : bands - 1); k++) {
+        const hb = bands === 1 ? h0 + (h1 - h0) * 0.92 : h0 + (h1 - h0) * k / bands;
+        octx.moveTo(x1 + 0.5, sy(e1, n1, hb, z) + 0.5);
+        octx.lineTo(x2 + 0.5, sy(e2, n2, hb, z) + 0.5);
+      }
+      octx.stroke();
     }
-    octx.stroke();
+
+    /* ---- 세로 구조(기둥·창) ----
+     * 잉크는 **반대 면의 색**이다: 밝은 면엔 dark, 어두운 면엔 lit. 둘 다 이미 팔레트에
+     * 등록돼 있어 **새 색이 0개**다. 층 띠가 lit 면에만 있어 어두운 면이 완전히 비어
+     * 있던 문제도 이걸로 메운다 — 옛 주석의 "어두운 면엔 +색이 필요하다"는 틀렸다.
+     */
+    if (!win && !rib) continue;
+    const hb0 = facH0 || h0;                                 // 근생 1층은 상가라 건너뛴다
+    const ink = lit ? darkC : litC;
+    if (rib) {
+      const lerp = (t, hh) => [sx(e1 + (e2 - e1) * t, n1 + (n2 - n1) * t),
+                               sy(e1 + (e2 - e1) * t, n1 + (n2 - n1) * t, hh, z)];
+      octx.strokeStyle = ink; octx.lineWidth = 1;
+      octx.beginPath();
+      for (let k = FAC_EVERY; k < nb; k += FAC_EVERY) {       // 매 칸이면 벽의 31%를 먹는다
+        const a = lerp(k / nb, hb0), b2 = lerp(k / nb, h1);
+        octx.moveTo(a[0] + 0.5, a[1] + 0.5); octx.lineTo(b2[0] + 0.5, b2[1] + 0.5);
+      }
+      octx.stroke();
+    } else {
+      const nf = bands;                                      // 가로 띠와 같은 층 분할
+      const f0 = hb0 === h0 ? 0 : 1;                         // 1층 건너뛰기
+      // 한 면의 창을 전부 한 path에 모아 fill 1회. 창마다 fill하면 줌4에서 16,000회다.
+      // sx는 높이와 무관하므로 칸당 2회만 — 층 루프 안에서 부르면 칸x층x4회가 된다.
+      octx.fillStyle = ink;
+      octx.beginPath();
+      const de = e2 - e1, dn = n2 - n1;
+      for (let k = 0; k < nb; k++) {
+        const t0 = (k + 0.25) / nb, t1 = (k + 0.75) / nb;
+        const ea = e1 + de * t0, na = n1 + dn * t0, eb = e1 + de * t1, nb2 = n1 + dn * t1;
+        const xa = sx(ea, na), xb = sx(eb, nb2);
+        for (let f = f0; f < nf; f++) {
+          const lo = h0 + (h1 - h0) * (f + 0.3) / nf, hi = h0 + (h1 - h0) * (f + 0.8) / nf;
+          octx.moveTo(xa, sy(ea, na, lo, z));
+          octx.lineTo(xb, sy(eb, nb2, lo, z));
+          octx.lineTo(xb, sy(eb, nb2, hi, z));
+          octx.lineTo(xa, sy(ea, na, hi, z));
+          octx.closePath();
+        }
+      }
+      octx.fill();
+    }
   }
 }
 
@@ -289,8 +374,14 @@ function variant(b) {
 function buildVariants(add) {
   const K = C.age_k || [1, 1, 1];
   const mulc = (c, k) => c.map(v => Math.max(0, Math.min(255, Math.round(v * k))));
-  VAR = { roof: {}, wall: {}, wood: {} };
+  VAR = { roof: {}, wall: {}, wood: {}, ortho: null };
   const reg = c => { add(c); return rgb(c); };
+
+  /* 실측 지붕색 — V-World 정사영상에서 뽑아 `city.json`에 구워진 중심색.
+   * ⚠️ **등록은 여기서만 가능하다.** `buildPalette()`가 `PAL_RGB`를 고정 길이로 굽기
+   * 때문에 사후 등록이 안 된다. 그래서 `add()`를 이 안에서 불러야 한다.
+   * 없으면 `null`이고 `palette()`가 오늘 색으로 돌아간다 — 되돌리기 동치. */
+  VAR.ortho = D.city.roof_rgb ? D.city.roof_rgb.map(reg) : null;
 
   // 지붕 — 주용도 세분류. 폴백은 대분류(오늘 색)
   for (const [k, c] of Object.entries(C.roof_g || {})) VAR.roof[k] = reg(c);
@@ -324,11 +415,20 @@ function palette(b) {
   if (b.kind) {
     const kn = b.kind === 2 ? '궁궐' : '한옥';
     const w = VAR.wood[kn] && VAR.wood[kn][wm];
-    const [roof, e72, e62] = VAR.fbRoofWood[kn];
+    const [tile, e72, e62] = VAR.fbRoofWood[kn];
+    /* 한옥은 실측 지붕색을 탄다. **궁궐 전각(kind 2)은 제외** — 랜드마크라 기와색이
+     * 정체성이고, 표본이 나무 그늘에 오염되면 근정전이 녹회색이 된다.
+     * 처마 파생색(e72/e62)은 기존 기와에서 나온 것을 그대로 쓴다 — 실측 12색마다
+     * 파생 2개를 구우면 +24색이라 팔레트 예산(160)을 넘는다. 처마는 그늘진 면이라
+     * 지붕과 색이 조금 어긋나도 읽히지 않는다. */
+    const roof = (ORTHO_HANOK && b.kind === 1 && VAR.ortho && b.rc >= 0
+                  && VAR.ortho[b.rc]) || tile;
     return [roof, ...(w ? w[ab] : VAR.fbWood[kn]), e72, e62];
   }
-  const roof = VAR.roof[rg] || VAR.roof['대분류:' + (D.city.uses[b.use] || '')]
-                            || VAR.roof['대분류:'];
+  // 실측 지붕색이 있으면 그게 이긴다. 표본 실패(rc < 0)면 주용도 규칙색으로 떨어진다.
+  const roof = (VAR.ortho && b.rc >= 0 && VAR.ortho[b.rc])
+            || VAR.roof[rg] || VAR.roof['대분류:' + (D.city.uses[b.use] || '')]
+            || VAR.roof['대분류:'];
   const w = VAR.wall[wm];
   return [roof, ...(w ? w[ab] : (VAR.fb[D.city.uses[b.use]] || VAR.fb['']))];
 }
@@ -346,7 +446,10 @@ function drawBuilding(b) {
     walls(ev, body, h, roof, e72, z);
     poly(ev.map(p => [sx(p[0], p[1]), sy(p[0], p[1], h, z)]), roof, e62);
   } else {
-    walls(en, 0, h, lit, dark, z, floorBands(b));
+    const bay = facadeBay(b);
+    // 근생은 1층이 상가(유리·간판)라 위층과 파사드가 다르다 — 맨 아래 층만 건너뛴다
+    const facH0 = bay && FSHOP.has(b.rg) && b.fl >= 2 ? h / b.fl : 0;
+    walls(en, 0, h, lit, dark, z, floorBands(b), bay, facH0);
     poly(en.map(p => [sx(p[0], p[1]), sy(p[0], p[1], h, z)]), roof, dark);
   }
 }
@@ -375,7 +478,11 @@ let GNEUTRAL = 2;                                  // 램프 안에서 배율 1.
 let GLIGHT = [1.0, 0.35];                          // 광원 방향 (e, n)
 let GSHADE_GAIN = 3;                               // 경사 -> 단계 (보조 신호)
 let GZBAND = 50;
-let BAND_MIN_PX = 3;                               // 층당 이 아트픽셀 미만이면 층 띠 대신 파라펫 1줄                                   // 표고 몇 m마다 한 단계 (주 신호)
+let BAND_MIN_PX = 3;
+let FBAY = null;                                   // 주용도 -> 베이 간격(m). null이면 파사드 off
+let FAC_MIN = 2.5, FAC_WIN = 5.0, FAC_EVERY = 2;
+let FSHOP = new Set();            // 1층을 건너뛸 주용도(근생)
+let ORTHO_HANOK = true;           // 한옥에 실측 지붕색을 태울까 (궁궐은 언제나 제외)                               // 층당 이 아트픽셀 미만이면 층 띠 대신 파라펫 1줄                                   // 표고 몇 m마다 한 단계 (주 신호)
 let TSHADE = [];        // TSHADE[지표][단계] = rgb 문자열. buildPalette()가 채운다
 let TCELL = null;       // Int16Array(i, j, 단계, 지표) x N. 먼 것부터. 로드 시 1회 계산
 
@@ -819,6 +926,12 @@ async function main() {
   C = st.colors;
   PIX_ON = st.pixel_size || 3;
   if (st.band_min_px != null) BAND_MIN_PX = st.band_min_px;
+  FBAY = st.facade_bay || null;                    // 키를 지우면 파사드가 통째로 꺼진다
+  if (st.facade_min_px != null) FAC_MIN = st.facade_min_px;
+  if (st.facade_win_px != null) FAC_WIN = st.facade_win_px;
+  if (st.facade_rib_every != null) FAC_EVERY = st.facade_rib_every;
+  FSHOP = new Set(st.facade_shop || []);
+  ORTHO_HANOK = st.ortho_hanok !== false;
   PIX = PIX_ON;
   checkGolden(meta.golden);
   if (terr) {
@@ -862,6 +975,7 @@ async function main() {
                    h / (kind === 2 ? (st.palace_floor_h || 8.25)
                       : kind === 1 ? st.wood_floor_h : st.floor_h))),
              rg: prp && (st.colors.roof_g || {})[prp] ? prp : null,
+             rc: city.roofc ? city.roofc[i] : -1,   // 실측 지붕색 인덱스. -1 = 폴백
              wm: kind ? woodUse(prp) : wallMat(str || ''),
              ab: ageBand(city.yr ? city.yr[i] : 0, st.age_break),
              u0, u1, v0, v1 };
@@ -902,23 +1016,56 @@ function pixelCitySelfCheck() {
   const w = screenToWorld(W / 2, H / 2);
   console.assert(Math.hypot(w.e - view.cx, w.n - view.cy) < s() * 2, '화면중심 역투영');
   console.assert(PAL_RGB && PAL_RGB.length % 3 === 0, '팔레트 구성');
-  // 팔레트 색은 '시각적으로 같은 색'으로 스냅돼야 한다. 인덱스 0만 보던 것을 전수로 바꿨다.
-  // 자기 자신을 요구하지 않는 이유: nearest()가 채널당 5비트로 버킷팅하므로(>>3) 모든
-  // 채널이 8 미만 차이인 색끼리는 원리상 구분되지 않고, 그건 육안으로도 같은 색이다.
-  // 잡아야 하는 것은 '멀리 있는 색으로 스냅되는 것'이다 — 새 색을 추가할 때 그게 사고다.
-  let dup = 0;
-  for (let i = 0; i < PAL_RGB.length; i += 3) {
-    const j = nearest(PAL_RGB[i], PAL_RGB[i + 1], PAL_RGB[i + 2]) * 3;
-    const d = Math.hypot(PAL_RGB[i] - PAL_RGB[j], PAL_RGB[i + 1] - PAL_RGB[j + 1],
-                         PAL_RGB[i + 2] - PAL_RGB[j + 2]);
-    if (j !== i) dup++;
-    console.assert(d < 14, '팔레트 색이 엉뚱한 색으로 스냅된다', i / 3,
-                   [PAL_RGB[i], PAL_RGB[i + 1], PAL_RGB[i + 2]], '->',
-                   [PAL_RGB[j], PAL_RGB[j + 1], PAL_RGB[j + 2]]);
+  /* 팔레트 색은 '시각적으로 같은 색'으로 스냅돼야 한다. **기하로만 검사한다.**
+   *
+   * ⚠️ 예전엔 여기서 `nearest()`를 불렀는데 그게 틀렸다. `PAL_LUT`는 미리 계산한 표가
+   * 아니라 **질의 순서대로 채워지는 메모 캐시**다(`nearest()`의 `PAL_LUT[key] = best`).
+   * 버킷 하나에 답을 하나만 저장하므로, 먼저 렌더된 픽셀이 그 버킷의 답을 정해버린다.
+   * 그래서 같은 코드가 렌더 이력에 따라 통과하기도 실패하기도 했다 — 재현성이 없다.
+   *
+   * 실제로 그래서 나던 실패: 버킷 (8,9,11)의 512색 중 **508색은 (64,78,94)로 가지만
+   * 모서리 4색이 (77,80,82)로 간다.** 그 4색이 먼저 렌더되면 버킷 전체가 뒤집히고
+   * 팔레트 색 37이 거리 17.8로 스냅된 것처럼 보인다. 이건 5비트 LUT의 원리적 한계이지
+   * 팔레트 구성의 결함이 아니다. 그래서 **assert가 아니라 로그**로 내린다.
+   *
+   * assert가 잡아야 하는 것은 '새 색을 넣었더니 멀리 있는 색과 뭉쳤다'이고, 그건
+   * 캐시와 무관한 순수 기하다. 자기 자신을 요구하진 않는다 — 모든 채널이 8 미만 차이면
+   * 5비트로는 원리상 구분되지 않고 육안으로도 같은 색이다.
+   */
+  {
+    const P = PAL_RGB, n = P.length / 3;
+    const trueNearest = (r, g, b) => {            // LUT를 타지 않는다
+      let best = 0, bd = Infinity;
+      for (let i = 0; i < P.length; i += 3) {
+        const d = (r - P[i]) ** 2 + (g - P[i + 1]) ** 2 + (b - P[i + 2]) ** 2;
+        if (d < bd) { bd = d; best = i / 3; }
+      }
+      return best;
+    };
+    let dup = 0, worst = 0;
+    for (let i = 0; i < n; i++) {
+      const r = P[i * 3], g = P[i * 3 + 1], b = P[i * 3 + 2], j = trueNearest(r, g, b);
+      const d = Math.hypot(r - P[j * 3], g - P[j * 3 + 1], b - P[j * 3 + 2]);
+      if (j !== i) dup++;
+      console.assert(d < 14, '팔레트 색이 엉뚱한 색으로 스냅된다', i,
+                     [r, g, b], '->', [P[j * 3], P[j * 3 + 1], P[j * 3 + 2]]);
+    }
+    // LUT 손실 — 버킷을 공유하는 팔레트 색 쌍. 원리적 한계라 로그만 남긴다.
+    const bmap = new Map();
+    for (let i = 0; i < n; i++) {
+      const k = ((P[i*3] >> 3) << 10) | ((P[i*3+1] >> 3) << 5) | (P[i*3+2] >> 3);
+      if (!bmap.has(k)) bmap.set(k, []);
+      bmap.get(k).push(i);
+    }
+    let share = 0;
+    for (const v of bmap.values()) if (v.length > 1) {
+      share++;
+      for (const a of v) for (const b2 of v) worst = Math.max(worst, Math.hypot(
+        P[a*3] - P[b2*3], P[a*3+1] - P[b2*3+1], P[a*3+2] - P[b2*3+2]));
+    }
+    console.log(`[pixel_city] 팔레트 ${n}색 · 근사 중복 ${dup}건 · `
+              + `버킷 공유 ${share}곳(최대 오차 ${worst.toFixed(1)}) · 빈 버킷 ${32768 - bmap.size}`);
   }
-  // 참고: 근사 중복 2건은 지형 도입 전부터 있다 (문교사회용 처마 파생 ~ 한옥 벽,
-  // 주거용 파생 ~ 공업용 파생). 채널당 4 이하 차이라 화면에서 구분되지 않는다.
-  if (dup) console.log(`[pixel_city] 팔레트 근사 중복 ${dup}건 (5비트 버킷 공유, 무해)`);
   if (TERR) {
     for (const g of TERR.golden)
       console.assert(Math.abs(zAt(g.e, g.n) / TEXAG - g.z) < 1e-3, '지형 골든', g);
@@ -948,12 +1095,43 @@ function pixelCitySelfCheck() {
     console.assert(floorBands({ h: 6, fl: 2, kind: 0 }) === 1, '저층은 파라펫만');
     view.zi = zi0;
   }
+  // 계층 2 — 파사드 게이트. 층 띠와 같은 성질이라 같은 모양으로 검사한다.
+  // 다만 등급은 **면 방향**에 달려 있어(단축 0.50~1.00배) 건물 단위로는 상한만 본다:
+  // facadeBay()가 0을 주면 그 줌에서는 어떤 면도 안 켜진다 — 저줌 비용 0의 근거다.
+  if (FBAY) {                       // 키를 지운 되돌리기 상태에서는 조용히 넘어간다
+    const zi0 = view.zi, probe = { kind: 0, fl: 10, rg: '업무시설' };
+    for (const zi of [0, 1, 2]) {
+      view.zi = zi;
+      console.assert(facadeBay(probe) === 0, `줌${zi}에서 파사드가 켜졌다 — 저줌 비용이 샌다`);
+    }
+    view.zi = 3; console.assert(facadeBay(probe) > 0, '줌3에서 파사드가 죽었다');
+    view.zi = 4;
+    console.assert(facadeBay(probe) > 0, '줌4에서 파사드가 죽었다');
+    // 단축 최대(1.00배 = 정면)에서는 창, 최소(0.50배 = 급단축)에서는 리브로 갈려야 한다
+    const bay = facadeBay(probe);
+    console.assert(facMode(bay / s()) === 2, '줌4 정면이 창문 등급이 아니다');
+    console.assert(facMode(bay / s() * 0.5) === 1, '줌4 급단축 면이 리브 등급이 아니다');
+    // 결측 되돌리기 동치 — 미지 용도와 rg=null은 "" 기본값으로 떨어져야 한다
+    console.assert(facadeBay({ kind: 0, rg: '없는용도' }) === facadeBay({ kind: 0, rg: null }),
+                   '미지 주용도가 기본 베이로 안 떨어진다');
+    console.assert(facadeBay({ kind: 1, rg: '업무시설' }) === 0, '목조에 파사드가 켜졌다');
+    view.zi = zi0;
+  }
   // 계층 1 — 색 변주
   {
     const sp = paletteSpread();
     console.assert(PAL_RGB.length / 3 <= 160, `팔레트 예산 초과 ${PAL_RGB.length / 3}`);
     console.assert(sp.cells >= 40, `색 변주가 데이터로 안 갈린다 (${sp.cells}종)`);
     console.assert(sp.topShare <= 0.15, `한 색이 건물의 ${(sp.topShare*100).toFixed(1)}%를 덮는다`);
+    /* ⚠️ 아래는 **지금 나쁜 값을 기준선으로 박아둔 것**이다. 통과한다고 좋은 게 아니라
+     * "더 나빠지지 않았다"는 뜻이다.
+     *   2026-09-13 실측: wTopShare 0.203 / **matShare 0.827** / sameShare 0.435 (전수)
+     *   목표: matShare <= 0.50, sameShare <= 0.10  ← 건물별 색 작업에서 내린다
+     */
+    console.assert(sp.wTopShare <= 0.30,
+      `면적 기준으로 한 조합이 ${(sp.wTopShare*100).toFixed(1)}%를 덮는다 (기준선 20.3%)`);
+    console.assert(sp.matShare <= 0.85,
+      `벽 재질 한 종이 면적의 ${(sp.matShare*100).toFixed(1)}%다 (기준선 82.7%)`);
     // ★ 되돌리기 동치 — 속성이 전부 결측이면 오늘과 같은 색이어야 한다
     const bare = { kind: 0, use: D.city.uses.indexOf('상업용'), rg: null, wm: null, ab: 1 };
     console.assert(palette(bare)[0] === rgb(C.use['상업용'][0]), '폴백이 오늘 색과 다르다');
@@ -962,6 +1140,44 @@ function pixelCitySelfCheck() {
                 && wallMat('일반철골구조') === '기타' && wallMat('일반목구조') === null, 'wallMat');
     console.assert(woodUse('단독주택') === '주거' && woodUse('제2종근린생활시설') === '근생'
                 && woodUse(null) === '기타', 'woodUse');
+    const nc = neighborContrast();
+    console.assert(nc.sameShare <= 0.50,
+      `인접 건물의 ${(nc.sameShare*100).toFixed(1)}%가 같은 지붕색이다 (기준선 43.5%)`);
+    /* 실측 지붕색(V-World 정사영상). `city.roof_rgb`가 없으면 되돌리기 상태라 조용히 넘어간다.
+     * 이게 이 작업의 표적 지표다 — 규칙색만 쓰면 이웃의 43.5%가 같은 색이었다. */
+    if (D.city.roof_rgb) {
+      console.assert(VAR.ortho && VAR.ortho.length === D.city.roof_rgb.length,
+        '실측 지붕색이 팔레트에 등록되지 않았다 — buildVariants 안에서 add()를 불러야 한다');
+      for (const c of D.city.roof_rgb) {               // 전부 등록됐는지 (자기 자신으로 스냅)
+        const j = nearest(c[0], c[1], c[2]) * 3;
+        console.assert(Math.hypot(c[0] - PAL_RGB[j], c[1] - PAL_RGB[j + 1],
+                                  c[2] - PAL_RGB[j + 2]) < 14, '실측 지붕색 미등록', c);
+      }
+      console.assert(D.city.roofc && D.city.roofc.length === D.city.n,
+        `roofc 길이가 건물 수와 다르다 ${D.city.roofc && D.city.roofc.length} vs ${D.city.n}`);
+      // ★ 결측 동치 — rc<0이면 오늘 색이어야 한다. 이게 되돌리기 안전망이다
+      const probe = D.B.find(b => !b.kind && b.rc >= 0);
+      if (probe) console.assert(
+        palette({ ...probe, rc: -1 })[0] === (VAR.roof[probe.rg]
+          || VAR.roof['대분류:' + (D.city.uses[probe.use] || '')] || VAR.roof['대분류:']),
+        'rc=-1 폴백이 규칙색과 다르다');
+      /* 범위별 분해 — 전체 수치만 보면 어디가 좋아졌는지 안 보인다.
+       *
+       *                실측 OFF -> ON
+       *   비목조         32.0%  ->  10.3%
+       *   한옥 2,352동   65.8%  ->  19.1%   <- ortho_hanok
+       *   궁궐 98동      88.8%  ->  88.8%   <- **일부러 제외.** 전각은 기와색이 정체성이다
+       *   전체           43.5%  ->  16.3%
+       *
+       * 궁궐 98동(1.4%)이 남긴 바닥이 있어 15% 아래로는 안 내려간다. 그건 의도한 것이다.
+       */
+      console.assert(nc.sameShare <= 0.22,
+        `이웃 동일색이 ${(nc.sameShare*100).toFixed(1)}%다 (기준선 43.5% -> 현재 16.3%)`);
+      const pal = D.B.filter(b => b.kind === 2).length;
+      console.log(`[pixel_city] 실측 지붕색 ${D.city.roof_rgb.length}색 · `
+        + `폴백 ${D.city.roofc.filter(v => v < 0).length}동 · 궁궐 제외 ${pal}동 · `
+        + `이웃 동일색 ${(nc.sameShare * 100).toFixed(1)}%`);
+    }
     console.assert(ageBand(0, [1966, 1989]) === 1 && ageBand(1950, [1966, 1989]) === 0
                 && ageBand(2010, [1966, 1989]) === 2, 'ageBand');
   }
@@ -977,20 +1193,86 @@ function countColors(x = 0, y = 0, w = OW, h = OH) {
 }
 
 /* 건물이 실제로 몇 가지 색으로 갈리는지. "8팔레트 문제"의 직접 지표다. */
+/* 색이 얼마나 갈리는가.
+ *
+ * ⚠️ **동수와 면적을 같이 낸다.** 동수만 세면 작은 단독주택 한 채와 32층 오피스를
+ * 같은 한 표로 센다. 화면을 채우는 건 큰 건물이다.
+ *
+ * 2026-09-13 실측 — 조합(지붕x벽x벽) 기준으로는 동수 13.4% -> 면적 20.3%로 1.5배 나빠질 뿐
+ * 파국은 아니다. **진짜 쏠림은 축 하나를 떼어 봐야 보인다**: 벽 재질축이
+ * 면적x높이로 **콘크리트 82.7%**다(동수로는 42.2%). `matShare`가 그걸 낸다.
+ * 화면 평균 채도가 Isopolis의 절반(0.129 vs 0.227)인 이유가 여기 있다.
+ *
+ * 지붕만 세면 안 된다 — 한옥은 기와가 전부 같은 색이라 벽 변주가 안 잡힌다.
+ * 건물을 실제로 구분하는 건 (지붕, 밝은벽, 어두운벽) 조합이다.
+ */
 function paletteSpread() {
-  // 지붕만 세면 안 된다 — 한옥은 기와가 전부 같은 색이라 벽 변주가 안 잡힌다.
-  // 건물을 실제로 구분하는 건 (지붕, 밝은벽, 어두운벽) 조합이다.
-  const hist = new Map();
+  const key = b => palette(b).slice(0, 3)
+                   .map(c => Array.isArray(c) ? c.join(',') : c).join('|');
+  // 화면 기여도 = 바닥면적 x 높이. 등각투영에서 한 건물이 먹는 픽셀에 대략 비례한다
+  // (지붕 ~ 면적, 벽 ~ 둘레x높이). 정확한 적분 대신 이 대리값이면 축이 안 뒤집힌다.
+  const wOf = b => {
+    let a = 0;
+    for (let i = 0; i < b.en.length - 1; i++)
+      a += b.en[i][0] * b.en[i + 1][1] - b.en[i + 1][0] * b.en[i][1];
+    return Math.abs(a) / 2 * Math.max(1, b.h);
+  };
+  const hist = new Map(), wHist = new Map();
+  let wTot = 0;
   for (const b of D.B) {
-    const k = palette(b).slice(0, 3).map(c => Array.isArray(c) ? c.join(',') : c).join('|');
+    const k = key(b), w = wOf(b);
     hist.set(k, (hist.get(k) || 0) + 1);
+    wHist.set(k, (wHist.get(k) || 0) + w);
+    wTot += w;
   }
-  const top = Math.max(...hist.values());
-  return { cells: hist.size, top, topShare: +(top / D.B.length).toFixed(3) };
+  // 축 하나만 떼어낸 면적 쏠림. 조합 지표가 괜찮아 보여도 여기서 드러난다.
+  const mat = new Map();
+  for (const b of D.B) mat.set(b.wm, (mat.get(b.wm) || 0) + wOf(b));
+  const top = Math.max(...hist.values()), wTop = Math.max(...wHist.values());
+  return { cells: hist.size,
+           top, topShare: +(top / D.B.length).toFixed(3),
+           wTopShare: +(wTop / wTot).toFixed(3),
+           matShare: +(Math.max(...mat.values()) / wTot).toFixed(3) };
+}
+
+/* 최근접 이웃과 지붕색이 얼마나 다른가 — "건물이 덩어리로 뭉쳐 보인다"의 수치.
+ * `paletteSpread`가 높아도 이 값이 나쁘면 화면은 여전히 뭉친다. 용도는 공간적으로
+ * 군집하기 때문이다(근생은 근생끼리 붙어 있다). 축을 데이터에서만 뽑은 대가다.
+ * 기준선 2026-09-13: 평균거리 36.2 / 거의_같은_색 43.5%.
+ */
+function neighborContrast(thr = 10, sample = 600) {
+  // ponytail: 이웃 탐색이 O(n^2)다. 전수(6,991동)면 580ms라 매 로드에 너무 비싸서
+  // 표본 600동만 본다(실측 오차 2.0%p: 표본 0.415 vs 전수 0.435). 격자 색인을 쓰면 전수도 싸지지만, 이 값은
+  // 작업 전후 비교용이라 그 정밀도가 필요 없다. 필요하면 neighborContrast(10, Infinity).
+  const n = D.B.length, cx = new Float64Array(n), cy = new Float64Array(n), col = [];
+  for (let i = 0; i < n; i++) {
+    const en = D.B[i].en;
+    let e = 0, no = 0;
+    for (const p of en) { e += p[0]; no += p[1]; }
+    cx[i] = e / en.length; cy[i] = no / en.length;
+    const c = palette(D.B[i])[0];
+    col.push(Array.isArray(c) ? c : /(\d+),(\d+),(\d+)/.exec(c).slice(1).map(Number));
+  }
+  const step = Math.max(1, Math.floor(n / Math.min(sample, n)));
+  let same = 0, sum = 0, cnt = 0;
+  for (let i = 0; i < n; i += step) {
+    cnt++;
+    let best = -1, bd = Infinity;
+    for (let j = 0; j < n; j++) {
+      if (i === j) continue;
+      const dx = cx[i] - cx[j], dy = cy[i] - cy[j], d = dx * dx + dy * dy;
+      if (d < bd) { bd = d; best = j; }
+    }
+    const a = col[i], b = col[best];
+    const dist = Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]);
+    sum += dist; if (dist < thr) same++;
+  }
+  return { n: cnt, meanDist: +(sum / cnt).toFixed(1), sameShare: +(same / cnt).toFixed(3) };
 }
 
 window.pixelCitySelfCheck = pixelCitySelfCheck;
 // 디버그 훅 — 콘솔에서 좌표 변환과 판정을 직접 확인할 수 있다
 window.pixelCity = { pick, sx, sy, zAt, palette, countColors, paletteSpread,
+                     neighborContrast,
                      s: () => s(), view, get PIX() { return PIX; },
                      get OW() { return OW; }, get OH() { return OH; }, D };

@@ -6,3 +6,7 @@ __pycache__/
 # prototype1 — 수집 캐시 (재생성 가능)
 prototype1/poc/gf_*.json
 prototype1/poc/cache_*
+# ↑ 예외: cache_roof.json은 수집 캐시가 아니라 **파생 산출물**이다(terrain.json과 같은 급).
+#   iso2.py가 직접 읽으므로 없으면 파이썬 렌더러가 뷰어와 다른 그림을 그린다.
+#   재생성에 API 키 + 타일 600개 수집(2.5분)이 필요해 그냥 커밋한다. 226KB.
+!prototype1/poc/cache_roof.json

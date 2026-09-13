@@ -166,6 +166,21 @@ def _sc(c, k):
     return tuple(max(0, min(255, round(v * k))) for v in c)
 
 
+# 실측 지붕색 — poc/cache_roof.json. 없으면 빈 테이블이라 규칙색으로 돌아간다.
+# terrain.json과 같은 관례: 파생 산출물은 별도 파일, style.json은 스위치만 갖는다.
+def _load_roof():
+    if not STYLE.get("roof_ortho", True):
+        return [], {}
+    p = os.path.join(os.path.dirname(os.path.abspath(__file__)), "cache_roof.json")
+    if not os.path.exists(p):
+        return [], {}
+    d = json.load(open(p, encoding="utf-8"))
+    return [tuple(c) for c in d["centers"]], d["by_gid"]
+
+
+ROOF_RGB, ROOF_BY_GID = _load_roof()
+
+
 def bld_colors(b, style=None, year=None):
     """(지붕, 밝은벽, 어두운벽). **app.js palette()의 파이썬 거울.**
 
@@ -179,8 +194,17 @@ def bld_colors(b, style=None, year=None):
         kn = "궁궐" if b["palace"] else "한옥"
         base = PALACE if b["palace"] else HANOK
         w = col.get("wood_wall", {}).get(kn, {}).get(wm)
-        return (base[0], _sc(w[0], k), _sc(w[1], k)) if w else base
-    roof = col.get("roof_g", {}).get(rg)
+        # 한옥은 실측 지붕색을 탄다. **궁궐 전각은 스위치와 무관하게 제외** — 랜드마크라
+        # 기와색이 정체성이고 표본이 나무 그늘에 오염된다. app.js palette()의 거울.
+        roof = base[0]
+        if ROOF_RGB and not b["palace"] and style.get("ortho_hanok", True):
+            ri = ROOF_BY_GID.get(b.get("gid"), -1)
+            if 0 <= ri < len(ROOF_RGB):
+                roof = ROOF_RGB[ri]
+        return (roof, _sc(w[0], k), _sc(w[1], k)) if w else (roof, base[1], base[2])
+    # 실측 지붕색이 있으면 그게 이긴다. 표본 실패(-1 / 키 없음)면 주용도 규칙색.
+    ri = ROOF_BY_GID.get(b.get("gid"), -1) if ROOF_RGB else -1
+    roof = ROOF_RGB[ri] if 0 <= ri < len(ROOF_RGB) else col.get("roof_g", {}).get(rg)
     fb = PAL.get(b["use"], PAL[None])
     m = col.get("wall_m", {}).get(wm)
     return (tuple(roof) if roof else fb[0],

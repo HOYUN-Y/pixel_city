@@ -40,9 +40,25 @@ def dec_ring(a):
     return out
 
 
+def _roof_table(cache_dir):
+    """cache_roof.json -> (중심색 목록, {gid: 인덱스}). 파일이 없으면 ([], {}).
+
+    되돌리기 1층: 이 파일을 지우면 `roofc`가 안 나가고 뷰어는 오늘 색을 쓴다.
+    되돌리기 2층: style.json의 `roof_ortho: false`.
+    """
+    if not iso2.STYLE.get("roof_ortho", True):
+        return [], {}
+    p = os.path.join(cache_dir, "cache_roof.json")
+    if not os.path.exists(p):
+        return [], {}
+    d = json.load(open(p, encoding="utf-8"))
+    return [list(c) for c in d["centers"]], d["by_gid"]
+
+
 def build_city(cache_dir, to_en):
     blds = iso2.parse(os.path.join(cache_dir, "cache_bld.xml"))
     age = iso2.parse_age(os.path.join(cache_dir, "cache_age.xml"))
+    roof_rgb, roof_by_gid = _roof_table(cache_dir)
     for b in blds:
         b["en"] = [to_en(c) for c in b["ring"]]
     blds.sort(key=lambda b: -iso2.depth(b["en"]))      # 먼 것부터 = 그리는 순서
@@ -59,7 +75,7 @@ def build_city(cache_dir, to_en):
 
     # ⚠️ 정렬 **후** 한 루프 안에서 전부 채운다. 따로 돌면 names 인덱스가 어긋난다
     kind, use, hh, rings, names = [], [], [], [], []
-    prpos, strct, yr, fl, meas = [], [], [], [], []
+    prpos, strct, yr, fl, meas, roofc = [], [], [], [], [], []
     for i, b in enumerate(blds):
         use.append(idx("uses", b["use"]))
         prpos.append(idx("prp", b.get("prpos")))
@@ -67,6 +83,7 @@ def build_city(cache_dir, to_en):
         yr.append(age.get(b.get("gid"), 0))            # 0 = 결측 -> 중립 밴드
         fl.append(b.get("fl", 1))
         meas.append(b.get("meas", 0))                  # 1 = 실측 높이 사용
+        roofc.append(roof_by_gid.get(b.get("gid"), -1))  # -1 = 표본 실패 -> 규칙색 폴백
         kind.append(2 if b["palace"] else (1 if b["wood"] else 0))
         hh.append(round(b["h"] * Q))
         rings.append(enc_ring(b["ring"], to_en))
@@ -76,7 +93,9 @@ def build_city(cache_dir, to_en):
             "h": hh, "rings": rings, "names": names,
             "prp": tables["prp"][0], "prpos": prpos,
             "str": tables["str"][0], "strct": strct, "yr": yr, "fl": fl,
-            "meas": meas}
+            "meas": meas,
+            # 지붕색 실측 — 없으면 두 키 모두 빠지고 뷰어가 규칙색으로 돌아간다
+            **({"roof_rgb": roof_rgb, "roofc": roofc} if roof_rgb else {})}
 
 
 def build_layers(cache_dir, to_en):
