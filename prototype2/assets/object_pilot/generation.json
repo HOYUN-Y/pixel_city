@@ -1,0 +1,280 @@
+{
+  "run_id": "20260913T163032352584Z",
+  "status": "awaiting_user_review",
+  "model": "openai/gpt-image-2.5-sunburst",
+  "assets": [
+    {
+      "name": "building_4628",
+      "building_id": 4628,
+      "prompt": "Use case: style-transfer. Asset type: isolated fixed-camera building sprite. Image 1 is the EDIT TARGET and exact geometry/placement reference. Image 2 is ONLY the art-style reference. Restyle the building as a low Korean timber building with blue-gray tiled roofing and warm wooden window frames. Hand-crafted pixel-art city game asset, crisp deliberate pixel clusters, rich but controlled natural colors, warm sunlit highlights, cool shadows, readable small-scale details. Use the reference only for art style; never copy its buildings, characters, farm layout or objects. No text, logos, labels, collage or extra objects. Keep the exact silhouette, footprint, roof-wall boundaries, height proportions, screen position, camera, scale and padding from Image 1. Paint only inside the existing building. Do not recenter, rotate, straighten or simplify its outline. No ground plane, cast shadow, vegetation or surrounding scene. Use a genuinely transparent background. Keep doors and windows distinguishable for later lighting effects.",
+      "status": "generated",
+      "options": {
+        "model": "openai/gpt-image-2.5-sunburst",
+        "n": 1,
+        "quality": "high",
+        "aspect_ratio": "1:1",
+        "background": "transparent",
+        "provider": {
+          "only": [
+            "openai"
+          ],
+          "allow_fallbacks": false
+        }
+      },
+      "seconds": 36.984,
+      "usage": {
+        "prompt_tokens": 2050,
+        "completion_tokens": 1756,
+        "total_tokens": 3806,
+        "cost": 0.068402,
+        "is_byok": false,
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "cost_details": {
+          "upstream_inference_cost": 0.068402,
+          "upstream_inference_prompt_cost": 0.015722,
+          "upstream_inference_completions_cost": 0.05268
+        },
+        "completion_tokens_details": {
+          "reasoning_tokens": 0,
+          "image_tokens": 1756
+        }
+      },
+      "size": [
+        1024,
+        1024
+      ],
+      "raw": "building_4628_raw.png",
+      "sha256": "b5dcf9b3646096065b8dd1e014457c1cd63bf4c19c664b2a94c9c175bb750a8f"
+    },
+    {
+      "name": "building_4577",
+      "building_id": 4577,
+      "prompt": "Use case: style-transfer. Asset type: isolated fixed-camera building sprite. Image 1 is the EDIT TARGET and exact geometry/placement reference. Image 2 is ONLY the art-style reference. Restyle the building as a compact mid-rise city building with warm masonry, clearly organized window bays and an entrance. Hand-crafted pixel-art city game asset, crisp deliberate pixel clusters, rich but controlled natural colors, warm sunlit highlights, cool shadows, readable small-scale details. Use the reference only for art style; never copy its buildings, characters, farm layout or objects. No text, logos, labels, collage or extra objects. Keep the exact silhouette, footprint, roof-wall boundaries, height proportions, screen position, camera, scale and padding from Image 1. Paint only inside the existing building. Do not recenter, rotate, straighten or simplify its outline. No ground plane, cast shadow, vegetation or surrounding scene. Use a genuinely transparent background. Keep doors and windows distinguishable for later lighting effects.",
+      "status": "generated",
+      "options": {
+        "model": "openai/gpt-image-2.5-sunburst",
+        "n": 1,
+        "quality": "high",
+        "aspect_ratio": "1:1",
+        "background": "transparent",
+        "provider": {
+          "only": [
+            "openai"
+          ],
+          "allow_fallbacks": false
+        }
+      },
+      "seconds": 39.78,
+      "usage": {
+        "prompt_tokens": 2052,
+        "completion_tokens": 1756,
+        "total_tokens": 3808,
+        "cost": 0.068412,
+        "is_byok": false,
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "cost_details": {
+          "upstream_inference_cost": 0.068412,
+          "upstream_inference_prompt_cost": 0.015732,
+          "upstream_inference_completions_cost": 0.05268
+        },
+        "completion_tokens_details": {
+          "reasoning_tokens": 0,
+          "image_tokens": 1756
+        }
+      },
+      "size": [
+        1024,
+        1024
+      ],
+      "raw": "building_4577_raw.png",
+      "sha256": "c774cf286c44ebb3e51453595a7337b0b87ba61998b001498a7c491ba059582a"
+    },
+    {
+      "name": "building_4485",
+      "building_id": 4485,
+      "prompt": "Use case: style-transfer. Asset type: isolated fixed-camera building sprite. Image 1 is the EDIT TARGET and exact geometry/placement reference. Image 2 is ONLY the art-style reference. Restyle the building as a tall contemporary city building with cool glass window clusters and differentiated facade bays. Hand-crafted pixel-art city game asset, crisp deliberate pixel clusters, rich but controlled natural colors, warm sunlit highlights, cool shadows, readable small-scale details. Use the reference only for art style; never copy its buildings, characters, farm layout or objects. No text, logos, labels, collage or extra objects. Keep the exact silhouette, footprint, roof-wall boundaries, height proportions, screen position, camera, scale and padding from Image 1. Paint only inside the existing building. Do not recenter, rotate, straighten or simplify its outline. No ground plane, cast shadow, vegetation or surrounding scene. Use a genuinely transparent background. Keep doors and windows distinguishable for later lighting effects.",
+      "status": "generated",
+      "options": {
+        "model": "openai/gpt-image-2.5-sunburst",
+        "n": 1,
+        "quality": "high",
+        "aspect_ratio": "1:1",
+        "background": "transparent",
+        "provider": {
+          "only": [
+            "openai"
+          ],
+          "allow_fallbacks": false
+        }
+      },
+      "seconds": 45.346,
+      "usage": {
+        "prompt_tokens": 2049,
+        "completion_tokens": 1756,
+        "total_tokens": 3805,
+        "cost": 0.068397,
+        "is_byok": false,
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "cost_details": {
+          "upstream_inference_cost": 0.068397,
+          "upstream_inference_prompt_cost": 0.015717,
+          "upstream_inference_completions_cost": 0.05268
+        },
+        "completion_tokens_details": {
+          "reasoning_tokens": 0,
+          "image_tokens": 1756
+        }
+      },
+      "size": [
+        1024,
+        1024
+      ],
+      "raw": "building_4485_raw.png",
+      "sha256": "6f5cac60f18c9a89453f7639ee768332d2dcbde30561c335cf8bd3bf277c62b8"
+    },
+    {
+      "name": "asphalt",
+      "building_id": null,
+      "prompt": "Use case: stylized-concept. Asset type: seamless tileable pixel game ground texture. Image 1 is ONLY an art-style reference. Generate dark muted blue-gray city asphalt, fine sparse aggregate, no lane markings. Hand-crafted pixel-art city game asset, crisp deliberate pixel clusters, rich but controlled natural colors, warm sunlit highlights, cool shadows, readable small-scale details. Use the reference only for art style; never copy its buildings, characters, farm layout or objects. No text, logos, labels, collage or extra objects. Flat top-down orthographic material swatch filling the entire square edge to edge. Match opposite edges for seamless repetition. Consistent texel scale and even lighting. No perspective, borders, gradients, dominant focal objects, plants, shadows, cracks crossing the whole tile or road layout.",
+      "status": "generated",
+      "options": {
+        "model": "openai/gpt-image-2.5-sunburst",
+        "n": 1,
+        "quality": "high",
+        "aspect_ratio": "1:1",
+        "background": "opaque",
+        "provider": {
+          "only": [
+            "openai"
+          ],
+          "allow_fallbacks": false
+        }
+      },
+      "seconds": 36.013,
+      "usage": {
+        "prompt_tokens": 981,
+        "completion_tokens": 1756,
+        "total_tokens": 2737,
+        "cost": 0.059985,
+        "is_byok": false,
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "cost_details": {
+          "upstream_inference_cost": 0.059985,
+          "upstream_inference_prompt_cost": 0.007305,
+          "upstream_inference_completions_cost": 0.05268
+        },
+        "completion_tokens_details": {
+          "reasoning_tokens": 0,
+          "image_tokens": 1756
+        }
+      },
+      "size": [
+        1024,
+        1024
+      ],
+      "raw": "asphalt_raw.png",
+      "sha256": "39d1ec3185e7f2760845b9d46d81169b5e5227781a5e684eca421c91a9aef058"
+    },
+    {
+      "name": "sidewalk",
+      "building_id": null,
+      "prompt": "Use case: stylized-concept. Asset type: seamless tileable pixel game ground texture. Image 1 is ONLY an art-style reference. Generate warm cream and ochre sidewalk paving blocks with clearly arranged small joints. Hand-crafted pixel-art city game asset, crisp deliberate pixel clusters, rich but controlled natural colors, warm sunlit highlights, cool shadows, readable small-scale details. Use the reference only for art style; never copy its buildings, characters, farm layout or objects. No text, logos, labels, collage or extra objects. Flat top-down orthographic material swatch filling the entire square edge to edge. Match opposite edges for seamless repetition. Consistent texel scale and even lighting. No perspective, borders, gradients, dominant focal objects, plants, shadows, cracks crossing the whole tile or road layout.",
+      "status": "generated",
+      "options": {
+        "model": "openai/gpt-image-2.5-sunburst",
+        "n": 1,
+        "quality": "high",
+        "aspect_ratio": "1:1",
+        "background": "opaque",
+        "provider": {
+          "only": [
+            "openai"
+          ],
+          "allow_fallbacks": false
+        }
+      },
+      "seconds": 35.948,
+      "usage": {
+        "prompt_tokens": 980,
+        "completion_tokens": 1756,
+        "total_tokens": 2736,
+        "cost": 0.05998,
+        "is_byok": false,
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "cost_details": {
+          "upstream_inference_cost": 0.05998,
+          "upstream_inference_prompt_cost": 0.0073,
+          "upstream_inference_completions_cost": 0.05268
+        },
+        "completion_tokens_details": {
+          "reasoning_tokens": 0,
+          "image_tokens": 1756
+        }
+      },
+      "size": [
+        1024,
+        1024
+      ],
+      "raw": "sidewalk_raw.png",
+      "sha256": "171113a6955c76512bf9c799acb9ec67a419922e55f02b179efd5132c9f6b539"
+    },
+    {
+      "name": "courtyard",
+      "building_id": null,
+      "prompt": "Use case: stylized-concept. Asset type: seamless tileable pixel game ground texture. Image 1 is ONLY an art-style reference. Generate warm golden stone courtyard paving with gently irregular rectangular blocks. Hand-crafted pixel-art city game asset, crisp deliberate pixel clusters, rich but controlled natural colors, warm sunlit highlights, cool shadows, readable small-scale details. Use the reference only for art style; never copy its buildings, characters, farm layout or objects. No text, logos, labels, collage or extra objects. Flat top-down orthographic material swatch filling the entire square edge to edge. Match opposite edges for seamless repetition. Consistent texel scale and even lighting. No perspective, borders, gradients, dominant focal objects, plants, shadows, cracks crossing the whole tile or road layout.",
+      "status": "generated",
+      "options": {
+        "model": "openai/gpt-image-2.5-sunburst",
+        "n": 1,
+        "quality": "high",
+        "aspect_ratio": "1:1",
+        "background": "opaque",
+        "provider": {
+          "only": [
+            "openai"
+          ],
+          "allow_fallbacks": false
+        }
+      },
+      "seconds": 40.866,
+      "usage": {
+        "prompt_tokens": 977,
+        "completion_tokens": 1756,
+        "total_tokens": 2733,
+        "cost": 0.059965,
+        "is_byok": false,
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "cost_details": {
+          "upstream_inference_cost": 0.059965,
+          "upstream_inference_prompt_cost": 0.007285,
+          "upstream_inference_completions_cost": 0.05268
+        },
+        "completion_tokens_details": {
+          "reasoning_tokens": 0,
+          "image_tokens": 1756
+        }
+      },
+      "size": [
+        1024,
+        1024
+      ],
+      "raw": "courtyard_raw.png",
+      "sha256": "095695e139746a8b17d4b65d60e477174588cf96a86fc7ef1cfcdf09c4647e74"
+    }
+  ],
+  "total_cost_usd": 0.385141,
+  "requests_started": 6,
+  "style_sha256": "1f74c762ed3f7c307f4b856630c09f986f4a5194f2a198040052580b07afeae5"
+}

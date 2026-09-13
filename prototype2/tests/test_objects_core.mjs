@@ -1,0 +1,20 @@
+import assert from 'node:assert/strict';
+import {compose, decodeDepth, cameraDepth, projectPoint, containsPoint} from '../web/pilot/objects-core.js';
+const camera={scale:1,cx:0,cy:0,alpha_deg:22.5,phi_deg:30};
+assert.deepEqual([...decodeDepth(new Uint8ClampedArray([1,2,3,255,0,0,0,255]))],[66051,0]);
+assert.equal(projectPoint(0,0,0,camera)[0],0);
+assert(Math.abs(projectPoint(0,0,50,camera)[1]+43.30127018922194)<1e-9);
+assert(cameraDepth(0,-10,0,camera,{offset:10000,scale:100})>cameraDepth(0,10,0,camera,{offset:10000,scale:100}));
+assert(containsPoint([1,1],[[0,0],[2,0],[2,2],[0,2],[0,0]]));
+assert(!containsPoint([3,1],[[0,0],[2,0],[2,2],[0,2],[0,0]]));
+const ground=new Uint8ClampedArray(16).fill(90), groundDepth=new Uint32Array(4).fill(1);
+function building(id,z,color){return {id,size:[1,1],xy:[0,0],spritePixels:new Uint8ClampedArray([...color,255]),basePixels:new Uint8ClampedArray([20,20,20,255]),depthValues:new Uint32Array([z]),lightPixels:new Uint8ClampedArray([250,200,100,255])};}
+const far=building(1,10,[80,70,60]),near=building(2,20,[110,120,130]);
+let a=compose(2,ground,groundDepth,[far,near]),b=compose(2,ground,groundDepth,[near,far]);
+assert.deepEqual(a,b);assert.equal(a.ids[0],2);assert.equal(a.pixels[0],110);
+a=compose(2,ground,groundDepth,[far,near],{hidden:new Set([2])});assert.equal(a.ids[0],1);
+a=compose(2,ground,groundDepth,[far,near],{hidden:new Set([1,2])});assert.equal(a.ids[0],0);assert.equal(a.pixels[0],90);
+a=compose(2,ground,groundDepth,[far,near],{lights:new Set([2])});assert.equal(a.pixels[0],250);
+a=compose(2,ground,groundDepth,[far,near],{mode:'source',lights:new Set([2])});assert.equal(a.pixels[0],20);
+near.spritePixels[3]=0;a=compose(2,ground,groundDepth,[near,far]);assert.equal(a.ids[0],1);
+console.log('Object compositor: depth, picking IDs, alpha, hide/restore, lights and projection passed');

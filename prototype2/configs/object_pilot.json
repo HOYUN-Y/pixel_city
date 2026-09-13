@@ -1,0 +1,24 @@
+{
+  "version": 1,
+  "bbox": [126.975, 37.5665, 126.979, 37.568],
+  "building_ids": [4323, 4333, 4335, 4399, 4438, 4441, 4448, 4480, 4485, 4496, 4505, 4538, 4577, 4602, 4628, 4688, 4693, 4735],
+  "ai_building_ids": [4628, 4577, 4485],
+  "materials": ["asphalt", "sidewalk", "courtyard"],
+  "width": 1536,
+  "art_pixel": 3,
+  "material_size": 64,
+  "material_meters_per_pixel": 0.25,
+  "style_reference": "work/references/pixel_style.png",
+  "style_sha256": "1f74c762ed3f7c307f4b856630c09f986f4a5194f2a198040052580b07afeae5",
+  "max_requests": 6,
+  "alpha_iou_min": 0.95,
+  "light_reference_run": "20260913T163032352584Z",
+  "light_windows": {
+    "4485": [
+      [[43, 46], [47, 45], [47, 51], [43, 52]],
+      [[43, 60], [47, 59], [47, 65], [43, 66]],
+      [[50, 71], [53, 70], [53, 75], [50, 76]],
+      [[24, 68], [27, 68], [27, 71], [24, 71]]
+    ]
+  }
+}

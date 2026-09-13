@@ -1,4 +1,6 @@
 import {PilotMap} from './map.js';
+import {ObjectMap} from './objects.js';
+const objectView = new URLSearchParams(location.search).get('view') === 'objects';
 const $=s=>document.querySelector(s), mobile=()=>innerWidth<900;
 const definitions={chat:['AI 가이드','#3A2A1E',400,560],feed:['피드','#6FA657',420,560],book:['도감','#8CC5D8',440,520],spot:['명소','#F2C14E',380,600],upload:['올리기','#E8735A',380,600],post:['픽셀 엽서','#8CC5D8',400,480],route:['추천 코스','#6FA657',400,540]};
 const names=['덕수궁','궁궐 산책길','도심 풍경','서울의 오후','한옥 지붕','담장 길','작은 정원'];
@@ -76,7 +78,7 @@ addEventListener('resize',()=>{const now=mobile();if(now!==lastMobile){if(now&&s
 $('#preview-state').onchange=e=>{const v=e.target.value;if(v==='card')$('#card-modal').showModal();else if(v){open(v,e.target);if(v==='route')$('#route-bar').hidden=false;}e.target.value='';};
 
 function failed(error){$('#map-message').hidden=false;$('#map-message h1').textContent='시험 지도를 표시할 수 없습니다';$('#map-message p').textContent=error.message;$('#map-message').dataset.state='error';for(const id of ['zoom-in','zoom-out','fit'])$('#'+id).disabled=true;}
-const map=new PilotMap($('#map'),m=>{
+const map=new (objectView ? ObjectMap : PilotMap)($('#map'),m=>{
   $('#zoom-label').textContent=Math.round(m.scale*100)+'%';$('#zoom-in').disabled=!m.ready||m.scale>=m.maxScale;$('#zoom-out').disabled=!m.ready||m.scale<=m.minScale;
   const x=Math.max(0,m.center.x-m.w/(2*m.scale)),y=Math.max(0,m.center.y-m.h/(2*m.scale));
   const right=Math.min(1536,m.center.x+m.w/(2*m.scale)),bottom=Math.min(1536,m.center.y+m.h/(2*m.scale));
@@ -86,10 +88,42 @@ const map=new PilotMap($('#map'),m=>{
 $('#zoom-in').onclick=()=>map.zoom(map.scale*1.25);$('#zoom-out').onclick=()=>map.zoom(map.scale/1.25);$('#fit').onclick=()=>map.fit();
 $('#debug-zoom').onchange=e=>{map.setDebug(e.target.checked);$('#double-zoom').disabled=!e.target.checked;};
 document.querySelectorAll('[data-scale]').forEach(b=>b.onclick=()=>map.zoom(Number(b.dataset.scale)));
-$('#seam-lines').onchange=e=>{map.showSeams=e.target.checked;map.update();};
-$('#map-mode').onchange=e=>{map.mode=e.target.value;if(map.base)$('#mini-image').src=new URL(map.mode==='ai'?'preview.png':'source.png',map.base);map.update();};
-async function json(url){const r=await fetch(url,{cache:'no-store'});if(!r.ok)throw Error('완료된 2×2 생성 결과가 없습니다. 생성 기록을 확인해 주세요.');return r.json();}
+$('#seam-lines').onchange=e=>{if(objectView)map.showGeometry=e.target.checked;else map.showSeams=e.target.checked;map.update();};
+$('#map-mode').onchange=e=>{map.mode=e.target.value;if(map.base&&!objectView)$('#mini-image').src=new URL(map.mode==='ai'?'preview.png':'source.png',map.base);map.update();};
+async function json(url){const r=await fetch(url,{cache:'no-store'});if(!r.ok)throw Error(objectView?'객체형 데모 에셋을 찾을 수 없습니다. 저장소의 assets/object_pilot 폴더를 확인해 주세요.':'완료된 2×2 생성 결과가 없습니다. 생성 기록을 확인해 주세요.');return r.json();}
 async function boot(){try{
+  if(objectView){
+    const base=new URL('../../assets/object_pilot/',location.href),manifest=await json(new URL('manifest.json',base));
+    await map.load(manifest,base);$('#map-message').hidden=true;$('#map-message').dataset.state='ready';
+    $('#mini-image').src=new URL(manifest.preview,base);$('#run-info').textContent=manifest.review_summary;
+    $('#run-report').href=new URL('index.html',base);$('#run-report').hidden=false;$('#attribution').textContent=manifest.attribution;
+    document.title='Pixel City · 객체형 픽셀 지도 시험';$('.pilot-badge').textContent='OBJECT PILOT';$('.minimap span').textContent='18 OBJECTS';
+    const notice=document.createElement('div');notice.id='object-summary';notice.textContent=manifest.review_summary+' · ';
+    const reviewLink=document.createElement('a');reviewLink.href=new URL('index.html',base);reviewLink.target='_blank';reviewLink.rel='noopener';reviewLink.textContent='AI 6종 시안 보기 ↗';notice.append(reviewLink);$('#map-stage').append(notice);
+    $('.inspection-title').textContent='OBJECT & ASSET LAB';$('#map-mode').options[0].textContent='AI 에셋 후보 적용';$('#map-mode').options[1].textContent='기본 도형 비교';
+    $('#seam-lines').parentElement.lastChild.textContent=' 건물 바닥 윤곽 표시';
+    $('#inspection .presets + p').textContent='건물별 객체 시험 · 실제 도형/높이 유지 · 외관은 AI 재해석. 기본 100%, 검수용 200%.';
+    const tools=document.createElement('div');tools.className='object-controls';
+    tools.innerHTML='<label>건물 선택 <select id="object-select"><option value="0">지도에서 건물 클릭</option></select></label><div class="actions"><button id="object-hide" disabled>건물 숨기기</button><button id="object-light" disabled>창문 켜기</button></div><p id="object-info">건물을 클릭하면 ID·높이·AI 적용 여부가 표시됩니다.</p><label><input id="object-walk" type="checkbox"> 검수용 보행자 이동</label><label>보행 위치 검수 <input id="walk-phase" type="range" min="0" max="1000" value="0"></label><small>보행자는 확대된 검수 마커이며 실제 크기·경로가 아닙니다.</small>';
+    $('#inspection .inspection-body').insertBefore(tools,$('#run-info'));
+    for(const b of manifest.objects){const option=document.createElement('option');option.value=b.id;option.textContent=`#${b.id} · ${b.height}m${manifest.ai_building_ids.includes(b.id)?' · AI 시험':''}`;$('#object-select').append(option);}
+    const card=document.createElement('aside');card.id='object-card';card.hidden=true;card.setAttribute('aria-live','polite');$('#map-stage').append(card);
+    map.onSelection=b=>{
+      $('#object-select').value=b?.id||0;$('#object-hide').disabled=!b;$('#object-light').disabled=!b?.has_light;
+      $('#object-hide').textContent=map.hidden.has(b?.id)?'건물 복원':'건물 숨기기';$('#object-light').textContent=map.lights.has(b?.id)?'창문 끄기':'창문 켜기';
+      const status=b?({baseline:'기본 도형',candidate_unreviewed:'AI 후보 · 미감 미승인',geometry_rejected:'AI 도형 불합격 · 기본 도형 표시'}[b.status]||b.status):'';
+      $('#object-info').textContent=b?`#${b.id} · 스냅샷 높이 ${b.height}m · ${status}`:'건물을 클릭하세요.';
+      card.hidden=!b;if(b){card.replaceChildren();const title=document.createElement('strong');title.textContent=`BUILDING #${b.id}`;const detail=document.createElement('p');detail.textContent=`${b.height}m · ${status}`;
+        const actions=document.createElement('div');actions.className='actions';
+        for(const [id,text,action,disabled] of [['card-hide',$('#object-hide').textContent,()=>map.toggleHidden(),false],['card-light',$('#object-light').textContent,()=>map.toggleLight(),!b.has_light],['card-clear','닫기',()=>map.select(0),false]]){const button=document.createElement('button');button.id=id;button.textContent=text;button.disabled=disabled;button.onclick=action;actions.append(button);}
+        card.append(title,detail,actions);}
+    };
+    $('#object-select').onchange=e=>map.focus(e.target.value);
+    $('#object-hide').onclick=()=>{map.toggleHidden();if(mobile())$('#inspection').open=false;};
+    $('#object-light').onclick=()=>{map.toggleLight();if(mobile())$('#inspection').open=false;};
+    $('#object-walk').checked=map.walking;$('#object-walk').onchange=e=>map.setWalking(e.target.checked);$('#walk-phase').oninput=e=>{$('#object-walk').checked=false;map.setPhase(Number(e.target.value)/1000);};
+    document.body.dataset.tilesReady='true';return;
+  }
   const root=new URL('../../eval/vworld/openrouter/seam_zoom/',new URL('../',location.href));
   const run=new URLSearchParams(location.search).get('run')||(await json(new URL('current.json',root))).run_id;
   if(!/^\d{8}T\d{12}Z$/.test(run))throw Error('올바르지 않은 실행 ID입니다.');

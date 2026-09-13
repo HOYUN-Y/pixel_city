@@ -11,7 +11,7 @@
 | 구분 | 목적 | 현재 상태 |
 |---|---|---|
 | [prototype1](prototype1/poc/README.md) | V-World 건물·도로·지형을 규칙 기반 픽셀 지도로 렌더 | 서울 도심 6,991동, DEM 지형, POI·지하철 레이어 뷰어 구현 |
-| [prototype2](prototype2/README.md) | 공간 구조를 잠그고 로컬 SDXL 재질과 디오라마 표현을 결합 | 대표 3구역 시안·비교 뷰어 완료, 전체 96타일 적용은 승인 대기 |
+| [prototype2](prototype2/README.md) | 고정 도형과 API 생성 픽셀 에셋을 결합한 객체형 지도 시험 | 18개 객체·AI 6종 생성, 건물 윤곽 1/3 통과. 미감 검수 및 전체 확장은 보류 |
 
 `prototype1`은 공간데이터와 규칙 기반 표현의 기준선이고, `prototype2`는 고정된 입력
 스냅샷을 사용하는 독립 실험입니다. 두 경로의 현재 결과와 제한은 각 README에
@@ -28,6 +28,11 @@ python3 serve.py
 cd ../..
 python3 -m http.server 8766 --bind 127.0.0.1 --directory prototype2
 ```
+
+최신 [객체형 지도](http://127.0.0.1:8766/web/pilot/?view=objects)는 저장소에 포함된 소형 데모 에셋으로
+바로 열린다. API 키나 로컬 AI 모델이 필요 없다. 건물 클릭 후 좌하단 **지도 검수**에서 숨김·복원·
+창문 점등과 보행 마커를 조작한다. [AI 에셋 6종 비교](http://127.0.0.1:8766/assets/object_pilot/)에서
+미채택 후보도 확인할 수 있다. 기존 2×2 이미지 시험은 `/web/pilot/`에 보존했으며 로컬 생성물이 필요하다.
 
 ## 검증
 
