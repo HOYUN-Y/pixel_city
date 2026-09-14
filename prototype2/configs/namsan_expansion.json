@@ -1,0 +1,28 @@
+{
+  "capture_run": "20260914T125937359608Z",
+  "source_sha256": "73611d9aafe8034c0ddc42c5a589861155d4550cd568247f599345c33645d41c",
+  "source_review": {
+    "approved": true,
+    "reviewer": "user authorized experimental generation after source-quality limitation was reported",
+    "allow_inferred_buildings": true,
+    "source_geometry_complete": false,
+    "approval_message": "AI생성까지 진행하고 나는 조금이따가 확인해볼게",
+    "reason": "Original source-quality failure remains: upper row has incomplete 3D building masses. User requested AI generation after this was reported. Proceed as an explicitly inferred experimental image, not verified 3D geometry. Preserve visible road/roof layout, parent interior and fixed projection; user reviews output later.",
+    "user_visual_approval": false
+  },
+  "layout": [["A", "B", "C"], ["D", "parent_tl", "parent_tr"], ["E", "parent_bl", "parent_br"]],
+  "final_size": [2304, 2304],
+  "parent_offset": [768, 768],
+  "old_edge_edit_limit_px": 128,
+  "limits": {"map": 5, "repair": 2, "cars": 1},
+  "references": {
+    "A": {"roads": [[108,550],[492,686]], "building": [[303,366],[367,355]], "note": "Flat aerial roof edge only; height/facade unverified"},
+    "B": {"roads": [[1019,584],[1227,369]], "building": [[1221,447],[1314,428]], "note": "Rendered roof edge near large complex; approximate manual image annotation"},
+    "C": {"roads": [[1975,278],[1996,501]], "building": [[1692,495],[1730,484]], "note": "Blue rendered tower roof edge; approximate manual image annotation"},
+    "D": {"roads": [[203,1194],[640,1460]], "building": [[403,793],[463,779]], "note": "Cream rendered building roof edge; approximate manual image annotation"},
+    "E": {"roads": [[296,1893],[357,2064]], "building": [[617,1815],[672,1825]], "note": "Green rendered long roof edge; approximate manual image annotation"}
+  },
+  "reference_status": "Annotated before paid generation in final 2304px image coordinates. Approximate image correspondences only; missing 3D heights remain unknown.",
+  "traffic_status": "Actual road selection pending usable source/final art; synthetic runtime validation is not a road-quality pass.",
+  "git_handoff": "local branch and commit only; no merge or push"
+}

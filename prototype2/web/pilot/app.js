@@ -3,7 +3,7 @@ import {ObjectMap} from './objects.js';
 import {LabMap} from './lab.js';
 import {bootLab,labPanel} from './lab-ui.js';
 const objectView = new URLSearchParams(location.search).get('view') === 'objects';
-const labView = ['seam-lab','projection-walk'].includes(new URLSearchParams(location.search).get('view'));
+const labView = ['seam-lab','projection-walk','projection-expand'].includes(new URLSearchParams(location.search).get('view'));
 const projectionView = new URLSearchParams(location.search).get('view') === 'projection-lab';
 const $=s=>document.querySelector(s), mobile=()=>innerWidth<900;
 const definitions={chat:['AI 가이드','#3A2A1E',400,560],feed:['피드','#6FA657',420,560],book:['도감','#8CC5D8',440,520],spot:['명소','#F2C14E',380,600],upload:['올리기','#E8735A',380,600],post:['픽셀 엽서','#8CC5D8',400,480],route:['추천 코스','#6FA657',400,540]};
@@ -86,8 +86,9 @@ function failed(error){$('#map-message').hidden=false;$('#map-message h1').textC
 const map=new (objectView ? ObjectMap : labView ? LabMap : PilotMap)($('#map'),m=>{
   $('#zoom-label').textContent=Math.round(m.scale*100)+'%';$('#zoom-in').disabled=!m.ready||m.scale>=m.maxScale;$('#zoom-out').disabled=!m.ready||m.scale<=m.minScale;
   const x=Math.max(0,m.center.x-m.w/(2*m.scale)),y=Math.max(0,m.center.y-m.h/(2*m.scale));
-  const right=Math.min(1536,m.center.x+m.w/(2*m.scale)),bottom=Math.min(1536,m.center.y+m.h/(2*m.scale));
-  $('#mini-viewport').style.cssText=`left:${x/1536*100}%;top:${y/1536*100}%;width:${(right-x)/1536*100}%;height:${(bottom-y)/1536*100}%`;
+  const width=m.manifest?.width||1536,height=m.manifest?.height||1536;
+  const right=Math.min(width,m.center.x+m.w/(2*m.scale)),bottom=Math.min(height,m.center.y+m.h/(2*m.scale));
+  $('#mini-viewport').style.cssText=`left:${x/width*100}%;top:${y/height*100}%;width:${(right-x)/width*100}%;height:${(bottom-y)/height*100}%`;
   $('#map').dataset.scale=String(m.scale);$('#map').dataset.center=JSON.stringify(m.center);$('#map').dataset.mode=m.mode;
 },failed);
 $('#zoom-in').onclick=()=>map.zoom(map.scale*1.25);$('#zoom-out').onclick=()=>map.zoom(map.scale/1.25);$('#fit').onclick=()=>map.fit();

@@ -4,8 +4,8 @@ export function vehiclePosition(lane, seconds, offset, speed=28) {
   return {xy:lane.start.map((v,i)=>v+(lane.end[i]-v)*phase),phase,alpha:Math.min(1,phase*length/12,(1-phase)*length/12)};
 }
 
-export function validateLiving(overlay) {
-  const xy=p=>Array.isArray(p)&&p.length===2&&p.every(v=>Number.isFinite(v)&&v>=0&&v<=1536);
+export function validateLiving(overlay, size={width:1536,height:1536}) {
+  const xy=p=>Array.isArray(p)&&p.length===2&&p.every((v,i)=>Number.isFinite(v)&&v>=0&&v<=[size.width,size.height][i]);
   const t=overlay.traffic;
   if(t){
     if(t.lanes.length!==2||!Number.isFinite(t.speed)||t.speed<=0)throw Error('잘못된 차량 설정');

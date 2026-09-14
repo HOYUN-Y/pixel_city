@@ -1,0 +1,24 @@
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import {labSize} from '../web/pilot/lab-size.js';
+import {validOverlay,routePoint} from '../web/pilot/lab-core.js';
+import {vehiclePosition,validateLiving} from '../web/pilot/living-core.js';
+
+assert.deepEqual(labSize(),{width:1536,height:1536});
+const size=labSize({width:2304,height:2304});
+for(const d of [{width:2304},{width:0,height:0},{width:4096,height:4096}])assert.throws(()=>labSize(d));
+const cfg=JSON.parse(fs.readFileSync(new URL('../configs/projection_walk.json',import.meta.url)));
+const overlay=structuredClone(cfg),shift=p=>p.map(v=>v+768);
+for(const s of overlay.spots)s.xy=shift(s.xy);
+for(const p of overlay.route.points)p.xy=shift(p.xy);
+for(const o of overlay.occluders)o.polygon=o.polygon.map(shift);
+validOverlay(overlay,cfg.image_sha256,size);assert.throws(()=>validOverlay(overlay,cfg.image_sha256));
+assert.ok(routePoint(overlay.route.points,.4).xy.every((v,i)=>Math.abs(v-routePoint(cfg.route.points,.4).xy[i]-768)<1e-8));
+const lane={start:[600,800],end:[2000,800],offsets:[.1,.6],sprite:'car.png'};
+overlay.traffic={lanes:[lane,{...lane,start:lane.end,end:lane.start}],speed:28,occluders:[]};
+validateLiving(overlay,size);assert.throws(()=>validateLiving(overlay));
+const cross=(768-600)/28;
+assert.ok(Math.abs(vehiclePosition(lane,cross,0).xy[0]-768)<1e-8);
+assert.ok(Math.abs(vehiclePosition(lane,cross+.01,0).xy[0]-vehiclePosition(lane,cross-.01,0).xy[0]-.56)<1e-8);
+for(let i=1;i<=600;i++)assert.ok(Math.abs(vehiclePosition(lane,i/10,.1).xy[1]-800)<1e-8);
+console.log('Expansion: legacy size, new bounds, translated walk, continuous global traffic passed');

@@ -1,6 +1,7 @@
 import {PilotMap} from './map.js';
 import {routePoint,routePhase,hitSpot,validOverlay} from './lab-core.js';
 import {LivingLayer} from './living.js';
+import {labSize} from './lab-size.js';
 
 function asset(base,file){if(!/^[a-zA-Z0-9_./-]+$/.test(file)||file.includes('..')||file.startsWith('/'))throw Error('잘못된 에셋 경로');return new URL(file,base);}
 async function picture(base,file,expected){
@@ -23,27 +24,28 @@ export class LabMap extends PilotMap {
   }
   async loadLab(manifest,base,scene){
     if(manifest.version!==1||!manifest.scenes[scene])throw Error('지원하지 않는 시험 장면입니다.');
-    this.labManifest=manifest;this.base=base;this.manifest={width:1536,height:1536};this.ready=false;
+    this.labManifest=manifest;this.base=base;this.manifest=labSize(manifest);this.ready=false;
     const sprite=await picture(base,manifest.character,manifest.asset_sha256[manifest.character]);this.sprite=sprite;
     await this.setScene(scene);this.ready=true;this.fit();
   }
   async setScene(id){
     const token=this.loadToken=(this.loadToken||0)+1;this.ready=false;this.canvas.dataset.scene='';this.setPlaying(false);
     const scene=this.labManifest.scenes[id];if(!scene)throw Error('장면을 찾을 수 없습니다.');
-    const images=new Map();await Promise.all(Object.entries(scene.variants).map(async([key,v])=>{const im=await picture(this.base,v.file,v.sha256);if(im.width!==1536||im.height!==1536)throw Error('지도 크기 불일치');images.set(key,im);}));
+    const images=new Map();await Promise.all(Object.entries(scene.variants).map(async([key,v])=>{const im=await picture(this.base,v.file,v.sha256);if(im.width!==this.manifest.width||im.height!==this.manifest.width)throw Error('지도 크기 불일치');images.set(key,im);}));
     const response=await fetch(asset(this.base,scene.overlay),{cache:'no-store'});if(!response.ok)throw Error('가림·장소 데이터가 없습니다.');
     const bytes=await response.arrayBuffer(),expected=this.labManifest.overlay_sha256?.[id];
     if(expected){const digest=await crypto.subtle.digest('SHA-256',bytes);if([...new Uint8Array(digest)].map(x=>x.toString(16).padStart(2,'0')).join('')!==expected)throw Error('객체 데이터 해시 불일치');}
-    const overlay=validOverlay(JSON.parse(new TextDecoder().decode(bytes)),scene.variants.final.sha256);
-    const living=await LivingLayer.load(overlay,this.base,this.labManifest.asset_sha256,picture);
+    const overlay=validOverlay(JSON.parse(new TextDecoder().decode(bytes)),scene.variants.final.sha256,this.manifest);
+    const living=await LivingLayer.load(overlay,this.base,this.labManifest.asset_sha256,picture,this.manifest);
+    if(this.labManifest.kind==='projection-expand')living.trafficPlaying=false;
     if(token!==this.loadToken){for(const im of images.values())im.close();living.close();return;}
     this.living?.close();this.living=living;
     for(const im of this.images.values())im.close();
     this.images=images;this.scene=id;this.sceneData=scene;this.overlay=overlay;this.mode='final';this.phase=0;this.selected=null;
-    this.masks=new Map(overlay.occluders.map(o=>{const c=document.createElement('canvas');c.width=c.height=1536;const ctx=c.getContext('2d');ctx.beginPath();o.polygon.forEach(([x,y],i)=>i?ctx.lineTo(x,y):ctx.moveTo(x,y));ctx.closePath();ctx.fill();return[o.id,c];}));
+    this.masks=new Map(overlay.occluders.map(o=>{const c=document.createElement('canvas');c.width=c.height=this.manifest.width;const ctx=c.getContext('2d');ctx.beginPath();o.polygon.forEach(([x,y],i)=>i?ctx.lineTo(x,y):ctx.moveTo(x,y));ctx.closePath();ctx.fill();return[o.id,c];}));
     this.routeCanvas=null;
     if(overlay.landmark?.mode==='highlight_only'){
-      const route=document.createElement('canvas');route.width=route.height=1536;const rc=route.getContext('2d');
+      const route=document.createElement('canvas');route.width=route.height=this.manifest.width;const rc=route.getContext('2d');
       rc.beginPath();overlay.route.points.forEach((p,i)=>i?rc.lineTo(...p.xy):rc.moveTo(...p.xy));rc.lineWidth=3;rc.strokeStyle='#FFF5CB';rc.stroke();rc.lineWidth=1;rc.strokeStyle='#CE672D';rc.setLineDash([6,5]);rc.stroke();
       rc.globalCompositeOperation='destination-out';for(const m of this.masks.values())rc.drawImage(m,0,0);this.routeCanvas=route;
     }
@@ -62,13 +64,18 @@ export class LabMap extends PilotMap {
     const position=routePoint(this.overlay.route.points,this.phase);
     if(this.playing&&this.follow){this.center={x:position.xy[0],y:position.xy[1]};this.clamp();}
     const ox=this.w/2-this.center.x*this.scale,oy=this.h/2-this.center.y*this.scale;
-    c.imageSmoothingEnabled=false;c.drawImage(this.images.get(this.mode),ox,oy,1536*this.scale,1536*this.scale);
-    c.save();c.beginPath();c.rect(ox,oy,1536*this.scale,1536*this.scale);c.clip();
+    c.imageSmoothingEnabled=false;c.drawImage(this.images.get(this.mode),ox,oy,this.manifest.width*this.scale,this.manifest.width*this.scale);
+    c.save();c.beginPath();c.rect(ox,oy,this.manifest.width*this.scale,this.manifest.width*this.scale);c.clip();
     if(this.mode==='final')this.living?.drawBackground(c,ox,oy,this.scale,this.selected?.id);
-    if(this.showSeams){for(const [x,color] of [[768,'#FF4260'],[896,'#31E1FF']]){c.strokeStyle=color;c.lineWidth=1.5;c.setLineDash([6,5]);c.beginPath();c.moveTo(ox+x*this.scale,oy);c.lineTo(ox+x*this.scale,oy+1536*this.scale);c.moveTo(ox,oy+x*this.scale);c.lineTo(ox+1536*this.scale,oy+x*this.scale);c.stroke();}c.setLineDash([]);}
+    if(this.showSeams){
+      const n=this.manifest.width,grid=n===2304?[768,1536]:[768];
+      const lines=[...grid.flatMap(x=>[[[x,0],[x,n],'#FF4260'],[[0,x],[n,x],'#FF4260']]),
+        ...(this.overlay.generation_edges||[[[896,0],[896,n]],[[0,896],[n,896]]]).map(([a,b])=>[a,b,'#31E1FF'])];
+      for(const [a,b,color] of lines){c.strokeStyle=color;c.lineWidth=1.5;c.setLineDash([6,5]);c.beginPath();c.moveTo(ox+a[0]*this.scale,oy+a[1]*this.scale);c.lineTo(ox+b[0]*this.scale,oy+b[1]*this.scale);c.stroke();}c.setLineDash([]);
+    }
     if(this.mode==='final'){
       this.living?.drawTraffic(c,ox,oy,this.scale);
-      if(this.routeVisible){if(this.routeCanvas)c.drawImage(this.routeCanvas,ox,oy,1536*this.scale,1536*this.scale);else{c.strokeStyle='#FFF5CB';c.lineWidth=5;c.beginPath();this.overlay.route.points.forEach((p,i)=>{const x=ox+p.xy[0]*this.scale,y=oy+p.xy[1]*this.scale;i?c.lineTo(x,y):c.moveTo(x,y);});c.stroke();c.strokeStyle='#CE672D';c.lineWidth=2;c.setLineDash([6,5]);c.stroke();c.setLineDash([]);}}
+      if(this.routeVisible){if(this.routeCanvas)c.drawImage(this.routeCanvas,ox,oy,this.manifest.width*this.scale,this.manifest.width*this.scale);else{c.strokeStyle='#FFF5CB';c.lineWidth=5;c.beginPath();this.overlay.route.points.forEach((p,i)=>{const x=ox+p.xy[0]*this.scale,y=oy+p.xy[1]*this.scale;i?c.lineTo(x,y):c.moveTo(x,y);});c.stroke();c.strokeStyle='#CE672D';c.lineWidth=2;c.setLineDash([6,5]);c.stroke();c.setLineDash([]);}}
       const actor=this.actorCanvas,ac=actor.getContext('2d',{willReadFrequently:true});ac.clearRect(0,0,48,60);ac.imageSmoothingEnabled=false;
       const bob=this.playing?Math.round(Math.sin(this.phase*100*Math.PI)):0;
       ac.save();if(position.direction<0){ac.translate(48,0);ac.scale(-1,1);}ac.drawImage(this.sprite,Math.round((48-this.sprite.width)/2),54-this.sprite.height+bob);ac.restore();

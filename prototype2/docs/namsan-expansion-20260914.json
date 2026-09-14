@@ -1,0 +1,1093 @@
+{
+  "status": "generated_awaiting_user_review",
+  "ai_requests": 7,
+  "paid_run_initialized": true,
+  "captures": [
+    {
+      "run": "20260914T124150539876Z",
+      "validation": {
+        "passed": true,
+        "max_alignment_error_px": 9.063903004106336e-10,
+        "reference_100m_raw_px": [
+          96.00000000022351,
+          96,
+          96
+        ],
+        "reference_100m_output_px": [
+          128.000000000298,
+          128,
+          128
+        ]
+      },
+      "files": {
+        "raw.png": "5a971a81dd1f19efa7a6037142ef1b7c632299fc7e8b06c9cbeee649f17cd417",
+        "input.png": "bbe9b63ab639e2aa8359277f00f21f3899f16a176d95c6eef34f6b7a33902df5",
+        "source.png": "60bf63385afa5006f962ee4e2c0ef754ebd87e61e4d05537be2c5dd84a49d9db"
+      },
+      "warmup_centers": null,
+      "error": null
+    },
+    {
+      "run": "20260914T124412233928Z",
+      "validation": {
+        "passed": true,
+        "max_alignment_error_px": 9.063903004106336e-10,
+        "reference_100m_raw_px": [
+          96.00000000022351,
+          96,
+          96
+        ],
+        "reference_100m_output_px": [
+          128.000000000298,
+          128,
+          128
+        ]
+      },
+      "files": {
+        "raw.png": "5a971a81dd1f19efa7a6037142ef1b7c632299fc7e8b06c9cbeee649f17cd417",
+        "input.png": "bbe9b63ab639e2aa8359277f00f21f3899f16a176d95c6eef34f6b7a33902df5",
+        "source.png": "60bf63385afa5006f962ee4e2c0ef754ebd87e61e4d05537be2c5dd84a49d9db"
+      },
+      "warmup_centers": null,
+      "error": null
+    },
+    {
+      "run": "20260914T124902038474Z",
+      "validation": {
+        "passed": true,
+        "max_alignment_error_px": 9.063903004106336e-10,
+        "reference_100m_raw_px": [
+          96.00000000022351,
+          96,
+          96
+        ],
+        "reference_100m_output_px": [
+          128.000000000298,
+          128,
+          128
+        ]
+      },
+      "files": {
+        "raw.png": "a8ac9292c2c9c24092588db83317c67eb6955e38342a24a1315657afbfcd8f26",
+        "input.png": "11a6bbb413257df585806c34b496fa64fab6b7103b92663f8c235b9b15b2ef25",
+        "source.png": "2ce476084058521aa53be747066523c60cf44cdf88aed7dfdca09e14aed54a1c"
+      },
+      "warmup_centers": null,
+      "error": null
+    },
+    {
+      "run": "20260914T125305807699Z",
+      "validation": {
+        "passed": true,
+        "max_alignment_error_px": 1.0745783821202577e-9,
+        "reference_100m_raw_px": [
+          96.00000000022351,
+          96,
+          96
+        ],
+        "reference_100m_output_px": [
+          128.000000000298,
+          128,
+          128
+        ]
+      },
+      "files": {
+        "raw.png": "58a68fa641d215200e6c60f20573d43eed5fe08bc78fb8b0b0ec3a032bed33c0",
+        "input.png": "4ecb56eb5d4a38fc6db7f62ee1be225ddce80655dcc7d92758aa639b14f64445",
+        "source.png": "3b380e3ba51cd475acf55b5a8d1ddf0e7811e7dd6a972ed6c88889f2552cf8b5"
+      },
+      "warmup_centers": [
+        [
+          384,
+          384
+        ],
+        [
+          1152,
+          384
+        ],
+        [
+          1920,
+          384
+        ],
+        [
+          384,
+          1152
+        ],
+        [
+          384,
+          1920
+        ],
+        [
+          1536,
+          1536
+        ]
+      ],
+      "error": null
+    },
+    {
+      "run": "20260914T125716755349Z",
+      "validation": {
+        "passed": false,
+        "reason": "Capture failed"
+      },
+      "files": {},
+      "warmup_centers": [
+        [
+          384,
+          384
+        ],
+        [
+          1152,
+          384
+        ],
+        [
+          1920,
+          384
+        ],
+        [
+          384,
+          1152
+        ],
+        [
+          384,
+          1920
+        ],
+        [
+          1536,
+          1536
+        ]
+      ],
+      "error": "Page.evaluate: Error: Warmup ground point unavailable\n    at exp.warm (http://localhost:8767/:37:20)\n    at eval (eval at evaluate (:302:30), <anonymous>:1:21)\n    at UtilityScript.evaluate (<anonymous>:309:18)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)"
+    },
+    {
+      "run": "20260914T125937359608Z",
+      "validation": {
+        "passed": true,
+        "max_alignment_error_px": 9.063903004106336e-10,
+        "reference_100m_raw_px": [
+          96.00000000022351,
+          96,
+          96
+        ],
+        "reference_100m_output_px": [
+          128.000000000298,
+          128,
+          128
+        ]
+      },
+      "files": {
+        "raw.png": "eec5551fe1a8227c9df0c767e231f37161964793c0eb55f5926824202ced2606",
+        "input.png": "b2f368a13f0e553a5d465fe80804927fa35fd314475e5a0c694f4a4f9ac4c1a3",
+        "source.png": "73611d9aafe8034c0ddc42c5a589861155d4550cd568247f599345c33645d41c"
+      },
+      "warmup_centers": [
+        [
+          384,
+          384
+        ],
+        [
+          1152,
+          384
+        ],
+        [
+          1920,
+          384
+        ],
+        [
+          384,
+          1152
+        ],
+        [
+          384,
+          1920
+        ],
+        [
+          1536,
+          1536
+        ]
+      ],
+      "error": null
+    }
+  ],
+  "fixture_browser": {
+    "passed": true,
+    "fixture": true,
+    "road_visual_validation": false,
+    "real_time_playback_seconds": 60,
+    "views": [
+      "desktop",
+      "tablet",
+      "mobile",
+      "mobile3"
+    ],
+    "errors": [],
+    "external": []
+  },
+  "tests": {
+    "python_passed": 95,
+    "node_suites_passed": 6,
+    "legacy_browser_suites_passed": [
+      "projection_walk",
+      "living",
+      "lab",
+      "pilot_projection",
+      "objects"
+    ],
+    "synthetic_expansion_views": 4,
+    "source_report_desktop_mobile_passed": true,
+    "source_init_rejection_verified": true,
+    "actual_expansion_views": 4
+  },
+  "git": {
+    "branch": "feat/prototype2-namsan-expansion",
+    "handoff": "local_commit_only",
+    "merged": false,
+    "pushed": false,
+    "excluded_other_session": [
+      "README.md",
+      "docs/planning/"
+    ]
+  },
+  "remaining": [
+    "User aesthetic and seam review",
+    "Five-tile road/roof correspondence measurement; currently missing, not passed",
+    "Incomplete source building heights/facades remain inferred",
+    "Vehicle occlusion not demonstrated on selected open road"
+  ],
+  "run_id": "20260914T131603270823Z",
+  "generation_closed": true,
+  "total_cost_usd": 0.566248,
+  "api_seconds": 375.247,
+  "generation": {
+    "run_id": "20260914T131603270823Z",
+    "kind": "projection-expand",
+    "model": "openai/gpt-image-2.5-sunburst",
+    "request_limit": 8,
+    "limits": {
+      "map": 5,
+      "repair": 2,
+      "cars": 1
+    },
+    "requests": [
+      {
+        "group": "map",
+        "name": "map_B",
+        "status": "complete",
+        "prompt": "Use case: style-transfer. Extend one continuous orthographic pixel-art Seoul map. Image 1 is the ONLY exact building, road and terrain geometry reference. Image 2 is ONLY pixel style, never its farm layout or objects. Image 3 is previously completed map art at exact aligned coordinates. Image 4 is a preservation guide: WHITE is locked previous art, BLACK is the new area. Continue roofs, roads, walls and trees through every boundary, including buildings cut by the boundary. Preserve parallel projection, framing, footprint, building count, roof direction and relative height. Same constant scale at every depth; no vanishing point, horizon, enlarged foreground or distant shrinkage. Preserve hill slopes, ridges and winding roads. Match existing green palette, clear pixel clusters, roof detail and restrained shadows. No new landmarks, vehicles, people, labels, text, farmland or divided panels. Return one opaque 1024 square map tile. The user approved an experimental continuation despite incomplete 3D source. Where ONLY aerial roofs are present, infer restrained low/mid-rise walls under those existing roofs to match the neighboring pixel city. Keep the visible roof footprint, road corridors and blocks anchored. These heights are artistic estimates, not real measurements. Do not add landmark towers or invented roads, and do not make the distant area a flat photo-texture.",
+        "options": {
+          "model": "openai/gpt-image-2.5-sunburst",
+          "n": 1,
+          "quality": "high",
+          "aspect_ratio": "1:1",
+          "background": "opaque",
+          "provider": {
+            "only": [
+              "openai"
+            ],
+            "allow_fallbacks": false
+          }
+        },
+        "reference_sha256": [
+          "d16f059ece50fa47a0726f53e4262e4ce23ffe10f8e6fa515a8656a6fe9b055a",
+          "333e045eb4457bab4b5d4ad630c0dcac2bed05b51ea0594b9560295b3dfcbb63",
+          "d3e9906d54daa34cb6efcb26ba3bc65170659ad033194e97fca2fdaa25caae9b",
+          "3af6d14c58781e9787975d0db3db2dcc679cef2b6d588dab7dc8dddbf9fd1485"
+        ],
+        "usage": {
+          "prompt_tokens": 4188,
+          "completion_tokens": 1756,
+          "total_tokens": 5944,
+          "cost": 0.085236,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0.085236,
+            "upstream_inference_prompt_cost": 0.032556,
+            "upstream_inference_completions_cost": 0.05268
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 0,
+            "image_tokens": 1756
+          }
+        },
+        "seconds": 57.276,
+        "raw_storage": "original_response_bytes",
+        "raw_sha256": "899d21578cad200e3bc9e378574b59ad49dff217c00cb4b28883f62f64ceccf9",
+        "native_size": [
+          1024,
+          1024
+        ]
+      },
+      {
+        "group": "map",
+        "name": "map_C",
+        "status": "complete",
+        "prompt": "Use case: style-transfer. Extend one continuous orthographic pixel-art Seoul map. Image 1 is the ONLY exact building, road and terrain geometry reference. Image 2 is ONLY pixel style, never its farm layout or objects. Image 3 is previously completed map art at exact aligned coordinates. Image 4 is a preservation guide: WHITE is locked previous art, BLACK is the new area. Continue roofs, roads, walls and trees through every boundary, including buildings cut by the boundary. Preserve parallel projection, framing, footprint, building count, roof direction and relative height. Same constant scale at every depth; no vanishing point, horizon, enlarged foreground or distant shrinkage. Preserve hill slopes, ridges and winding roads. Match existing green palette, clear pixel clusters, roof detail and restrained shadows. No new landmarks, vehicles, people, labels, text, farmland or divided panels. Return one opaque 1024 square map tile. The user approved an experimental continuation despite incomplete 3D source. Where ONLY aerial roofs are present, infer restrained low/mid-rise walls under those existing roofs to match the neighboring pixel city. Keep the visible roof footprint, road corridors and blocks anchored. These heights are artistic estimates, not real measurements. Do not add landmark towers or invented roads, and do not make the distant area a flat photo-texture.",
+        "options": {
+          "model": "openai/gpt-image-2.5-sunburst",
+          "n": 1,
+          "quality": "high",
+          "aspect_ratio": "1:1",
+          "background": "opaque",
+          "provider": {
+            "only": [
+              "openai"
+            ],
+            "allow_fallbacks": false
+          }
+        },
+        "reference_sha256": [
+          "077ca4a87c0665f099e3d90b26458bab5b1d439d9bf91728f6b580ced1970958",
+          "333e045eb4457bab4b5d4ad630c0dcac2bed05b51ea0594b9560295b3dfcbb63",
+          "0f088dd5dae9323e8fd3cc6e31de5fe78329c205d52f3e4d83b0e04572e50160",
+          "05a94903c30372a5f80979f9dffc919ca71015b9f9ceb302cef6d0ab5eadb26f"
+        ],
+        "usage": {
+          "prompt_tokens": 4188,
+          "completion_tokens": 1756,
+          "total_tokens": 5944,
+          "cost": 0.085236,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0.085236,
+            "upstream_inference_prompt_cost": 0.032556,
+            "upstream_inference_completions_cost": 0.05268
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 0,
+            "image_tokens": 1756
+          }
+        },
+        "seconds": 59.569,
+        "raw_storage": "original_response_bytes",
+        "raw_sha256": "4b95b600054be553d2805800917cdae4b5ac22fa0ed10331a196df2ea6d91c72",
+        "native_size": [
+          1024,
+          1024
+        ]
+      },
+      {
+        "group": "map",
+        "name": "map_D",
+        "status": "complete",
+        "prompt": "Use case: style-transfer. Extend one continuous orthographic pixel-art Seoul map. Image 1 is the ONLY exact building, road and terrain geometry reference. Image 2 is ONLY pixel style, never its farm layout or objects. Image 3 is previously completed map art at exact aligned coordinates. Image 4 is a preservation guide: WHITE is locked previous art, BLACK is the new area. Continue roofs, roads, walls and trees through every boundary, including buildings cut by the boundary. Preserve parallel projection, framing, footprint, building count, roof direction and relative height. Same constant scale at every depth; no vanishing point, horizon, enlarged foreground or distant shrinkage. Preserve hill slopes, ridges and winding roads. Match existing green palette, clear pixel clusters, roof detail and restrained shadows. No new landmarks, vehicles, people, labels, text, farmland or divided panels. Return one opaque 1024 square map tile. The user approved an experimental continuation despite incomplete 3D source. Where ONLY aerial roofs are present, infer restrained low/mid-rise walls under those existing roofs to match the neighboring pixel city. Keep the visible roof footprint, road corridors and blocks anchored. These heights are artistic estimates, not real measurements. Do not add landmark towers or invented roads, and do not make the distant area a flat photo-texture.",
+        "options": {
+          "model": "openai/gpt-image-2.5-sunburst",
+          "n": 1,
+          "quality": "high",
+          "aspect_ratio": "1:1",
+          "background": "opaque",
+          "provider": {
+            "only": [
+              "openai"
+            ],
+            "allow_fallbacks": false
+          }
+        },
+        "reference_sha256": [
+          "a15304de1919762250441c7f025a5b97d074e39b162e4a8e2452f14d3f4e902c",
+          "333e045eb4457bab4b5d4ad630c0dcac2bed05b51ea0594b9560295b3dfcbb63",
+          "0887d04bf74205654e7cbee7483dac4b481e129c60a16391b3de0f0139c7debb",
+          "f915768deb7197fddf6b3480debff01d241a6f462d0aa1cd9469c26fd3eaf6ec"
+        ],
+        "usage": {
+          "prompt_tokens": 4188,
+          "completion_tokens": 1756,
+          "total_tokens": 5944,
+          "cost": 0.085236,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0.085236,
+            "upstream_inference_prompt_cost": 0.032556,
+            "upstream_inference_completions_cost": 0.05268
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 0,
+            "image_tokens": 1756
+          }
+        },
+        "seconds": 53.891,
+        "raw_storage": "original_response_bytes",
+        "raw_sha256": "e5eff043e9884c7d546b99c93b6e6cc9db866a1cc27f3614396cde0cc318b05a",
+        "native_size": [
+          1024,
+          1024
+        ]
+      },
+      {
+        "group": "map",
+        "name": "map_E",
+        "status": "complete",
+        "prompt": "Use case: style-transfer. Extend one continuous orthographic pixel-art Seoul map. Image 1 is the ONLY exact building, road and terrain geometry reference. Image 2 is ONLY pixel style, never its farm layout or objects. Image 3 is previously completed map art at exact aligned coordinates. Image 4 is a preservation guide: WHITE is locked previous art, BLACK is the new area. Continue roofs, roads, walls and trees through every boundary, including buildings cut by the boundary. Preserve parallel projection, framing, footprint, building count, roof direction and relative height. Same constant scale at every depth; no vanishing point, horizon, enlarged foreground or distant shrinkage. Preserve hill slopes, ridges and winding roads. Match existing green palette, clear pixel clusters, roof detail and restrained shadows. No new landmarks, vehicles, people, labels, text, farmland or divided panels. Return one opaque 1024 square map tile. The user approved an experimental continuation despite incomplete 3D source. Where ONLY aerial roofs are present, infer restrained low/mid-rise walls under those existing roofs to match the neighboring pixel city. Keep the visible roof footprint, road corridors and blocks anchored. These heights are artistic estimates, not real measurements. Do not add landmark towers or invented roads, and do not make the distant area a flat photo-texture.",
+        "options": {
+          "model": "openai/gpt-image-2.5-sunburst",
+          "n": 1,
+          "quality": "high",
+          "aspect_ratio": "1:1",
+          "background": "opaque",
+          "provider": {
+            "only": [
+              "openai"
+            ],
+            "allow_fallbacks": false
+          }
+        },
+        "reference_sha256": [
+          "73097c57080baa4d2a350d888f33c19852ebbaa35f3df9dedb04df9e5f475ebe",
+          "333e045eb4457bab4b5d4ad630c0dcac2bed05b51ea0594b9560295b3dfcbb63",
+          "2ac7caca4be14e5a03df08df5bdb33b3b83a043ffccbfb7bb08525c374581471",
+          "63d3d7efa057e44423bf13ee7f775f9aeed54bdc88eb1fd483674e81746abc9b"
+        ],
+        "usage": {
+          "prompt_tokens": 4188,
+          "completion_tokens": 1756,
+          "total_tokens": 5944,
+          "cost": 0.085236,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0.085236,
+            "upstream_inference_prompt_cost": 0.032556,
+            "upstream_inference_completions_cost": 0.05268
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 0,
+            "image_tokens": 1756
+          }
+        },
+        "seconds": 57.028,
+        "raw_storage": "original_response_bytes",
+        "raw_sha256": "2997d8fabc40f610d66234b94ef8aaae21c7b21080dc025e66c951689090748c",
+        "native_size": [
+          1024,
+          1024
+        ]
+      },
+      {
+        "group": "map",
+        "name": "map_A",
+        "status": "complete",
+        "prompt": "Use case: style-transfer. Extend one continuous orthographic pixel-art Seoul map. Image 1 is the ONLY exact building, road and terrain geometry reference. Image 2 is ONLY pixel style, never its farm layout or objects. Image 3 is previously completed map art at exact aligned coordinates. Image 4 is a preservation guide: WHITE is locked previous art, BLACK is the new area. Continue roofs, roads, walls and trees through every boundary, including buildings cut by the boundary. Preserve parallel projection, framing, footprint, building count, roof direction and relative height. Same constant scale at every depth; no vanishing point, horizon, enlarged foreground or distant shrinkage. Preserve hill slopes, ridges and winding roads. Match existing green palette, clear pixel clusters, roof detail and restrained shadows. No new landmarks, vehicles, people, labels, text, farmland or divided panels. Return one opaque 1024 square map tile. The user approved an experimental continuation despite incomplete 3D source. Where ONLY aerial roofs are present, infer restrained low/mid-rise walls under those existing roofs to match the neighboring pixel city. Keep the visible roof footprint, road corridors and blocks anchored. These heights are artistic estimates, not real measurements. Do not add landmark towers or invented roads, and do not make the distant area a flat photo-texture.",
+        "options": {
+          "model": "openai/gpt-image-2.5-sunburst",
+          "n": 1,
+          "quality": "high",
+          "aspect_ratio": "1:1",
+          "background": "opaque",
+          "provider": {
+            "only": [
+              "openai"
+            ],
+            "allow_fallbacks": false
+          }
+        },
+        "reference_sha256": [
+          "690de02d038d323d8540b2aeb824ce2326bbd5c60d2d81e35e1fd56d73af8972",
+          "333e045eb4457bab4b5d4ad630c0dcac2bed05b51ea0594b9560295b3dfcbb63",
+          "585fb159c999cc8006b80f1dd28f83a2dbea8e2f547aba2a7ae05d0cb08f826f",
+          "da108f1a2065ccfefabdfb6dd39add0384ac4f45049a989f66d6bf128a6e203a"
+        ],
+        "usage": {
+          "prompt_tokens": 4188,
+          "completion_tokens": 1756,
+          "total_tokens": 5944,
+          "cost": 0.085236,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0.085236,
+            "upstream_inference_prompt_cost": 0.032556,
+            "upstream_inference_completions_cost": 0.05268
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 0,
+            "image_tokens": 1756
+          }
+        },
+        "seconds": 58.472,
+        "raw_storage": "original_response_bytes",
+        "raw_sha256": "5fe2f737c39d1801d5e9436667379db71bdf9f8e20edfa23b630fa5f57b03781",
+        "native_size": [
+          1024,
+          1024
+        ]
+      },
+      {
+        "group": "repair",
+        "name": "repair_1",
+        "status": "complete",
+        "prompt": "Use case: precise-object-edit. Image 1 is the exact pixel-art target; image 2 is aligned VWorld source geometry; image 3 is the edit guide: modify WHITE only, preserve BLACK. Keep constant orthographic scale, palette, buildings and roads. No blur, new objects, new landmarks, text or perspective. Repair only this observed defect: At global y=1664 and x=768, the wooded hillside immediately below the pale stone walking path has a hard rectangular change in grass/tree texture and an interrupted path edge. Continue the existing pale stone path, forest canopy and slope texture across this local join without relocating the red-roof pavilion, inventing buildings, or changing the path direction. Preserve all pixels outside the white mask exactly.",
+        "options": {
+          "model": "openai/gpt-image-2.5-sunburst",
+          "n": 1,
+          "quality": "high",
+          "aspect_ratio": "1:1",
+          "background": "opaque",
+          "provider": {
+            "only": [
+              "openai"
+            ],
+            "allow_fallbacks": false
+          }
+        },
+        "reference_sha256": [
+          "2e9eb6ea38521e0c05bd8182eed0c4348acbaa02caa3d6b2c441f96199610a02",
+          "547142493465c2a7c1b647b3018ef299fae17e0b88e9990a27f0613cbddee830",
+          "1b78bdaacfc0dc579cb06f3f89c47bc2e5a561d3fbad681428c643516bc12bb9"
+        ],
+        "usage": {
+          "prompt_tokens": 3260,
+          "completion_tokens": 1756,
+          "total_tokens": 5016,
+          "cost": 0.078196,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0.078196,
+            "upstream_inference_prompt_cost": 0.025516,
+            "upstream_inference_completions_cost": 0.05268
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 0,
+            "image_tokens": 1756
+          }
+        },
+        "seconds": 45.664,
+        "raw_storage": "original_response_bytes",
+        "raw_sha256": "4a3c46251f8ec605d9fe140a72f978dd347201c107f91c63c99432b0e1162b03",
+        "native_size": [
+          1024,
+          1024
+        ]
+      },
+      {
+        "group": "cars",
+        "name": "cars",
+        "status": "complete",
+        "prompt": "Use case: stylized-concept. Transparent two-view pixel-art car sheet. Exactly two vertical columns, one isolated cream city hatchback in each, same car, fixed elevated city-map camera, crisp pixel clusters, clear front and rear. Road heading in the 2D screen is almost horizontal, NOT a 45-degree diagonal. LEFT column: front points to the RIGHT and slightly UP, exactly 14 degrees above horizontal (east-northeast). RIGHT column: the same car points LEFT and slightly DOWN, exactly opposite (west-southwest), with its rear visible from the same fixed elevated camera. Keep the projected long axes parallel to this shallow 14-degree road. Small city-map sprite, not a large toy perspective car. Generous transparent padding, no ground, cast shadow, labels, grid, glow, scenery or extra cars. Image 1 is only palette/pixel style. Genuine alpha background.",
+        "options": {
+          "model": "openai/gpt-image-2.5-sunburst",
+          "n": 1,
+          "quality": "high",
+          "aspect_ratio": "1:1",
+          "background": "transparent",
+          "provider": {
+            "only": [
+              "openai"
+            ],
+            "allow_fallbacks": false
+          }
+        },
+        "reference_sha256": [
+          "24ac80c92c7fada8e0c9cca974fc88aceb3f235f1b6a3ffa39d2c43e8406bcec"
+        ],
+        "usage": {
+          "prompt_tokens": 1224,
+          "completion_tokens": 1756,
+          "total_tokens": 2980,
+          "cost": 0.061872,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0.061872,
+            "upstream_inference_prompt_cost": 0.009192,
+            "upstream_inference_completions_cost": 0.05268
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 0,
+            "image_tokens": 1756
+          }
+        },
+        "seconds": 43.347,
+        "raw_storage": "original_response_bytes",
+        "raw_sha256": "834f947386c3f51fcf2d98f7e00fa270dccf65acc8dae1a4b5f240cc9c3f04c1",
+        "native_size": [
+          1024,
+          1024
+        ]
+      }
+    ],
+    "config": {
+      "capture_run": "20260914T125937359608Z",
+      "source_sha256": "73611d9aafe8034c0ddc42c5a589861155d4550cd568247f599345c33645d41c",
+      "source_review": {
+        "approved": true,
+        "reviewer": "user authorized experimental generation after source-quality limitation was reported",
+        "allow_inferred_buildings": true,
+        "source_geometry_complete": false,
+        "approval_message": "AI생성까지 진행하고 나는 조금이따가 확인해볼게",
+        "reason": "Original source-quality failure remains: upper row has incomplete 3D building masses. User requested AI generation after this was reported. Proceed as an explicitly inferred experimental image, not verified 3D geometry. Preserve visible road/roof layout, parent interior and fixed projection; user reviews output later.",
+        "user_visual_approval": false
+      },
+      "layout": [
+        [
+          "A",
+          "B",
+          "C"
+        ],
+        [
+          "D",
+          "parent_tl",
+          "parent_tr"
+        ],
+        [
+          "E",
+          "parent_bl",
+          "parent_br"
+        ]
+      ],
+      "final_size": [
+        2304,
+        2304
+      ],
+      "parent_offset": [
+        768,
+        768
+      ],
+      "old_edge_edit_limit_px": 128,
+      "limits": {
+        "map": 5,
+        "repair": 2,
+        "cars": 1
+      },
+      "references": {
+        "A": {
+          "roads": [
+            [
+              108,
+              550
+            ],
+            [
+              492,
+              686
+            ]
+          ],
+          "building": [
+            [
+              303,
+              366
+            ],
+            [
+              367,
+              355
+            ]
+          ],
+          "note": "Flat aerial roof edge only; height/facade unverified"
+        },
+        "B": {
+          "roads": [
+            [
+              1019,
+              584
+            ],
+            [
+              1227,
+              369
+            ]
+          ],
+          "building": [
+            [
+              1221,
+              447
+            ],
+            [
+              1314,
+              428
+            ]
+          ],
+          "note": "Rendered roof edge near large complex; approximate manual image annotation"
+        },
+        "C": {
+          "roads": [
+            [
+              1975,
+              278
+            ],
+            [
+              1996,
+              501
+            ]
+          ],
+          "building": [
+            [
+              1692,
+              495
+            ],
+            [
+              1730,
+              484
+            ]
+          ],
+          "note": "Blue rendered tower roof edge; approximate manual image annotation"
+        },
+        "D": {
+          "roads": [
+            [
+              203,
+              1194
+            ],
+            [
+              640,
+              1460
+            ]
+          ],
+          "building": [
+            [
+              403,
+              793
+            ],
+            [
+              463,
+              779
+            ]
+          ],
+          "note": "Cream rendered building roof edge; approximate manual image annotation"
+        },
+        "E": {
+          "roads": [
+            [
+              296,
+              1893
+            ],
+            [
+              357,
+              2064
+            ]
+          ],
+          "building": [
+            [
+              617,
+              1815
+            ],
+            [
+              672,
+              1825
+            ]
+          ],
+          "note": "Green rendered long roof edge; approximate manual image annotation"
+        }
+      },
+      "reference_status": "Annotated before paid generation in final 2304px image coordinates. Approximate image correspondences only; missing 3D heights remain unknown.",
+      "traffic_status": "Actual road selection pending usable source/final art; synthetic runtime validation is not a road-quality pass.",
+      "git_handoff": "local branch and commit only; no merge or push"
+    },
+    "generation_closed": true,
+    "input_sha256": {
+      "config.json": "ea10f83fc058189588d2d15061dc8d60ba3e543f52f83e62490664cb541b7104",
+      "capture.json": "fba5d5a94c2aa7458b205cfaeb135399c26c6130a590047effad394bf61c1cbe",
+      "parent.png": "dec645180d953343109a486af7517ea6df4a5cd386dce41608ded4a3685913d7",
+      "input.png": "b2f368a13f0e553a5d465fe80804927fa35fd314475e5a0c694f4a4f9ac4c1a3",
+      "source.png": "73611d9aafe8034c0ddc42c5a589861155d4550cd568247f599345c33645d41c",
+      "style.png": "66e016b75a74c1dd9726bf509eebd710944d3cbc62a48538a48983d49bae3dbe"
+    },
+    "status": "awaiting_user_review",
+    "user_visual_approval": false,
+    "total_cost_usd": 0.5662480000000001,
+    "repairs": {
+      "repair_1": {
+        "needed": true,
+        "reason": "At global y=1664 and x=768, the wooded hillside immediately below the pale stone walking path has a hard rectangular change in grass/tree texture and an interrupted path edge. Continue the existing pale stone path, forest canopy and slope texture across this local join without relocating the red-roof pavilion, inventing buildings, or changing the path direction. Preserve all pixels outside the white mask exactly.",
+        "context_box": [
+          0,
+          1152,
+          1024,
+          2176
+        ],
+        "edit_box": [
+          500,
+          1600,
+          850,
+          1710
+        ]
+      }
+    },
+    "geometry": {
+      "tiles": [
+        {
+          "tile": "A",
+          "road_errors_px": [
+            null,
+            null
+          ],
+          "building_width_change": null,
+          "measured": false,
+          "passed": false
+        },
+        {
+          "tile": "B",
+          "road_errors_px": [
+            null,
+            null
+          ],
+          "building_width_change": null,
+          "measured": false,
+          "passed": false
+        },
+        {
+          "tile": "C",
+          "road_errors_px": [
+            null,
+            null
+          ],
+          "building_width_change": null,
+          "measured": false,
+          "passed": false
+        },
+        {
+          "tile": "D",
+          "road_errors_px": [
+            null,
+            null
+          ],
+          "building_width_change": null,
+          "measured": false,
+          "passed": false
+        },
+        {
+          "tile": "E",
+          "road_errors_px": [
+            null,
+            null
+          ],
+          "building_width_change": null,
+          "measured": false,
+          "passed": false
+        }
+      ],
+      "passed": false,
+      "method": "Manual image correspondences; not geographic proof"
+    },
+    "final_sha256": "5b76579cb8c60acc7e0901c421aecae7bd9952ca5510f5e455db59b2cbbf155b"
+  },
+  "review": {
+    "summary": "남산 왼쪽·위쪽 5칸 AI 확장 시험. 위쪽 건물 높이·외관은 불완전한 VWorld 원본을 AI가 추정했으며 지리 정확도는 미승인. 기존 내부 보존, 사용자 미감 검수 대기.",
+    "repairs": {
+      "repair_1": {
+        "needed": true,
+        "reason": "At global y=1664 and x=768, the wooded hillside immediately below the pale stone walking path has a hard rectangular change in grass/tree texture and an interrupted path edge. Continue the existing pale stone path, forest canopy and slope texture across this local join without relocating the red-roof pavilion, inventing buildings, or changing the path direction. Preserve all pixels outside the white mask exactly.",
+        "context_box": [
+          0,
+          1152,
+          1024,
+          2176
+        ],
+        "edit_box": [
+          500,
+          1600,
+          850,
+          1710
+        ]
+      }
+    },
+    "decisions": {
+      "repair_1": {
+        "accepted": true,
+        "reason": "Native-size inspection: rectangular grass/tree discontinuity below the pale path is reduced; path and pavilion remain recognizable. Limited to 350×110 mask outside protected interior. Local artistic continuity accepted by agent, not geographic or user aesthetic approval."
+      },
+      "repair_2": {
+        "accepted": false,
+        "reason": "Not requested. No second bounded defect chosen with sufficient confidence; preserve remaining budget instead of speculative regeneration."
+      }
+    },
+    "geometry": {},
+    "geometry_review": "Pre-generation reference points remain frozen. Post-generation exact road centers and roof-edge correspondences across all five tiles have not been measured confidently; record missing, not zero error or a geometry pass. Upper-row inferred heights are not verified real building heights. Full-image appearance is reviewable, but roads <=8px and widths <=15% have NOT been established.",
+    "traffic": {
+      "accepted": true,
+      "generate": true,
+      "direction_prompt": "Road heading in the 2D screen is almost horizontal, NOT a 45-degree diagonal. LEFT column: front points to the RIGHT and slightly UP, exactly 14 degrees above horizontal (east-northeast). RIGHT column: the same car points LEFT and slightly DOWN, exactly opposite (west-southwest), with its rear visible from the same fixed elevated camera. Keep the projected long axes parallel to this shallow 14-degree road. Small city-map sprite, not a large toy perspective car.",
+      "sprite_max_px": 14,
+      "lanes": [
+        {
+          "id": "southeast",
+          "sprite": "car_se.png",
+          "start": [
+            722,
+            878
+          ],
+          "end": [
+            825,
+            932
+          ],
+          "offsets": [
+            0.13,
+            0.63
+          ]
+        },
+        {
+          "id": "northwest",
+          "sprite": "car_nw.png",
+          "start": [
+            829,
+            926
+          ],
+          "end": [
+            726,
+            872
+          ],
+          "offsets": [
+            0.31,
+            0.81
+          ]
+        }
+      ],
+      "occluders": [],
+      "selection_note": "Initial shallow ENE road near [1512,780] was rejected after the model returned SE/NW views instead of the requested ENE/WSW views. No retry. Selected a different visible road near [774,903], crossing old/new x=768, heading approximately 28 degrees downward to the right. Native inspection of new car axes approximately 20-25 degrees is compatible within 15 degrees. Alpha threshold removes low-alpha halo, sprites limited to 14px. Approximate hand-authored coordinates in AI art; no real road geometry, traffic or driving-side claim. No overhead occluder identified on this short open segment; car occlusion is not a tested success here."
+    },
+    "user_visual_approval": false
+  },
+  "verification": {
+    "technical_passed": true,
+    "protected_parent_identical": true,
+    "full_coverage": true,
+    "requests": 7,
+    "geometry": {
+      "tiles": [
+        {
+          "tile": "A",
+          "road_errors_px": [
+            null,
+            null
+          ],
+          "building_width_change": null,
+          "measured": false,
+          "passed": false
+        },
+        {
+          "tile": "B",
+          "road_errors_px": [
+            null,
+            null
+          ],
+          "building_width_change": null,
+          "measured": false,
+          "passed": false
+        },
+        {
+          "tile": "C",
+          "road_errors_px": [
+            null,
+            null
+          ],
+          "building_width_change": null,
+          "measured": false,
+          "passed": false
+        },
+        {
+          "tile": "D",
+          "road_errors_px": [
+            null,
+            null
+          ],
+          "building_width_change": null,
+          "measured": false,
+          "passed": false
+        },
+        {
+          "tile": "E",
+          "road_errors_px": [
+            null,
+            null
+          ],
+          "building_width_change": null,
+          "measured": false,
+          "passed": false
+        }
+      ],
+      "passed": false,
+      "method": "Manual image correspondences; not geographic proof"
+    },
+    "user_visual_approval": false,
+    "manifest_sha256": "9dc2442faa06b2529c5c88e982569fee89f19adf6ec117ca0ca0e6412db027b1"
+  },
+  "manifest": {
+    "version": 1,
+    "kind": "projection-expand",
+    "run_id": "20260914T131603270823Z",
+    "width": 2304,
+    "height": 2304,
+    "parent_run": "20260914T093846326385Z",
+    "character": "traveler.png",
+    "asset_sha256": {
+      "source.png": "73611d9aafe8034c0ddc42c5a589861155d4550cd568247f599345c33645d41c",
+      "before.png": "a454c6f8348ed39f9146148df13a189f2a869df9c6285f9d76bdcb420b9678bc",
+      "final.png": "5b76579cb8c60acc7e0901c421aecae7bd9952ca5510f5e455db59b2cbbf155b",
+      "tower_hit.png": "9ec5e282004406ad9840614042e8bca9f3d35074f929893aeab247a66081f5bf",
+      "traveler.png": "4612c1d8d3b492ac489dcaf774fd60edb322601f99296bb727fcda08d7a75b80",
+      "car_se.png": "4e3ad0326494a9f73889b3a9e350143766bd2ca0d1bf76e78c0260df72baba45",
+      "car_nw.png": "22fb0a4c533e6733827a98203b06ad3d72a341c077f9fae4876b1205796c5e99"
+    },
+    "overlay_sha256": {
+      "namsan": "33ed3889e4112f0a5dea6b58edc699e7e067d014b1d73fba5ed4da96015fbc07"
+    },
+    "scenes": {
+      "namsan": {
+        "label": "남산 · 도심 3×3 확장",
+        "variants": {
+          "source": {
+            "label": "정사영 원본",
+            "file": "source.png",
+            "sha256": "73611d9aafe8034c0ddc42c5a589861155d4550cd568247f599345c33645d41c"
+          },
+          "before": {
+            "label": "확장 보정 전",
+            "file": "before.png",
+            "sha256": "a454c6f8348ed39f9146148df13a189f2a869df9c6285f9d76bdcb420b9678bc"
+          },
+          "final": {
+            "label": "3×3 확장 시험",
+            "file": "final.png",
+            "sha256": "5b76579cb8c60acc7e0901c421aecae7bd9952ca5510f5e455db59b2cbbf155b"
+          }
+        },
+        "overlay": "overlay.json",
+        "review": "남산 왼쪽·위쪽 5칸 AI 확장 시험. 위쪽 건물 높이·외관은 불완전한 VWorld 원본을 AI가 추정했으며 지리 정확도는 미승인. 기존 내부 보존, 사용자 미감 검수 대기. · 수작업 경로·실제 교통 아님"
+      }
+    }
+  },
+  "actual_browser": {
+    "passed": true,
+    "fixture": false,
+    "road_visual_validation": false,
+    "errors": [],
+    "external": [],
+    "views": {
+      "desktop": {
+        "base_canvas_identical": true,
+        "traffic_samples": 61,
+        "walk_full_occlusion": true
+      },
+      "tablet": {
+        "base_canvas_identical": true,
+        "traffic_samples": 61,
+        "walk_full_occlusion": true
+      },
+      "mobile": {
+        "base_canvas_identical": true,
+        "traffic_samples": 61,
+        "walk_full_occlusion": true
+      },
+      "mobile3": {
+        "base_canvas_identical": true,
+        "traffic_samples": 61,
+        "walk_full_occlusion": true
+      }
+    },
+    "real_time_playback_seconds": 60
+  }
+}

@@ -12,8 +12,8 @@ export function labPanel(map,key){
 }
 
 export async function bootLab(map,json,{open,close,render}){
-  const params=new URLSearchParams(location.search),walk=params.get('view')==='projection-walk';
-  const root=new URL(walk?'../../eval/vworld/projection_walk/':'../../eval/vworld/seam_lab/',location.href);
+  const params=new URLSearchParams(location.search),expand=params.get('view')==='projection-expand',walk=expand||params.get('view')==='projection-walk';
+  const root=new URL(expand?'../../eval/vworld/projection_expand/':walk?'../../eval/vworld/projection_walk/':'../../eval/vworld/seam_lab/',location.href);
   let run=params.get('run');if(!run&&!walk)run=(await json(new URL('current.json',root))).run_id;
   if(!/^\d{8}T\d{12}Z$/.test(run))throw Error('올바르지 않은 시험 실행 ID입니다.');
   const base=new URL(`runs/${run}/`,root),manifest=await json(new URL('manifest.json',base));
@@ -72,7 +72,7 @@ export async function bootLab(map,json,{open,close,render}){
   $('#lab-route').onchange=e=>{map.routeVisible=e.target.checked;map.update();};
   $('#lab-pins').onchange=e=>{map.pinsVisible=e.target.checked;map.update();};
   function focusLiving(x,y){map.setPlaying(false);map.center={x,y};map.scale=1;close('spot');close('route');$('#inspection').open=false;map.update();}
-  $('#tower-focus').onclick=()=>focusLiving(781,670);$('#traffic-focus').onclick=()=>focusLiving(1200,700);
+  $('#tower-focus').onclick=()=>{const p=map.overlay.spots.find(s=>s.id===map.overlay.landmark?.id)?.xy||[781,670];focusLiving(...p);};$('#traffic-focus').onclick=()=>{const lane=map.overlay.traffic?.lanes[0];focusLiving(...(lane?lane.start.map((v,i)=>(v+lane.end[i])/2):[1200,700]));};
   $('#traffic-play').onclick=()=>{map.living.trafficPlaying=!map.living.trafficPlaying;map.living.lastTick=0;map.update();};
   $('#traffic-visible').onclick=()=>{map.living.trafficVisible=!map.living.trafficVisible;map.living.lastTick=0;map.update();};
   $('#traffic-phase').oninput=e=>{map.living.trafficPlaying=false;map.living.seconds=Number(e.target.value)/10;map.living.lastTick=0;map.update();};
@@ -90,5 +90,5 @@ export async function bootLab(map,json,{open,close,render}){
   const pinButton=$('.layers button');pinButton.removeAttribute('data-soon');pinButton.removeAttribute('aria-disabled');pinButton.onclick=()=>{$('#lab-pins').checked=!map.pinsVisible;map.pinsVisible=!map.pinsVisible;map.update();};
   $('#run-report').href=new URL('index.html',base);$('#run-report').hidden=false;
   $('#map-message').hidden=true;$('#map-message').dataset.state='ready';document.body.dataset.tilesReady='true';syncScene();map.update();
-  if(walk){map.center={x:800,y:685};map.scale=innerWidth<900?1:.9;map.update();}
+  if(expand){document.title='Pixel City · 남산 3×3 확장';$('.pilot-badge').textContent='EXPAND LAB';$('#map-stage').setAttribute('aria-label','남산 도심 확장 시험');map.fit();}else if(walk){map.center={x:800,y:685};map.scale=innerWidth<900?1:.9;map.update();}
 }

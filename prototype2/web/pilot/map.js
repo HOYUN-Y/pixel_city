@@ -53,7 +53,7 @@ export class PilotMap {
     this.dpr=Math.min(3,devicePixelRatio||1);this.canvas.width=Math.round(this.w*this.dpr);this.canvas.height=Math.round(this.h*this.dpr);this.update();}
   fit(){if(!this.manifest)return;const mobile=this.w<900;
     const availableW=Math.max(1,this.w-(mobile?28:180)),availableH=Math.max(1,this.h-(mobile?240:180));
-    this.scale=Math.max(this.minScale,Math.min(1,availableW/1536,availableH/1536));this.center={x:768,y:768};this.update();}
+    const {width,height}=this.manifest,fit=Math.min(1,availableW/width,availableH/height);this.minScale=Math.min(.125,fit);this.scale=fit;this.center={x:width/2,y:height/2};this.update();}
   world(x,y){return{x:this.center.x+(x-this.w/2)/this.scale,y:this.center.y+(y-this.h/2)/this.scale};}
   zoom(value,x=this.w/2,y=this.h/2){if(!this.manifest)return;const anchor=this.world(x,y);
     this.scale=Math.max(this.minScale,Math.min(this.maxScale,value));
