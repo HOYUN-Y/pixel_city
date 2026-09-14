@@ -1,0 +1,602 @@
+{
+  "run_id": "20260914T093846326385Z",
+  "model": "openai/gpt-image-2.5-sunburst",
+  "source_probe_run": "20260914T091414062775Z",
+  "source_sha256": "ab5ee8e2b9dc351b305a11441436fcca6f4670c393ff4bf1efeb3452c2a2db0c",
+  "style_sha256": "66e016b75a74c1dd9726bf509eebd710944d3cbc62a48538a48983d49bae3dbe",
+  "source_approval": {
+    "approved_by": "user",
+    "scope": "experimental AI input only",
+    "note": "Incomplete facade textures acknowledged; not approval for production or user approval of generated art."
+  },
+  "source_core": [
+    192,
+    256,
+    1344,
+    1408
+  ],
+  "source_to_output_scale": 1.3333333333333333,
+  "reference_100m_px": 128,
+  "reference_source": {
+    "tower": [
+      [
+        778,
+        648
+      ],
+      [
+        778,
+        815
+      ]
+    ],
+    "buildings": [
+      {
+        "id": "far_west_roof",
+        "depth": "far",
+        "line": [
+          [
+            514,
+            362
+          ],
+          [
+            555,
+            350
+          ]
+        ]
+      },
+      {
+        "id": "far_east_roof",
+        "depth": "far",
+        "line": [
+          [
+            751,
+            402
+          ],
+          [
+            784,
+            394
+          ]
+        ]
+      },
+      {
+        "id": "mid_west_roof",
+        "depth": "middle",
+        "line": [
+          [
+            397,
+            644
+          ],
+          [
+            445,
+            629
+          ]
+        ]
+      },
+      {
+        "id": "mid_summit_base",
+        "depth": "middle",
+        "line": [
+          [
+            755,
+            832
+          ],
+          [
+            807,
+            812
+          ]
+        ]
+      },
+      {
+        "id": "near_west_roof",
+        "depth": "near",
+        "line": [
+          [
+            340,
+            1231
+          ],
+          [
+            374,
+            1220
+          ]
+        ]
+      },
+      {
+        "id": "near_east_roof",
+        "depth": "near",
+        "line": [
+          [
+            781,
+            1326
+          ],
+          [
+            811,
+            1317
+          ]
+        ]
+      }
+    ],
+    "roads": [
+      [
+        438,
+        776
+      ],
+      [
+        557,
+        781
+      ],
+      [
+        861,
+        797
+      ],
+      [
+        978,
+        806
+      ],
+      [
+        1154,
+        871
+      ],
+      [
+        1223,
+        887
+      ],
+      [
+        448,
+        1110
+      ],
+      [
+        952,
+        1271
+      ]
+    ]
+  },
+  "request_limit": 6,
+  "requests": [
+    {
+      "name": "namsan_0",
+      "status": "complete",
+      "seconds": 57.272,
+      "options": {
+        "model": "openai/gpt-image-2.5-sunburst",
+        "n": 1,
+        "quality": "high",
+        "aspect_ratio": "1:1",
+        "background": "opaque",
+        "provider": {
+          "only": [
+            "openai"
+          ],
+          "allow_fallbacks": false
+        }
+      },
+      "usage": {
+        "prompt_tokens": 4316,
+        "completion_tokens": 1756,
+        "total_tokens": 6072,
+        "cost": 0.086146,
+        "is_byok": false,
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "cost_details": {
+          "upstream_inference_cost": 0.086146,
+          "upstream_inference_prompt_cost": 0.033466,
+          "upstream_inference_completions_cost": 0.05268
+        },
+        "completion_tokens_details": {
+          "reasoning_tokens": 0,
+          "image_tokens": 1756
+        }
+      },
+      "raw_sha256": "d794f931e02cf7f3303f7521e954460f1591e2a05563e160af26b922785d84af",
+      "reference_sha256": [
+        "7396fce902273fe74e6498776f495fd84aa2fea2fe8c0885a53d19af61ebf204",
+        "333e045eb4457bab4b5d4ad630c0dcac2bed05b51ea0594b9560295b3dfcbb63",
+        "7396fce902273fe74e6498776f495fd84aa2fea2fe8c0885a53d19af61ebf204",
+        "d69112264db6c2c1b6f6bc930b7d7cf38c27a4fead1b5000259265c5405c66ef",
+        "97dbc68e18de0bed312d03d3a99fd169484c6f028b6c205e4698fc4b4f1a7be5"
+      ],
+      "native_size": [
+        1024,
+        1024
+      ]
+    },
+    {
+      "name": "namsan_1",
+      "status": "complete",
+      "seconds": 58.129,
+      "options": {
+        "model": "openai/gpt-image-2.5-sunburst",
+        "n": 1,
+        "quality": "high",
+        "aspect_ratio": "1:1",
+        "background": "opaque",
+        "provider": {
+          "only": [
+            "openai"
+          ],
+          "allow_fallbacks": false
+        }
+      },
+      "usage": {
+        "prompt_tokens": 4316,
+        "completion_tokens": 1756,
+        "total_tokens": 6072,
+        "cost": 0.086146,
+        "is_byok": false,
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "cost_details": {
+          "upstream_inference_cost": 0.086146,
+          "upstream_inference_prompt_cost": 0.033466,
+          "upstream_inference_completions_cost": 0.05268
+        },
+        "completion_tokens_details": {
+          "reasoning_tokens": 0,
+          "image_tokens": 1756
+        }
+      },
+      "raw_sha256": "865b78db572967adf0873b9004d47863618e7804e8fee2e8d899f4d95c9b9072",
+      "reference_sha256": [
+        "37ea6118a611a1c69d1dea27e5a8c626ef581bb4f56c1b7e04a7ab285a8dc2ab",
+        "333e045eb4457bab4b5d4ad630c0dcac2bed05b51ea0594b9560295b3dfcbb63",
+        "52642ddf22382de27d0464853f961d7cedd99ee33079dbddb3e00b6251f696fc",
+        "5d54d90bbf26833a9791c2667b0074149f0cbddc33a0f36715cf3395d73cf817",
+        "97dbc68e18de0bed312d03d3a99fd169484c6f028b6c205e4698fc4b4f1a7be5"
+      ],
+      "native_size": [
+        1024,
+        1024
+      ]
+    },
+    {
+      "name": "namsan_2",
+      "status": "complete",
+      "seconds": 60.17,
+      "options": {
+        "model": "openai/gpt-image-2.5-sunburst",
+        "n": 1,
+        "quality": "high",
+        "aspect_ratio": "1:1",
+        "background": "opaque",
+        "provider": {
+          "only": [
+            "openai"
+          ],
+          "allow_fallbacks": false
+        }
+      },
+      "usage": {
+        "prompt_tokens": 4316,
+        "completion_tokens": 1756,
+        "total_tokens": 6072,
+        "cost": 0.086146,
+        "is_byok": false,
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "cost_details": {
+          "upstream_inference_cost": 0.086146,
+          "upstream_inference_prompt_cost": 0.033466,
+          "upstream_inference_completions_cost": 0.05268
+        },
+        "completion_tokens_details": {
+          "reasoning_tokens": 0,
+          "image_tokens": 1756
+        }
+      },
+      "raw_sha256": "d35241dd0af9f3b4f4ec3d720f188ed5ca74fd8999f73af0a230aa3534dfb8e1",
+      "reference_sha256": [
+        "b289204d5193bbcefc8ae5c7b21d90088804155214368f709e3ff344f37033b1",
+        "333e045eb4457bab4b5d4ad630c0dcac2bed05b51ea0594b9560295b3dfcbb63",
+        "1c8b3b94acdab906daf8a8db47ee41aee085622d33451c62aff559f44d5bfe75",
+        "7ae1b630352a0490148328ce99800e3085b67c4a198147dcda5a1c95c705a4a5",
+        "97dbc68e18de0bed312d03d3a99fd169484c6f028b6c205e4698fc4b4f1a7be5"
+      ],
+      "native_size": [
+        1024,
+        1024
+      ]
+    },
+    {
+      "name": "namsan_3",
+      "status": "complete",
+      "seconds": 60.696,
+      "options": {
+        "model": "openai/gpt-image-2.5-sunburst",
+        "n": 1,
+        "quality": "high",
+        "aspect_ratio": "1:1",
+        "background": "opaque",
+        "provider": {
+          "only": [
+            "openai"
+          ],
+          "allow_fallbacks": false
+        }
+      },
+      "usage": {
+        "prompt_tokens": 4316,
+        "completion_tokens": 1756,
+        "total_tokens": 6072,
+        "cost": 0.086146,
+        "is_byok": false,
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "cost_details": {
+          "upstream_inference_cost": 0.086146,
+          "upstream_inference_prompt_cost": 0.033466,
+          "upstream_inference_completions_cost": 0.05268
+        },
+        "completion_tokens_details": {
+          "reasoning_tokens": 0,
+          "image_tokens": 1756
+        }
+      },
+      "raw_sha256": "9f945171dc70952f5ea17adf3abf34b4508b20c4a8a4759b0c67910bc6dfa9b5",
+      "reference_sha256": [
+        "a77fa9c510e0b7f07ea122babc11dcd7cbfb11a4f565c1962af0f3ca230cdeae",
+        "333e045eb4457bab4b5d4ad630c0dcac2bed05b51ea0594b9560295b3dfcbb63",
+        "0159090e05d9e73a7990efa7cfa63d86656d5aad394b48d283e96d2b0d1a1d87",
+        "ec9da166003541582ea9a61d2bf44ff72a1fdf0ea58aa8a979b4e3be6c88ca77",
+        "97dbc68e18de0bed312d03d3a99fd169484c6f028b6c205e4698fc4b4f1a7be5"
+      ],
+      "native_size": [
+        1024,
+        1024
+      ]
+    },
+    {
+      "name": "seam_repair",
+      "status": "complete",
+      "seconds": 46.427,
+      "options": {
+        "model": "openai/gpt-image-2.5-sunburst",
+        "n": 1,
+        "quality": "high",
+        "aspect_ratio": "1:1",
+        "background": "opaque",
+        "provider": {
+          "only": [
+            "openai"
+          ],
+          "allow_fallbacks": false
+        }
+      },
+      "usage": {
+        "prompt_tokens": 3372,
+        "completion_tokens": 1756,
+        "total_tokens": 5128,
+        "cost": 0.079026,
+        "is_byok": false,
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "cost_details": {
+          "upstream_inference_cost": 0.079026,
+          "upstream_inference_prompt_cost": 0.026346,
+          "upstream_inference_completions_cost": 0.05268
+        },
+        "completion_tokens_details": {
+          "reasoning_tokens": 0,
+          "image_tokens": 1756
+        }
+      },
+      "raw_sha256": "d77d67729a48c20c71796f015cef4f20aa0a9d4f52048e68d9171f27220227ac",
+      "reference_sha256": [
+        "3fc9afb3fed33f78a50c92c85f1647a89df64ebb130bd551a6054ec317a0ed3b",
+        "8c2e9ccb394bd3f2077a87400edc4008f497a4000dcb0e5f3aad035a22ef4d28",
+        "a2dce8eb6b6bda8e69ce2ffba0b7344563f66c0b574a9963e61e682153a32ca1",
+        "97dbc68e18de0bed312d03d3a99fd169484c6f028b6c205e4698fc4b4f1a7be5"
+      ],
+      "native_size": [
+        1024,
+        1024
+      ]
+    }
+  ],
+  "total_cost_usd": 0.42361,
+  "generation_seconds": 282.694,
+  "final_sha256": "dec645180d953343109a486af7517ea6df4a5cd386dce41608ded4a3685913d7",
+  "review": {
+    "reviewer": "agent",
+    "generation_closed": true,
+    "note": "기본 4장에서는 타워와 산의 큰 구도가 대체로 유지됩니다. 왼쪽 수평 연결부를 1회 보정해 수관 연결을 개선한 후보를 채택했습니다. 전역 무봉합을 입증한 것은 아니며 오른쪽 숲 밀도와 일부 건물 경계 변화가 남습니다. 타워 높이와 단일 실루엣은 유지되어 타워 재생성은 생략했습니다. 일부 주거지·도로·외벽은 AI 재해석되었고 원본 기준점 중 식별이 불명확한 것은 검증에서 제외하되 전체 통과로 처리하지 않습니다. 사용자 미감 검수는 대기 중입니다.",
+    "repair_requests": {
+      "seam": {
+        "needed": true,
+        "context_box": [
+          0,
+          384,
+          1024,
+          1408
+        ],
+        "edit_box": [
+          0,
+          832,
+          1024,
+          960
+        ],
+        "reason": "Repair ONLY the horizontal strip marked WHITE: the abrupt change of tree density, canopy size and forest color across its middle at local y=512 is a generation seam. Continue existing tree crowns naturally across it and retain slope shading. Keep the summit tower and its base, roads and all pixels outside this strip unchanged. No straight horizontal edge, no uniform hedge or new path. Preserve orthographic scale and the local pixel-art style."
+      },
+      "tower": {
+        "needed": false,
+        "reason": "Single slender tower and its height are already recognizable; avoid unnecessary regeneration."
+      }
+    },
+    "repair_decisions": {
+      "seam": {
+        "accepted": true,
+        "reason": "왼쪽 수평 경계에서 수관이 이어지는 국소 개선을 확인했습니다. 마스크 밖의 타워·도시·경로는 그대로 보존합니다. 보정 전후는 별도 표시하며 전체 경계 해소 판정은 하지 않습니다."
+      }
+    },
+    "final": {
+      "tower": [
+        [
+          781,
+          526
+        ],
+        [
+          781,
+          741
+        ]
+      ],
+      "roads": [
+        [
+          330,
+          694
+        ],
+        [
+          487,
+          701
+        ],
+        [
+          893,
+          724
+        ],
+        [
+          1048,
+          734
+        ],
+        null,
+        null,
+        [
+          343,
+          1145
+        ],
+        null
+      ],
+      "buildings": [
+        {
+          "id": "far_west_roof",
+          "line": [
+            [
+              430,
+              141
+            ],
+            [
+              485,
+              125
+            ]
+          ]
+        },
+        {
+          "id": "far_east_roof",
+          "line": [
+            [
+              746,
+              196
+            ],
+            [
+              790,
+              185
+            ]
+          ]
+        },
+        {
+          "id": "mid_west_roof",
+          "line": null
+        },
+        {
+          "id": "mid_summit_base",
+          "line": [
+            [
+              748,
+              767
+            ],
+            [
+              819,
+              742
+            ]
+          ]
+        },
+        {
+          "id": "near_west_roof",
+          "line": null
+        },
+        {
+          "id": "near_east_roof",
+          "line": [
+            [
+              788,
+              1429
+            ],
+            [
+              828,
+              1417
+            ]
+          ]
+        }
+      ]
+    },
+    "annotation_limitations": "Approximate manual correspondence at image resolution, not surveyed geometry. R5/R6 premarked source positions are not reliably identifiable path corners; R8 and B5 are not clearly matched after residential reinterpretation. B3 is ambiguous in the coarse original. Missing items are null and make overall geometry unverified."
+  },
+  "verification": {
+    "technical_passed": true,
+    "requests": 5,
+    "geometry": {
+      "measured": false,
+      "passed": false,
+      "missing": [
+        "point_4",
+        "point_5",
+        "point_7",
+        "mid_west_roof",
+        "near_west_roof"
+      ],
+      "point_errors_px": [
+        2.1081851067789077,
+        1.0540925533894538,
+        2.8480012484391417,
+        0.6666666666666288,
+        6.548960901462765,
+        3.3499585403736716,
+        4.346134936801806
+      ],
+      "median_px": 2.8480012484391417,
+      "max_px": 6.548960901462765,
+      "building_widths": [
+        {
+          "id": "far_west_roof",
+          "depth": "far",
+          "relative_change": 0.005617781907057973
+        },
+        {
+          "id": "far_east_roof",
+          "depth": "far",
+          "relative_change": 0.001760159505554082
+        },
+        {
+          "id": "mid_summit_base",
+          "depth": "middle",
+          "relative_change": 0.013301515512636586
+        },
+        {
+          "id": "near_east_roof",
+          "depth": "near",
+          "relative_change": 0
+        }
+      ],
+      "tower_height_change": -0.034431137724550864,
+      "method": "manual correspondences; proxy only, not proof of exact orthographic AI output"
+    },
+    "visual_review": "기본 4장에서는 타워와 산의 큰 구도가 대체로 유지됩니다. 왼쪽 수평 연결부를 1회 보정해 수관 연결을 개선한 후보를 채택했습니다. 전역 무봉합을 입증한 것은 아니며 오른쪽 숲 밀도와 일부 건물 경계 변화가 남습니다. 타워 높이와 단일 실루엣은 유지되어 타워 재생성은 생략했습니다. 일부 주거지·도로·외벽은 AI 재해석되었고 원본 기준점 중 식별이 불명확한 것은 검증에서 제외하되 전체 통과로 처리하지 않습니다. 사용자 미감 검수는 대기 중입니다.",
+    "user_visual_approval": false
+  },
+  "browser_qa": {
+    "passed": true,
+    "run": "20260914T093846326385Z",
+    "output": "/Users/lyuhoyun/Documents/GitHub/pixel_city/prototype2/eval/vworld/orthographic_lab/runs/20260914T093846326385Z",
+    "external_requests": [],
+    "mutations": [],
+    "browser_errors": []
+  },
+  "tests": {
+    "python": 82,
+    "node_contracts": 4,
+    "existing_browser_suites": 4
+  },
+  "default_run_unchanged": "20260914T084137369841Z",
+  "prompt_record": "eval/vworld/orthographic_lab/runs/20260914T093846326385Z/report.json"
+}

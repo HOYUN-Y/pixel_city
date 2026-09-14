@@ -28,16 +28,18 @@ export class PilotMap {
       throw Error('지원하지 않는 시험 지도 크기입니다.');
     if(manifest.status!=='awaiting_user_review')throw Error('완료된 2×2 출력이 아닙니다.');
     this.manifest=manifest;this.base=base;
-    await Promise.all(['ai','source'].map(mode=>this.loadLevel(mode,0)));
+    const modes=manifest.before_tiles?['ai','source','before']:['ai','source'];
+    if(manifest.before_tiles)this.levels.before=new Map();
+    await Promise.all(modes.map(mode=>this.loadLevel(mode,0)));
     this.ready=true;this.fit();
-    this.loading=Promise.all(['ai','source'].flatMap(mode=>[1,2,3].map(z=>this.loadLevel(mode,z))))
+    this.loading=Promise.all(modes.flatMap(mode=>[1,2,3].map(z=>this.loadLevel(mode,z))))
       .catch(error=>{this.ready=false;this.onError(error);});
   }
   async loadLevel(mode,z) {
     const m=this.manifest,factor=2**(m.max_native_zoom-z),w=Math.ceil(m.width/factor),h=Math.ceil(m.height/factor);
     const buffer=document.createElement('canvas');buffer.width=w;buffer.height=h;const ctx=buffer.getContext('2d');
-    const path=mode==='ai'?m.tiles:m.source_tiles;
-    if(!['tiles','source_tiles'].includes(path))throw Error('잘못된 타일 경로입니다.');
+    const path=mode==='ai'?m.tiles:mode==='before'?m.before_tiles:m.source_tiles;
+    if(!['tiles','source_tiles','before_tiles'].includes(path))throw Error('잘못된 타일 경로입니다.');
     await Promise.all(Array.from({length:Math.ceil(h/256)},(_,y)=>Array.from({length:Math.ceil(w/256)},(_,x)=>new Promise((resolve,reject)=>{
       const image=new Image();image.onload=()=>{const ew=Math.min(256,w-x*256),eh=Math.min(256,h-y*256);
         if(image.naturalWidth!==ew||image.naturalHeight!==eh){reject(Error('타일 크기가 올바르지 않습니다.'));return;}
@@ -80,8 +82,9 @@ export class PilotMap {
     if(z!==undefined){c.imageSmoothingEnabled=false;c.drawImage(levels.get(z),ox,oy,1536*this.scale,1536*this.scale);}
     if(this.showSeams){c.save();c.beginPath();c.rect(ox,oy,1536*this.scale,1536*this.scale);c.clip();
       c.strokeStyle='#FF4260';c.lineWidth=2;c.setLineDash([6,5]);c.beginPath();
-      c.moveTo(ox+768*this.scale,oy);c.lineTo(ox+768*this.scale,oy+1536*this.scale);
-      c.moveTo(ox,oy+768*this.scale);c.lineTo(ox+1536*this.scale,oy+768*this.scale);c.stroke();c.setLineDash([]);
+      const [sx,sy]=this.manifest.generation_frontiers||[768,768];
+      c.moveTo(ox+sx*this.scale,oy);c.lineTo(ox+sx*this.scale,oy+1536*this.scale);
+      c.moveTo(ox,oy+sy*this.scale);c.lineTo(ox+1536*this.scale,oy+sy*this.scale);c.stroke();c.setLineDash([]);
       for(const [i,p] of this.manifest.review_targets.entries()){const x=ox+p.xy[0]*this.scale,y=oy+p.xy[1]*this.scale;
         c.fillStyle='#3A2A1E';c.fillRect(x-10,y-10,20,20);c.fillStyle='#F2C14E';c.font='12px monospace';c.fillText(String(i+1),x-4,y+4);}
       c.restore();}

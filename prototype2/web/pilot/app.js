@@ -4,6 +4,7 @@ import {LabMap} from './lab.js';
 import {bootLab,labPanel} from './lab-ui.js';
 const objectView = new URLSearchParams(location.search).get('view') === 'objects';
 const labView = new URLSearchParams(location.search).get('view') === 'seam-lab';
+const projectionView = new URLSearchParams(location.search).get('view') === 'projection-lab';
 const $=s=>document.querySelector(s), mobile=()=>innerWidth<900;
 const definitions={chat:['AI 가이드','#3A2A1E',400,560],feed:['피드','#6FA657',420,560],book:['도감','#8CC5D8',440,520],spot:['명소','#F2C14E',380,600],upload:['올리기','#E8735A',380,600],post:['픽셀 엽서','#8CC5D8',400,480],route:['추천 코스','#6FA657',400,540]};
 const names=['덕수궁','궁궐 산책길','도심 풍경','서울의 오후','한옥 지붕','담장 길','작은 정원'];
@@ -93,7 +94,7 @@ $('#zoom-in').onclick=()=>map.zoom(map.scale*1.25);$('#zoom-out').onclick=()=>ma
 $('#debug-zoom').onchange=e=>{map.setDebug(e.target.checked);$('#double-zoom').disabled=!e.target.checked;};
 document.querySelectorAll('[data-scale]').forEach(b=>b.onclick=()=>map.zoom(Number(b.dataset.scale)));
 $('#seam-lines').onchange=e=>{if(objectView)map.showGeometry=e.target.checked;else map.showSeams=e.target.checked;map.update();};
-$('#map-mode').onchange=e=>{if(labView){map.setMode(e.target.value);return;}map.mode=e.target.value;if(map.base&&!objectView)$('#mini-image').src=new URL(map.mode==='ai'?'preview.png':'source.png',map.base);map.update();};
+$('#map-mode').onchange=e=>{if(labView){map.setMode(e.target.value);return;}map.mode=e.target.value;if(map.base&&!objectView)$('#mini-image').src=new URL(map.mode==='ai'?'preview.png':map.mode==='before'?'before.png':'source.png',map.base);map.update();};
 async function json(url){const r=await fetch(url,{cache:'no-store'});if(!r.ok)throw Error(objectView?'객체형 데모 에셋을 찾을 수 없습니다. 저장소의 assets/object_pilot 폴더를 확인해 주세요.':labView?'연결·남산 시험의 로컬 생성물이 없습니다. 상세 실행 안내의 산출물 경로를 확인해 주세요.':'완료된 2×2 생성 결과가 없습니다. 생성 기록을 확인해 주세요.');return r.json();}
 async function boot(){try{
   if(labView){await bootLab(map,json,{open,close,render});return;}
@@ -129,12 +130,18 @@ async function boot(){try{
     $('#object-walk').checked=map.walking;$('#object-walk').onchange=e=>map.setWalking(e.target.checked);$('#walk-phase').oninput=e=>{$('#object-walk').checked=false;map.setPhase(Number(e.target.value)/1000);};
     document.body.dataset.tilesReady='true';return;
   }
-  const root=new URL('../../eval/vworld/openrouter/seam_zoom/',new URL('../',location.href));
-  const run=new URLSearchParams(location.search).get('run')||(await json(new URL('current.json',root))).run_id;
+  const root=new URL(projectionView?'../../eval/vworld/orthographic_lab/':'../../eval/vworld/openrouter/seam_zoom/',new URL('../',location.href));
+  let run=new URLSearchParams(location.search).get('run');
+  if(!run&&!projectionView)run=(await json(new URL('current.json',root))).run_id;
   if(!/^\d{8}T\d{12}Z$/.test(run))throw Error('올바르지 않은 실행 ID입니다.');
   const base=new URL(`runs/${run}/`,root),manifest=await json(new URL('manifest.json',base));
   if(manifest.run_id!==run)throw Error('실행 ID가 일치하지 않습니다.');
   await map.load(manifest,base);$('#map-message').hidden=true;$('#map-message').dataset.state='ready';
+  if(projectionView){
+    document.title='Pixel City · 정사영 남산 2×2';$('.pilot-badge').textContent='ORTHOGRAPHIC LAB';
+    $('.region').textContent='남산 · N서울타워';$('#map-stage').setAttribute('aria-label','정사영 남산 픽셀 지도');
+    const option=document.createElement('option');option.value='before';option.textContent='2×2 보정 전';$('#map-mode').append(option);
+  }
   $('#mini-image').src=new URL('preview.png',base);$('#run-info').textContent=`실행 ${run} · 1536×1536 · ${manifest.review_summary||'사용자 품질 승인 전'}`;
   $('#run-report').href=new URL('index.html',base);$('#run-report').hidden=false;
   $('#attribution').textContent=manifest.attribution;

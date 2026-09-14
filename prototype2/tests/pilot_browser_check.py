@@ -20,10 +20,10 @@ class QuietHandler(SimpleHTTPRequestHandler):
         pass
 
 
-def check(run=None):
+def check(run=None, projection=False):
     fixture_tmp = None
     if run:
-        folder = sz.ROOT / run
+        folder = (sz.qs.P2 / 'eval/vworld/orthographic_lab/runs' if projection else sz.ROOT) / run
         assert (folder / 'manifest.json').is_file()
     else:
         fixture_tmp = tempfile.TemporaryDirectory()
@@ -39,6 +39,7 @@ def check(run=None):
     server = ThreadingHTTPServer(('127.0.0.1', 0), handler)
     threading.Thread(target=server.serve_forever, daemon=True).start()
     origin = f'http://127.0.0.1:{server.server_port}'
+    query = '/web/pilot/?' + ('view=projection-lab&' if projection else '') + 'run='
     output = folder if fixture_tmp is None else sz.qs.P2 / 'eval/vworld/openrouter/seam_zoom/fixture_qa'
     output.mkdir(parents=True, exist_ok=True)
     try:
@@ -62,7 +63,7 @@ def check(run=None):
             context.route('**/*', route)
             page = context.new_page()
             page.on('pageerror', lambda error: errors.append(str(error)))
-            page.goto(origin + '/web/pilot/?run=' + run)
+            page.goto(origin + query + run)
             page.wait_for_selector('body[data-tiles-ready="true"]')
             page.evaluate('()=>document.fonts.ready')
             assert page.locator('.floating-window').count() == 0
@@ -109,6 +110,12 @@ def check(run=None):
             page.locator('#map-mode').select_option('source')
             page.wait_for_function('()=>document.querySelector("#map").dataset.mode === "source"')
             assert page.locator('#map').get_attribute('data-center') == before
+            if projection:
+                page.locator('#map-mode').select_option('before')
+                page.wait_for_function('()=>document.querySelector("#map").dataset.mode === "before"')
+                assert page.locator('#map').get_attribute('data-center') == before
+                assert page.locator('#map').get_attribute('data-scale') == '1'
+                page.screenshot(path=str(output / 'gui_before.png'))
             page.locator('#map-mode').select_option('ai')
             page.locator('#seam-lines').uncheck()
             page.locator('#inspection summary').click()
@@ -171,23 +178,25 @@ def check(run=None):
                 ctx = browser.new_context(viewport={'width': 390, 'height': 844}, device_scale_factor=dpr)
                 ctx.route('**/*', route)
                 pg = ctx.new_page();pg.on('pageerror', lambda error: errors.append(str(error)))
-                pg.goto(origin + '/web/pilot/?run=' + run)
+                pg.goto(origin + query + run)
                 pg.wait_for_selector('body[data-tiles-ready="true"]')
                 assert pg.locator('#map').evaluate('c=>c.width') == 390 * dpr
                 pg.screenshot(path=str(output / f'gui_mobile_dpr{dpr}.png'))
                 ctx.close()
-            page.goto(origin + '/web/pilot/?run=invalid')
+            page.goto(origin + query + 'invalid')
             page.wait_for_selector('#map-message[data-state="error"]')
             assert page.locator('#zoom-in').is_disabled()
             page.route('**/tiles/3/0/0.png', lambda request: request.fulfill(status=404, body='Missing tile test'))
-            page.goto(origin + '/web/pilot/?run=' + run)
+            page.goto(origin + query + run)
             page.wait_for_selector('#map-message[data-state="error"]')
             assert '타일' in page.locator('#map-message p').inner_text()
             assert not external, external
             assert not mutations, mutations
             assert not errors, errors
             browser.close()
-        print(json.dumps({'passed': True, 'run': run, 'output': str(output), 'external_requests': external, 'mutations': mutations}))
+        result={'passed': True, 'run': run, 'output': str(output), 'external_requests': external, 'mutations': mutations, 'browser_errors': errors}
+        if projection:sz.qs.write(folder/'browser_qa.json',result)
+        print(json.dumps(result))
     finally:
         server.shutdown();server.server_close()
         if fixture_tmp:
@@ -197,4 +206,5 @@ def check(run=None):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--run')
-    check(parser.parse_args().run)
+    parser.add_argument('--projection',action='store_true')
+    args=parser.parse_args();check(args.run,args.projection)
