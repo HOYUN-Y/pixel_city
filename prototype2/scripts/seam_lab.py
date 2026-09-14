@@ -109,9 +109,10 @@ def init():
     return folder
 
 
-def paid(folder, report, key, group, name, prompt, references, transparent=False):
+def paid(folder, report, key, group, name, prompt, references, transparent=False, limits=None):
+    limits = LIMITS if limits is None else limits
     requests = report['requests']
-    if len(requests) >= 12 or sum(r['group'] == group for r in requests) >= LIMITS[group]:
+    if len(requests) >= sum(limits.values()) or sum(r['group'] == group for r in requests) >= limits[group]:
         raise ValueError('Approved request budget exhausted')
     if any(r['name'] == name for r in requests):
         raise ValueError('Already attempted; never retry')

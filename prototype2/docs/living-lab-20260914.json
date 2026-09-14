@@ -1,0 +1,183 @@
+{
+  "generation": {
+    "kind": "living_lab",
+    "run_id": "20260914T084137369841Z",
+    "parent_run": "20260913T173009999136Z",
+    "model": "openai/gpt-image-2.5-sunburst",
+    "request_limit": 2,
+    "limits": {
+      "background": 1,
+      "cars": 1
+    },
+    "requests": [
+      {
+        "group": "background",
+        "name": "background",
+        "status": "complete",
+        "prompt": "Use case: precise-object-edit. Image 1 is the exact pixel-art edit target. Image 2 is a black/white edit guide: white means remove and reconstruct, black means preserve. Remove ONLY the tall white N Seoul observation tower, its red antenna, cylindrical viewing deck, supporting pillar, rectangular foundation building and attached shadow. Fill the removed silhouette naturally with continuous pixel-art forest, the existing stone wall behind the tower and a small empty summit clearing at its base. Preserve the separate shorter orange-and-white lattice mast to the LEFT completely. Keep camera, pixel scale, surrounding trees, paths and wall unchanged. No new tower, building, antenna, labels or scenery redesign. This is a clean background plate, not a restyled scene.",
+        "options": {
+          "model": "openai/gpt-image-2.5-sunburst",
+          "n": 1,
+          "quality": "high",
+          "aspect_ratio": "1:1",
+          "background": "opaque",
+          "provider": {
+            "only": [
+              "openai"
+            ],
+            "allow_fallbacks": false
+          }
+        },
+        "reference_sha256": [
+          "aeb04411d18e7b669dfc2fe7e5c50914a919d6282951d467ff623d6ac89f6b26",
+          "e138704f25584bff4aaa60367d9afc696517e22c9ef47d2a9730a6b2c20f4944"
+        ],
+        "usage": {
+          "prompt_tokens": 2223,
+          "completion_tokens": 1756,
+          "total_tokens": 3979,
+          "cost": 0.069939,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0.069939,
+            "upstream_inference_prompt_cost": 0.017259,
+            "upstream_inference_completions_cost": 0.05268
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 0,
+            "image_tokens": 1756
+          }
+        },
+        "seconds": 45.331,
+        "raw_storage": "original_response_bytes",
+        "raw_sha256": "9ee8a3f70be856c9ddd2a2cc9f6dbac0bff570d0ea99139dbe860480a881c0f8",
+        "native_size": [
+          1024,
+          1024
+        ]
+      },
+      {
+        "group": "cars",
+        "name": "cars",
+        "status": "complete",
+        "prompt": "Use case: stylized-concept. Asset type: transparent two-view pixel-art vehicle sprite sheet. Create exactly TWO views of the SAME small cream-colored city hatchback, no logos, clearly distinct dark front windshield and rear window. Square canvas split into two equal VERTICAL columns. Center one complete isolated car inside each column with generous transparent padding. LEFT column: front three-quarter view, nose pointing diagonally DOWN RIGHT, screen direction southeast at 45 degrees. RIGHT column: rear three-quarter view, nose pointing diagonally UP LEFT, screen direction northwest at 225 degrees. Fixed elevated city-game camera about 30 degrees above horizon. Crisp limited-palette pixel clusters suitable for 32-pixel-long vehicles, nearest-neighbor look. Reference image is ONLY the palette/pixel style, not a scene to reproduce. No ground, cast shadow, road, labels, dividers, glow, extra cars or checkerboard. Genuinely transparent background.",
+        "options": {
+          "model": "openai/gpt-image-2.5-sunburst",
+          "n": 1,
+          "quality": "high",
+          "aspect_ratio": "1:1",
+          "background": "transparent",
+          "provider": {
+            "only": [
+              "openai"
+            ],
+            "allow_fallbacks": false
+          }
+        },
+        "reference_sha256": [
+          "026ac0631bd9f898fc3a069a808049c01ed933e8fda662fb8dd00d4fd739b329"
+        ],
+        "usage": {
+          "prompt_tokens": 1727,
+          "completion_tokens": 1756,
+          "total_tokens": 3483,
+          "cost": 0.065878,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0.065878,
+            "upstream_inference_prompt_cost": 0.013198,
+            "upstream_inference_completions_cost": 0.05268
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 0,
+            "image_tokens": 1756
+          }
+        },
+        "seconds": 43.847,
+        "raw_storage": "original_response_bytes",
+        "raw_sha256": "1e85aa71ca7a47d72799d80dab110e1ad039ddd9456fa5646b60fea31372d511",
+        "native_size": [
+          1024,
+          1024
+        ]
+      }
+    ],
+    "input_sha256": {
+      "traveler.png": "4612c1d8d3b492ac489dcaf774fd60edb322601f99296bb727fcda08d7a75b80",
+      "downtown_overlay.json": "6b4077e3e4fb2093d90f30c958ae1cacf3234054ebaec7c91dc009cd579d78c3",
+      "downtown_source.png": "667f203db49ff8f4ffaa3ea3c08fed3d649a75f4926776ea55d5506ed982fe17",
+      "downtown_baseline.png": "f4b86f3c805d515481415bd59f3340c9228c5b1ce60e59057948263ab85058b6",
+      "namsan_final.png": "2906197ecb6dcfc826320a46356a0eea6c9434ef34bc0daba52c17cc9c59a0a0",
+      "style.png": "333e045eb4457bab4b5d4ad630c0dcac2bed05b51ea0594b9560295b3dfcbb63",
+      "namsan_context.png": "cd4cc127d8d1093dd74a43b2f2f999af859e49173f08373e9a0e3ca95ac6ae4f",
+      "downtown_context.png": "a23b151f761448454e208c3ca15c8cca09228b0415438324b5c2acfb5ad97bb2",
+      "downtown_final.png": "026ac0631bd9f898fc3a069a808049c01ed933e8fda662fb8dd00d4fd739b329",
+      "namsan_source.png": "93e78154cc680f466f730a1d3f8003f7fed9302604dbc771ff140008a0711238",
+      "namsan_overlay.json": "c098761dac5460384f0d7d5cb72d165ecf6537281845ada1da83ba0791475207"
+    },
+    "status": "awaiting_user_review",
+    "user_visual_approval": false,
+    "total_cost_usd": 0.135817
+  },
+  "verification": {
+    "request_count": 2,
+    "total_cost_usd": 0.135817,
+    "exact_original_reconstruction": true,
+    "outside_removal_preserved": true,
+    "user_visual_approval": false,
+    "note": "Background inference, hand-authored routes, no real traffic."
+  },
+  "browser": {
+    "passed": true,
+    "manifest_sha256": "311cd53902c3207da3b665603186f32bbdb97a731e83d29164d93e7149c92926",
+    "errors": [],
+    "external": [],
+    "mutations": [],
+    "views": {
+      "desktop": {
+        "car_samples": 244,
+        "tower_occlusion_samples": 8
+      },
+      "tablet": {
+        "car_samples": 244,
+        "tower_occlusion_samples": 8
+      },
+      "mobile": {
+        "car_samples": 244,
+        "tower_occlusion_samples": 8
+      },
+      "mobile3": {
+        "car_samples": 244,
+        "tower_occlusion_samples": 8
+      }
+    }
+  },
+  "runtime_assets": {
+    "car_nw.png": "937d9f25e3db7a5fde04550d1606dd34355d97dc9a0bbe83382cd78249eecbf9",
+    "car_se.png": "6537d8ebb3baa30fecaa3ccc2f5ab0cd3c3c99e206435edb06dbcefb4f648416",
+    "downtown_baseline.png": "f4b86f3c805d515481415bd59f3340c9228c5b1ce60e59057948263ab85058b6",
+    "downtown_context.png": "a23b151f761448454e208c3ca15c8cca09228b0415438324b5c2acfb5ad97bb2",
+    "downtown_final.png": "026ac0631bd9f898fc3a069a808049c01ed933e8fda662fb8dd00d4fd739b329",
+    "downtown_source.png": "667f203db49ff8f4ffaa3ea3c08fed3d649a75f4926776ea55d5506ed982fe17",
+    "namsan_background.png": "37467b3a8f74ade3015ef9e6030b0ed8ed7e4dc5880a00bb0fc9abe0477695bf",
+    "namsan_context.png": "cd4cc127d8d1093dd74a43b2f2f999af859e49173f08373e9a0e3ca95ac6ae4f",
+    "namsan_final.png": "2906197ecb6dcfc826320a46356a0eea6c9434ef34bc0daba52c17cc9c59a0a0",
+    "namsan_source.png": "93e78154cc680f466f730a1d3f8003f7fed9302604dbc771ff140008a0711238",
+    "tower.png": "f54a8b1d73aeb545328bdb3aa9af4705eb3963f001cc7ef41b1bbd86f3f129e9",
+    "tower_hit.png": "cfd6ecbe5449c1845b508942dca76c6705a3a3387cc76cb7cfb6aa24daa33907",
+    "tower_light.png": "568bfb7ad6f96f1967fde7e2b8f6c471a71637b38fbd8a22a833a7dbe83ff463",
+    "traveler.png": "4612c1d8d3b492ac489dcaf774fd60edb322601f99296bb727fcda08d7a75b80"
+  },
+  "tests": {
+    "python": 62,
+    "node_contracts": 4,
+    "legacy_browser_suites": 3
+  },
+  "note": "Original pixels preserved for tower; 7px restoration border plus shadow. Background is inferred. Runtime cars use thresholded alpha; original response bytes retained locally. Review geometry is configs/living_lab.json. No public deployment or user aesthetic approval."
+}
