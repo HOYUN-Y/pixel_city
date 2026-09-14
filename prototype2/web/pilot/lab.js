@@ -1,5 +1,5 @@
 import {PilotMap} from './map.js';
-import {routePoint,hitSpot,validOverlay} from './lab-core.js';
+import {routePoint,routePhase,hitSpot,validOverlay} from './lab-core.js';
 import {LivingLayer} from './living.js';
 
 function asset(base,file){if(!/^[a-zA-Z0-9_./-]+$/.test(file)||file.includes('..')||file.startsWith('/'))throw Error('잘못된 에셋 경로');return new URL(file,base);}
@@ -16,7 +16,7 @@ export class LabMap extends PilotMap {
     this.actorCanvas=document.createElement('canvas');this.actorCanvas.width=48;this.actorCanvas.height=60;
     canvas.addEventListener('pointerdown',e=>{if(this.pointers.size>1)this.clickStart=null;else this.clickStart={x:e.clientX,y:e.clientY};});
     canvas.addEventListener('pointermove',e=>{if(this.clickStart&&Math.hypot(e.clientX-this.clickStart.x,e.clientY-this.clickStart.y)>5)this.clickStart=null;});
-    canvas.addEventListener('pointerup',e=>{if(!this.clickStart||!this.ready||this.mode!=='final')return;this.clickStart=null;const r=canvas.getBoundingClientRect(),p=this.world(e.clientX-r.left,e.clientY-r.top);this.select(this.living?.hit(p)||(this.pinsVisible?hitSpot(this.overlay?.spots||[],p,this.scale)?.id:null)||null);});
+    canvas.addEventListener('pointerup',e=>{if(!this.clickStart||!this.ready||this.mode!=='final')return;this.clickStart=null;const r=canvas.getBoundingClientRect(),p=this.world(e.clientX-r.left,e.clientY-r.top);const spots=(this.overlay?.spots||[]).filter(s=>!(this.overlay.landmark?.mode==='highlight_only'&&s.id===this.overlay.landmark.id));this.select(this.living?.hit(p)||(this.pinsVisible?hitSpot(spots,p,this.scale)?.id:null)||null);});
     canvas.addEventListener('pointercancel',()=>this.clickStart=null);
     canvas.addEventListener('keydown',e=>{if(e.key==='Escape')this.select(null);});
     document.addEventListener('visibilitychange',()=>{this.lastTick=0;if(this.living)this.living.lastTick=0;if(!document.hidden)this.update();});
@@ -41,17 +41,23 @@ export class LabMap extends PilotMap {
     for(const im of this.images.values())im.close();
     this.images=images;this.scene=id;this.sceneData=scene;this.overlay=overlay;this.mode='final';this.phase=0;this.selected=null;
     this.masks=new Map(overlay.occluders.map(o=>{const c=document.createElement('canvas');c.width=c.height=1536;const ctx=c.getContext('2d');ctx.beginPath();o.polygon.forEach(([x,y],i)=>i?ctx.lineTo(x,y):ctx.moveTo(x,y));ctx.closePath();ctx.fill();return[o.id,c];}));
+    this.routeCanvas=null;
+    if(overlay.landmark?.mode==='highlight_only'){
+      const route=document.createElement('canvas');route.width=route.height=1536;const rc=route.getContext('2d');
+      rc.beginPath();overlay.route.points.forEach((p,i)=>i?rc.lineTo(...p.xy):rc.moveTo(...p.xy));rc.lineWidth=3;rc.strokeStyle='#FFF5CB';rc.stroke();rc.lineWidth=1;rc.strokeStyle='#CE672D';rc.setLineDash([6,5]);rc.stroke();
+      rc.globalCompositeOperation='destination-out';for(const m of this.masks.values())rc.drawImage(m,0,0);this.routeCanvas=route;
+    }
     this.ready=true;this.update();this.onScene?.(scene);this.onSelection?.(null);
   }
   setMode(mode){if(!this.images.has(mode))return;this.mode=mode;if(mode!=='final'){this.setPlaying(false);if(this.living)this.living.trafficPlaying=false;this.select(null);}this.update();}
   select(id){this.selected=this.overlay?.spots.find(s=>s.id===id)||null;this.onSelection?.(this.selected);this.update();}
   focusSpot(id){this.select(id);if(this.selected){this.center={x:this.selected.xy[0],y:this.selected.xy[1]};this.scale=Math.max(this.scale,.75);this.update();}}
-  setPlaying(value){this.playing=!!value&&this.mode==='final';this.lastTick=0;if(this.playing){this.scale=Math.max(this.scale,this.w<900?1:.75);}this.update();}
+  setPlaying(value){this.playing=!!value&&this.mode==='final';this.lastTick=0;if(this.playing){if(this.overlay.route.playback==='once'&&this.phase===1)this.phase=0;this.scale=Math.max(this.scale,this.w<900?1:.75);}this.update();}
   setPhase(value){this.playing=false;this.phase=Math.max(0,Math.min(1,value));this.lastTick=0;if(this.follow){const p=routePoint(this.overlay.route.points,this.phase);this.center={x:p.xy[0],y:p.xy[1]};}this.update();}
   draw(){
     const c=this.ctx;c.setTransform(this.dpr,0,0,this.dpr,0,0);c.fillStyle='#D9CBA5';c.fillRect(0,0,this.w,this.h);
     if(!this.ready||!this.images?.size)return;
-    const now=performance.now();if(this.playing&&!document.hidden){if(this.lastTick)this.phase=(this.phase+Math.min(now-this.lastTick,100)/45000)%1;this.lastTick=now;}
+    const now=performance.now();if(this.playing&&!document.hidden){if(this.lastTick)this.phase=routePhase(this.phase,now-this.lastTick,this.overlay.route.playback);this.lastTick=now;if(this.overlay.route.playback==='once'&&this.phase===1)this.playing=false;}
     const trafficMoving=this.living?.advance(now,this.mode==='final');
     const position=routePoint(this.overlay.route.points,this.phase);
     if(this.playing&&this.follow){this.center={x:position.xy[0],y:position.xy[1]};this.clamp();}
@@ -62,16 +68,17 @@ export class LabMap extends PilotMap {
     if(this.showSeams){for(const [x,color] of [[768,'#FF4260'],[896,'#31E1FF']]){c.strokeStyle=color;c.lineWidth=1.5;c.setLineDash([6,5]);c.beginPath();c.moveTo(ox+x*this.scale,oy);c.lineTo(ox+x*this.scale,oy+1536*this.scale);c.moveTo(ox,oy+x*this.scale);c.lineTo(ox+1536*this.scale,oy+x*this.scale);c.stroke();}c.setLineDash([]);}
     if(this.mode==='final'){
       this.living?.drawTraffic(c,ox,oy,this.scale);
-      if(this.routeVisible){c.strokeStyle='#FFF5CB';c.lineWidth=5;c.beginPath();this.overlay.route.points.forEach((p,i)=>{const x=ox+p.xy[0]*this.scale,y=oy+p.xy[1]*this.scale;i?c.lineTo(x,y):c.moveTo(x,y);});c.stroke();c.strokeStyle='#CE672D';c.lineWidth=2;c.setLineDash([6,5]);c.stroke();c.setLineDash([]);}
+      if(this.routeVisible){if(this.routeCanvas)c.drawImage(this.routeCanvas,ox,oy,1536*this.scale,1536*this.scale);else{c.strokeStyle='#FFF5CB';c.lineWidth=5;c.beginPath();this.overlay.route.points.forEach((p,i)=>{const x=ox+p.xy[0]*this.scale,y=oy+p.xy[1]*this.scale;i?c.lineTo(x,y):c.moveTo(x,y);});c.stroke();c.strokeStyle='#CE672D';c.lineWidth=2;c.setLineDash([6,5]);c.stroke();c.setLineDash([]);}}
       const actor=this.actorCanvas,ac=actor.getContext('2d',{willReadFrequently:true});ac.clearRect(0,0,48,60);ac.imageSmoothingEnabled=false;
       const bob=this.playing?Math.round(Math.sin(this.phase*100*Math.PI)):0;
       ac.save();if(position.direction<0){ac.translate(48,0);ac.scale(-1,1);}ac.drawImage(this.sprite,Math.round((48-this.sprite.width)/2),54-this.sprite.height+bob);ac.restore();
       const before=ac.getImageData(0,0,48,60).data;let visible=0,total=0;for(let i=3;i<before.length;i+=4)if(before[i]>=128)total++;
       ac.globalCompositeOperation='destination-out';for(const id of position.behind)if(this.living.occluderEnabled(id))ac.drawImage(this.masks.get(id),position.xy[0]-24,position.xy[1]-54,48,60,0,0,48,60);ac.globalCompositeOperation='source-over';
       const after=ac.getImageData(0,0,48,60).data;for(let i=3;i<after.length;i+=4)if(after[i]>=128)visible++;
-      c.drawImage(actor,ox+(position.xy[0]-24)*this.scale,oy+(position.xy[1]-54)*this.scale,48*this.scale,60*this.scale);
+      if(this.actorVisible!==false)c.drawImage(actor,ox+(position.xy[0]-24)*this.scale,oy+(position.xy[1]-54)*this.scale,48*this.scale,60*this.scale);
       this.canvas.dataset.actorVisible=String(visible);this.canvas.dataset.actorOccluded=String(total-visible);this.canvas.dataset.segment=String(position.segment);
       if(this.pinsVisible)for(const [i,s] of this.overlay.spots.entries()){
+        if(this.overlay.landmark?.mode==='highlight_only'&&s.id===this.overlay.landmark.id)continue;
         const x=ox+s.xy[0]*this.scale,y=oy+s.xy[1]*this.scale;
         c.fillStyle=this.selected?.id===s.id?'#E8735A':'#F2C14E';c.strokeStyle='#3A2A1E';c.lineWidth=2;c.beginPath();c.arc(x,y,13,0,Math.PI*2);c.fill();c.stroke();
         c.fillStyle='#3A2A1E';c.font='bold 13px monospace';c.textAlign='center';c.fillText(String(i+1),x,y+5);

@@ -6,11 +6,12 @@ export class LivingLayer {
   static async load(overlay,base,hashes,picture){
     validateLiving(overlay);const layer=new LivingLayer(overlay);
     const files=new Set(overlay.traffic?.lanes.map(l=>l.sprite)||[]);
-    if(overlay.landmark)for(const key of ['background','sprite','hit','light'])files.add(overlay.landmark[key]);
+    const keys=overlay.landmark?.mode==='highlight_only'?['hit']:['background','sprite','hit','light'];
+    if(overlay.landmark)for(const key of keys)files.add(overlay.landmark[key]);
     try{
       for(const file of files){if(!hashes[file])throw Error('객체 이미지 해시 누락');layer.images.set(file,await picture(base,file,hashes[file]));}
       if(overlay.landmark){
-        for(const key of ['background','sprite','hit','light']){const im=layer.images.get(overlay.landmark[key]);if(im.width!==1536||im.height!==1536)throw Error('랜드마크 크기 불일치');}
+        for(const key of keys){const im=layer.images.get(overlay.landmark[key]);if(im.width!==1536||im.height!==1536)throw Error('랜드마크 크기 불일치');}
         const hit=canvas(),ctx=hit.getContext('2d',{willReadFrequently:true});ctx.drawImage(layer.images.get(overlay.landmark.hit),0,0);layer.hitPixels=ctx.getImageData(0,0,1536,1536).data;
         const shape=canvas(),sc=shape.getContext('2d');const pixels=sc.createImageData(1536,1536);
         for(let i=0;i<pixels.data.length;i+=4){pixels.data[i]=255;pixels.data[i+1]=198;pixels.data[i+2]=65;pixels.data[i+3]=layer.hitPixels[i]>=128?255:0;}sc.putImageData(pixels,0,0);
@@ -28,6 +29,7 @@ export class LivingLayer {
   drawBackground(c,ox,oy,scale,selected){
     const l=this.data.landmark;if(!l)return;
     const draw=im=>c.drawImage(im,ox,oy,1536*scale,1536*scale);
+    if(l.mode==='highlight_only'){if(selected===l.id)draw(this.outline);return;}
     draw(this.images.get(l.background));if(this.towerVisible){draw(this.images.get(l.sprite));if(this.light)draw(this.images.get(l.light));if(selected===l.id)draw(this.outline);}
   }
   drawTraffic(c,ox,oy,scale){

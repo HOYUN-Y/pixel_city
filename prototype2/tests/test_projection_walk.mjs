@@ -1,0 +1,14 @@
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import {routePoint,routePhase,validOverlay} from '../web/pilot/lab-core.js';
+import {validateLiving} from '../web/pilot/living-core.js';
+const cfg=JSON.parse(fs.readFileSync(new URL('../configs/projection_walk.json',import.meta.url)));
+const overlay={...cfg,landmark:{id:'tower',mode:'highlight_only',hit:'tower_hit.png',occluder_id:'tower-base'}};
+assert.equal(validOverlay(overlay,cfg.image_sha256),overlay);validateLiving(overlay);
+assert.throws(()=>validateLiving({...overlay,landmark:{...overlay.landmark,mode:'bogus'}}));
+assert.equal(routePhase(.999,100,'once'),1);assert.ok(routePhase(.999,100)<.01);
+let phase=0;for(let i=0;i<450;i++)phase=routePhase(phase,100,'once');assert.ok(Math.abs(phase-1)<1e-12);
+assert.equal(routePhase(.4,-100,'once'),.4);assert.equal(routePhase(.4,100000,'once'),routePhase(.4,100,'once'));
+assert.deepEqual(routePoint(cfg.route.points,0).xy,cfg.route.points[0].xy);
+assert.deepEqual(routePoint(cfg.route.points,1).xy,cfg.route.points.at(-1).xy);
+console.log('Projection walk: single-pass timing, endpoints, overlays and legacy looping passed');
