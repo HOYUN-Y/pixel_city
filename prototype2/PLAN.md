@@ -10,7 +10,7 @@
 - [x] 별도 `?view=projection-lab&run=...`에서 원본/보정 전/최종 비교·100% 상한·200% 디버그 줌
 - [x] 원출력·합성·보호 영역·줌 타일 검증, Python 82개·Node 4종·기존 브라우저 4종·새 브라우저 검증
 - [x] 수작업 대응 불명확 5항목은 누락 처리, 전체 구조는 미검증으로 기록
-- [ ] main 병합 및 origin/main 일반 push
+- [x] `bf6b8de` main fast-forward 병합 및 origin/main 일반 push 완료
 - [ ] 사용자 미감 검수
 
 추가 생성·기본 지도 교체·타워/차량 상호작용 이식은 하지 않는다. 상세는 [GUIDE](docs/GUIDE.md).
