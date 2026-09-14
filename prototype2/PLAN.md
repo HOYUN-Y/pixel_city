@@ -10,7 +10,7 @@
 - [x] 실행 `20260914T091414062775Z`, AI 호출 0회, 기본 지도 유지
 - [x] Python 72개·Node 계약 4종·기존 브라우저 4종 회귀 및 비교 화면 데스크톱/모바일 검증
 - [x] 원본 시각 검수: 비교 가능, 외벽 텍스처 불완전으로 AI 입력 미승인
-- [ ] main 병합 및 origin/main 일반 push
+- [x] `d28568d` main fast-forward 병합 및 origin/main 일반 push 완료
 - [ ] 사용자 원본 비교 검수 및 후속 AI 변환 별도 승인
 
 세부 실행·한계는 [GUIDE](docs/GUIDE.md), 수치는 [검증 기록](docs/projection-probe-20260914.json)에 보존한다.
