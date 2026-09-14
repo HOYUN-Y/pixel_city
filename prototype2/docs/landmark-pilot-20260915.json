@@ -1,0 +1,1129 @@
+{
+  "report": {
+    "run_id": "20260914T144245416491Z",
+    "kind": "landmark-pilot",
+    "model": "openai/gpt-image-2.5-sunburst",
+    "request_limit": 6,
+    "limits": {
+      "gwanghwamun_background": 1,
+      "gwanghwamun_sprite": 1,
+      "gwanghwamun_repair": 1,
+      "jongno-tower_background": 1,
+      "jongno-tower_sprite": 1,
+      "jongno-tower_repair": 1
+    },
+    "requests": [
+      {
+        "group": "gwanghwamun_background",
+        "name": "gwanghwamun_background",
+        "status": "complete",
+        "prompt": "Use case: style-transfer. Asset: one continuous orthographic pixel-art Seoul map background plate. Image 1 is the ONLY layout/geometry reference. Image 2 is ONLY pixel style, not its layout or objects. Image 3 marks the target landmark silhouette WHITE, surrounding scenery BLACK. Render the surroundings as crisp coherent pixel art, but REMOVE the entire 광화문 landmark marked white, including its attached cast shadow. Reconstruct the small hidden background using adjacent pavement/courtyard and buildings; do not put a replacement building there. Preserve surrounding roads, ground footprint, roof direction and other building positions. Fixed parallel orthographic camera, heading 22.5 degrees and elevation 30 degrees. Constant scale at every depth. Soft diffuse daylight, restrained contact shadows only, no strong directional cast shadows. No perspective, vanishing point, foreground enlargement, distant shrinkage, text, labels, people, vehicles, new landmarks or farm objects. Opaque 1024 square.",
+        "options": {
+          "model": "openai/gpt-image-2.5-sunburst",
+          "n": 1,
+          "quality": "high",
+          "aspect_ratio": "1:1",
+          "background": "opaque",
+          "provider": {
+            "only": [
+              "openai"
+            ],
+            "allow_fallbacks": false
+          }
+        },
+        "reference_sha256": [
+          "d4dbac623fe1fa6e22529d7d466e468d55b765412cad02b455c1742f0561e07f",
+          "333e045eb4457bab4b5d4ad630c0dcac2bed05b51ea0594b9560295b3dfcbb63",
+          "af0b2ac676f87d36fa4c9085d1327a7642c45e31c3e703684c0066c9c0583e9e"
+        ],
+        "usage": {
+          "prompt_tokens": 3079,
+          "completion_tokens": 1756,
+          "total_tokens": 4835,
+          "cost": 0.076619,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0.076619,
+            "upstream_inference_prompt_cost": 0.023939,
+            "upstream_inference_completions_cost": 0.05268
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 0,
+            "image_tokens": 1756
+          }
+        },
+        "seconds": 59.967,
+        "raw_storage": "original_response_bytes",
+        "raw_sha256": "7b2cf7e282d09f2aa741e5365a982f849542d442c9be0eed1f465e9401f2b8fd",
+        "native_size": [
+          1024,
+          1024
+        ]
+      },
+      {
+        "group": "gwanghwamun_sprite",
+        "name": "gwanghwamun_sprite",
+        "status": "complete",
+        "prompt": "Use case: stylized-concept. Asset: one genuinely transparent independent pixel-art 광화문 landmark. Image 1 is the actual VWorld object cutout, the ONLY structure and camera reference. Image 2 is ONLY pixel style. Image 3 is the exact silhouette/framing guide: WHITE object, BLACK transparent. Preserve the object exact position, size, proportions, roof and support geometry within this square. Image 4 is surrounding source context ONLY; never copy its buildings or ground into the sprite. Constant parallel orthographic camera, no perspective or vanishing point, no independent auto-zoom. Soft diffuse daylight, readable pixel clusters, no strong directional shadow. The empty space under Jongno Tower upper structure must be genuinely transparent, not a dark painted window. For Gwanghwamun preserve two roof levels, pale stone platform and three gate arches; do not invent extra palace buildings. No ground, scenery, labels, added objects, glow, opaque backdrop or checkerboard. Return one transparent 1024 square with exactly the reference framing.",
+        "options": {
+          "model": "openai/gpt-image-2.5-sunburst",
+          "n": 1,
+          "quality": "high",
+          "aspect_ratio": "1:1",
+          "background": "transparent",
+          "provider": {
+            "only": [
+              "openai"
+            ],
+            "allow_fallbacks": false
+          }
+        },
+        "reference_sha256": [
+          "9c697e1044aa694d5493522e61a7b2ccf2ddd5201a43b48b6073a6ce03ad38be",
+          "333e045eb4457bab4b5d4ad630c0dcac2bed05b51ea0594b9560295b3dfcbb63",
+          "6282ecd51ac765ec8de44c19ec041c1dc82819f6b1ddfb606625f23313f6b14d",
+          "d4dbac623fe1fa6e22529d7d466e468d55b765412cad02b455c1742f0561e07f"
+        ],
+        "usage": {
+          "prompt_tokens": 4129,
+          "completion_tokens": 1756,
+          "total_tokens": 5885,
+          "cost": 0.084941,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0.084941,
+            "upstream_inference_prompt_cost": 0.032261,
+            "upstream_inference_completions_cost": 0.05268
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 0,
+            "image_tokens": 1756
+          }
+        },
+        "seconds": 46.717,
+        "raw_storage": "original_response_bytes",
+        "raw_sha256": "bea931739ba2070f483e07a589d3758db2fc6dc212c534531878aa9461a7b809",
+        "native_size": [
+          1024,
+          1024
+        ]
+      },
+      {
+        "group": "gwanghwamun_repair",
+        "name": "gwanghwamun_repair",
+        "status": "complete",
+        "prompt": "Use case: precise-object-edit. Image 1 is a WRONG candidate, style only. Image 2 is the actual VWorld camera/structure. Image 3 is the REQUIRED exact silhouette and output placement: white object, black transparent. Image 4 is pixel style only. Correct the candidate to match Image 2 and 3, NOT the incorrect camera, size or placement in Image 1. Keep genuine transparency and structural gaps; no ground, backdrop, glow or shadow. Fix: The candidate incorrectly changed the elevated oblique view into a straight-on symmetrical facade and enlarged the building. Use the exact elevated orthographic VWorld view: the roof ridge and stone base run diagonally slightly UP to the RIGHT, not horizontal. The right and left ends must not be symmetric in screen space. The object must occupy ONLY x=280..712, y=384..672 on the 1024 canvas, exactly as the white silhouette in Image 3, with generous transparent space elsewhere. Preserve the two stacked roofs and three gate openings without new side staircases. Return the reference projected silhouette, not a front elevation drawing. No glow.",
+        "options": {
+          "model": "openai/gpt-image-2.5-sunburst",
+          "n": 1,
+          "quality": "high",
+          "aspect_ratio": "1:1",
+          "background": "transparent",
+          "provider": {
+            "only": [
+              "openai"
+            ],
+            "allow_fallbacks": false
+          }
+        },
+        "reference_sha256": [
+          "df5674a8e5c07e3e6ac792972ab9002412e3e1791b59f42a6b000de0c3cfef54",
+          "17fbcf8fc83d569292f1ed5af18bb46c79011ef3ddef95f60e3b422ae5bbfd34",
+          "6282ecd51ac765ec8de44c19ec041c1dc82819f6b1ddfb606625f23313f6b14d",
+          "333e045eb4457bab4b5d4ad630c0dcac2bed05b51ea0594b9560295b3dfcbb63"
+        ],
+        "usage": {
+          "prompt_tokens": 4147,
+          "completion_tokens": 1756,
+          "total_tokens": 5903,
+          "cost": 0.085031,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0.085031,
+            "upstream_inference_prompt_cost": 0.032351,
+            "upstream_inference_completions_cost": 0.05268
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 0,
+            "image_tokens": 1756
+          }
+        },
+        "seconds": 37.068,
+        "raw_storage": "original_response_bytes",
+        "raw_sha256": "59577e364f67aa3dbe891204fbc31fc2742f07e7f0d1b62a60e61678406510f4",
+        "native_size": [
+          1024,
+          1024
+        ]
+      },
+      {
+        "group": "jongno-tower_background",
+        "name": "jongno-tower_background",
+        "status": "complete",
+        "prompt": "Use case: style-transfer. Asset: one continuous orthographic pixel-art Seoul map background plate. Image 1 is the ONLY layout/geometry reference. Image 2 is ONLY pixel style, not its layout or objects. Image 3 marks the target landmark silhouette WHITE, surrounding scenery BLACK. Render the surroundings as crisp coherent pixel art, but REMOVE the entire 종로타워 landmark marked white, including its attached cast shadow. Reconstruct the small hidden background using adjacent pavement/courtyard and buildings; do not put a replacement building there. Preserve surrounding roads, ground footprint, roof direction and other building positions. Fixed parallel orthographic camera, heading 22.5 degrees and elevation 30 degrees. Constant scale at every depth. Soft diffuse daylight, restrained contact shadows only, no strong directional cast shadows. No perspective, vanishing point, foreground enlargement, distant shrinkage, text, labels, people, vehicles, new landmarks or farm objects. Opaque 1024 square.",
+        "options": {
+          "model": "openai/gpt-image-2.5-sunburst",
+          "n": 1,
+          "quality": "high",
+          "aspect_ratio": "1:1",
+          "background": "opaque",
+          "provider": {
+            "only": [
+              "openai"
+            ],
+            "allow_fallbacks": false
+          }
+        },
+        "reference_sha256": [
+          "b3102af542a71418af428ceba7abf0e1fd3a323c509b243aa1ed4f7b7b5bf2ba",
+          "333e045eb4457bab4b5d4ad630c0dcac2bed05b51ea0594b9560295b3dfcbb63",
+          "4a1a63866c53d183e3f89c2d7aba6aee03e47dfbe57f3205b99d3a9d30776df7"
+        ],
+        "usage": {
+          "prompt_tokens": 3080,
+          "completion_tokens": 1756,
+          "total_tokens": 4836,
+          "cost": 0.076624,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0.076624,
+            "upstream_inference_prompt_cost": 0.023944,
+            "upstream_inference_completions_cost": 0.05268
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 0,
+            "image_tokens": 1756
+          }
+        },
+        "seconds": 62.349,
+        "raw_storage": "original_response_bytes",
+        "raw_sha256": "803219208b7f74f339585f8f7c4299c57b907c21d431d6aa61e8bd07c6bac4de",
+        "native_size": [
+          1024,
+          1024
+        ]
+      },
+      {
+        "group": "jongno-tower_sprite",
+        "name": "jongno-tower_sprite",
+        "status": "complete",
+        "prompt": "Use case: stylized-concept. Asset: one genuinely transparent independent pixel-art 종로타워 landmark. Image 1 is the actual VWorld object cutout, the ONLY structure and camera reference. Image 2 is ONLY pixel style. Image 3 is the exact silhouette/framing guide: WHITE object, BLACK transparent. Preserve the object exact position, size, proportions, roof and support geometry within this square. Image 4 is surrounding source context ONLY; never copy its buildings or ground into the sprite. Constant parallel orthographic camera, no perspective or vanishing point, no independent auto-zoom. Soft diffuse daylight, readable pixel clusters, no strong directional shadow. The empty space under Jongno Tower upper structure must be genuinely transparent, not a dark painted window. For Gwanghwamun preserve two roof levels, pale stone platform and three gate arches; do not invent extra palace buildings. No ground, scenery, labels, added objects, glow, opaque backdrop or checkerboard. Return one transparent 1024 square with exactly the reference framing.",
+        "options": {
+          "model": "openai/gpt-image-2.5-sunburst",
+          "n": 1,
+          "quality": "high",
+          "aspect_ratio": "1:1",
+          "background": "transparent",
+          "provider": {
+            "only": [
+              "openai"
+            ],
+            "allow_fallbacks": false
+          }
+        },
+        "reference_sha256": [
+          "959c1c0e44fd938a19c211fcd431936bfe1ecc1f434e0084c8f13e7606f90c00",
+          "333e045eb4457bab4b5d4ad630c0dcac2bed05b51ea0594b9560295b3dfcbb63",
+          "ab694a45132793e4dbc82810a11a2739d067ee127fe9f7f9ddf20ac8be237dd2",
+          "b3102af542a71418af428ceba7abf0e1fd3a323c509b243aa1ed4f7b7b5bf2ba"
+        ],
+        "usage": {
+          "prompt_tokens": 4130,
+          "completion_tokens": 1756,
+          "total_tokens": 5886,
+          "cost": 0.084946,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0.084946,
+            "upstream_inference_prompt_cost": 0.032266,
+            "upstream_inference_completions_cost": 0.05268
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 0,
+            "image_tokens": 1756
+          }
+        },
+        "seconds": 43.375,
+        "raw_storage": "original_response_bytes",
+        "raw_sha256": "8d7c548a1d49f97d7fad2e160cd8aec4cf8e87c669f2452396f6e842f8856581",
+        "native_size": [
+          1024,
+          1024
+        ]
+      }
+    ],
+    "sources": {
+      "gwanghwamun": {
+        "capture": "20260914T143347349166Z/gwanghwamun",
+        "approved": true,
+        "review": "Agent native/8x inspection: two-tier roof, pale stone base and three gate openings are visible. Low-resolution wall detail is not surveyed restoration. VWorld-only experimental input; user aesthetic approval pending.",
+        "outline": [
+          [
+            514,
+            584
+          ],
+          [
+            517,
+            587
+          ],
+          [
+            520,
+            591
+          ],
+          [
+            523,
+            597
+          ],
+          [
+            526,
+            599
+          ],
+          [
+            526,
+            607
+          ],
+          [
+            529,
+            615
+          ],
+          [
+            490,
+            620
+          ],
+          [
+            482,
+            616
+          ],
+          [
+            482,
+            608
+          ],
+          [
+            478,
+            599
+          ],
+          [
+            475,
+            594
+          ],
+          [
+            479,
+            591
+          ],
+          [
+            499,
+            588
+          ]
+        ],
+        "holes": [],
+        "context": [
+          440,
+          536,
+          568,
+          664
+        ],
+        "anchor": [
+          506,
+          615
+        ],
+        "roads": [
+          [
+            579,
+            658
+          ],
+          [
+            649,
+            585
+          ]
+        ],
+        "neighbor_width": [
+          [
+            352,
+            595
+          ],
+          [
+            392,
+            612
+          ]
+        ]
+      },
+      "jongno-tower": {
+        "capture": "20260914T143527940806Z/jongno-tower",
+        "approved": true,
+        "review": "Agent native/3x inspection: detached upper structural volume, open gap beneath and side support structures visible. Background seen through the gap is not part of the landmark. VWorld-only experimental input; user aesthetic approval pending.",
+        "outline": [
+          [
+            498,
+            439
+          ],
+          [
+            521,
+            444
+          ],
+          [
+            545,
+            454
+          ],
+          [
+            550,
+            467
+          ],
+          [
+            550,
+            610
+          ],
+          [
+            541,
+            616
+          ],
+          [
+            515,
+            609
+          ],
+          [
+            477,
+            600
+          ],
+          [
+            462,
+            591
+          ],
+          [
+            461,
+            451
+          ],
+          [
+            474,
+            443
+          ]
+        ],
+        "holes": [
+          [
+            [
+              476,
+              474
+            ],
+            [
+              535,
+              486
+            ],
+            [
+              535,
+              501
+            ],
+            [
+              524,
+              500
+            ],
+            [
+              478,
+              486
+            ]
+          ]
+        ],
+        "context": [
+          396,
+          400,
+          620,
+          624
+        ],
+        "anchor": [
+          507,
+          608
+        ],
+        "roads": [
+          [
+            542,
+            641
+          ],
+          [
+            651,
+            497
+          ]
+        ],
+        "neighbor_width": [
+          [
+            600,
+            406
+          ],
+          [
+            634,
+            399
+          ]
+        ]
+      }
+    },
+    "blocked_scenes": {},
+    "generation_closed": true,
+    "input_sha256": {
+      "sources.json": "12f9f5c6148207054404e292fe33227cca93201de1e9a0bd9d4755e8179ed42f",
+      "gwanghwamun_source.png": "729a9eb4ab8096828a8ba1e806be763d9565e5af2daed99669d2c65d10ce9bf9",
+      "jongno-tower_source.png": "fdc7ec5fdf04922b760b2196e795e41466bc5ee0841e50a39eac4c8c2d06454b",
+      "traveler.png": "4612c1d8d3b492ac489dcaf774fd60edb322601f99296bb727fcda08d7a75b80",
+      "config.json": "355e525ecd93ee86f55a081396eba6cd645f07cde1a1f12d0deb0a9bd7482d2b",
+      "jongno-tower_capture.json": "0645311eb98b360b881828cd1c4df84614d6557380968df4cb376fa63fb6e934",
+      "gwanghwamun_source_mask.png": "6304bd5bb2efe476e772d0e7b75b7d204ed8b6ac0a7d3795fc9c5007e09315b7",
+      "gwanghwamun_capture.json": "31525f36af72bcbd876eced4f70573902b4f626f06a97ca6081c965f05751e7c",
+      "jongno-tower_source_mask.png": "44fade64d36040f9a04248b03760268e40f9b4eb93e7997b1626653488ba6800",
+      "style.png": "66e016b75a74c1dd9726bf509eebd710944d3cbc62a48538a48983d49bae3dbe"
+    },
+    "user_visual_approval": false,
+    "status": "awaiting_user_review",
+    "total_cost_usd": 0.408161,
+    "repairs": {
+      "gwanghwamun": {
+        "target": "sprite",
+        "reason": "The candidate incorrectly changed the elevated oblique view into a straight-on symmetrical facade and enlarged the building. Use the exact elevated orthographic VWorld view: the roof ridge and stone base run diagonally slightly UP to the RIGHT, not horizontal. The right and left ends must not be symmetric in screen space. The object must occupy ONLY x=280..712, y=384..672 on the 1024 canvas, exactly as the white silhouette in Image 3, with generous transparent space elsewhere. Preserve the two stacked roofs and three gate openings without new side staircases. Return the reference projected silhouette, not a front elevation drawing. No glow."
+      }
+    },
+    "geometry": {
+      "gwanghwamun": {
+        "size_change": [
+          0.16363636363636358,
+          0.4054054054054055
+        ],
+        "anchor_error_px": 1.5811388300841898,
+        "landmark_passed": false,
+        "uniform_scale": 0.125,
+        "placement_offset": [
+          0,
+          -8
+        ],
+        "source_bbox": [
+          475,
+          584,
+          530,
+          621
+        ],
+        "rendered_bbox": [
+          475,
+          570,
+          539,
+          622
+        ],
+        "note": "Measured after documented uniform placement; matching bounding size is not proof of matching internal geometry or geographic accuracy.",
+        "road_errors_px": [
+          null,
+          null
+        ],
+        "neighbor_width_change": null,
+        "background_passed": false,
+        "source_void_opaque_pixels": 0,
+        "source_void_alignment_passed": true,
+        "void_passed": true,
+        "overall_geometry_passed": false
+      },
+      "jongno-tower": {
+        "size_change": [
+          0,
+          -0.022471910112359605
+        ],
+        "anchor_error_px": 0.3708469574100784,
+        "landmark_passed": true,
+        "uniform_scale": 0.2060546875,
+        "placement_offset": [
+          4,
+          13
+        ],
+        "source_bbox": [
+          461,
+          439,
+          551,
+          617
+        ],
+        "rendered_bbox": [
+          460,
+          440,
+          550,
+          614
+        ],
+        "note": "Measured after documented uniform placement; matching bounding size is not proof of matching internal geometry or geographic accuracy.",
+        "road_errors_px": [
+          null,
+          null
+        ],
+        "neighbor_width_change": null,
+        "background_passed": false,
+        "source_void_opaque_pixels": 255,
+        "source_void_alignment_passed": false,
+        "void_passed": true,
+        "overall_geometry_passed": false
+      }
+    }
+  },
+  "review": {
+    "scenes": {
+      "gwanghwamun": {
+        "publish": true,
+        "summary": "광화문 보정 후보: 부감 방향은 개선됐으나 원본 대비 크기·비율 기준 미달. 합성·선택·가림 시험용이며 채택/사용자 미감 미승인",
+        "sprite_offset": [
+          0,
+          -8
+        ],
+        "generated_anchor": [
+          507.5,
+          615.5
+        ],
+        "roads": [
+          null,
+          null
+        ],
+        "neighbor_width": null,
+        "placement_review": "Fixed source-context scale 128/1024, no anisotropic scaling or rotation. Raw stone-base front-middle observed near [540,700], yielding final [507.5,615.5] after translation [0,-8]. Actual exterior proportions still fail; do not treat aligned anchor as geometry success.",
+        "spots": [
+          {
+            "id": "gwanghwamun",
+            "title": "광화문",
+            "xy": [
+              506,
+              615
+            ],
+            "description": "문루와 석축·세 출입구의 독립 AI 외형 시험. 원본 대비 크기/비율 미달 후보이며 실제 현장 복원이 아닙니다."
+          },
+          {
+            "id": "front",
+            "title": "앞쪽 검수점",
+            "xy": [
+              480,
+              642
+            ],
+            "description": "그림 위 보행 검수점. 실제 관광 지점이나 출입 경로가 아닙니다."
+          },
+          {
+            "id": "back",
+            "title": "뒤쪽 검수점",
+            "xy": [
+              524,
+              609
+            ],
+            "description": "그림 위 가림 시험 위치. 통행 가능 여부는 검증하지 않았습니다."
+          }
+        ],
+        "route": {
+          "title": "광화문 앞·뒤 가림 시험",
+          "playback": "once",
+          "points": [
+            {
+              "xy": [
+                460,
+                642
+              ]
+            },
+            {
+              "xy": [
+                490,
+                635
+              ]
+            },
+            {
+              "xy": [
+                534,
+                624
+              ]
+            },
+            {
+              "xy": [
+                536,
+                611
+              ],
+              "behind": [
+                "landmark-body"
+              ]
+            },
+            {
+              "xy": [
+                489,
+                624
+              ],
+              "behind": [
+                "landmark-body"
+              ]
+            },
+            {
+              "xy": [
+                468,
+                632
+              ]
+            },
+            {
+              "xy": [
+                460,
+                642
+              ]
+            }
+          ]
+        },
+        "repair": {
+          "target": "sprite",
+          "reason": "The candidate incorrectly changed the elevated oblique view into a straight-on symmetrical facade and enlarged the building. Use the exact elevated orthographic VWorld view: the roof ridge and stone base run diagonally slightly UP to the RIGHT, not horizontal. The right and left ends must not be symmetric in screen space. The object must occupy ONLY x=280..712, y=384..672 on the 1024 canvas, exactly as the white silhouette in Image 3, with generous transparent space elsewhere. Preserve the two stacked roofs and three gate openings without new side staircases. Return the reference projected silhouette, not a front elevation drawing. No glow."
+        },
+        "repair_accepted": true,
+        "repair_review": "Use as a comparison candidate only: oblique roof/base orientation improved and incorrect side stairs removed, but width/height tolerance is not met. No further paid repair permitted.",
+        "initial_sprite_review": "Rejected: frontal elevation replaces oblique camera; object enlarged compared with source guide. No stretching/rotation normalization used."
+      },
+      "jongno-tower": {
+        "publish": true,
+        "summary": "종로타워 독립 외형 후보: 원본 폭 기준 균일 배율·접지 정렬, 상부 빈 공간의 투명 표현 확인. 주변 배경 지리 정합/사용자 미감 미승인",
+        "sprite_scale": 0.2060546875,
+        "sprite_offset": [
+          4,
+          13
+        ],
+        "generated_anchor": [
+          507.1484375,
+          608.33984375
+        ],
+        "roads": [
+          null,
+          null
+        ],
+        "neighbor_width": null,
+        "void_reviewed": true,
+        "void_valid": true,
+        "void_point": [
+          513,
+          487
+        ],
+        "void_alignment_note": "First browser probe [510,480] landed on the generated upper beam (alpha255), not the open gap. Native alpha inspection confirms [513,487] is inside the visible gap (alpha0). Use that point for hole click regression without altering the asset/mask. The pre-generation source-hole polygon overlaps255 opaque output pixels; its full alignment is NOT passed.",
+        "placement_review": "Raw alpha>=128 bbox [293,130,729,976]. Uniform source width fit: reference width90 / raw width436, rasterized whole canvas to211px square. No anisotropic resize or rotation. Raw front base anchor observed near [520,948]; place canvas at[400,413], yielding[507.1484375,608.33984375]. This normalization is disclosed, not a claim that AI respected original framing. Upper gap pixel raw[550,360] has alpha0; source-relative empty point[510,480] will be checked again in final hit mask. White rooftop equipment below the gap belongs to the lower roof in source and is retained.",
+        "repair_accepted": false,
+        "repair_review": "No paid repair requested: recognizable upper volume/supports and real alpha gap, source-fit size/anchor checked separately. Remaining one slot is not transferred to Gwanghwamun.",
+        "spots": [
+          {
+            "id": "jongno-tower",
+            "title": "종로타워",
+            "xy": [
+              507,
+              608
+            ],
+            "description": "상부 구조·빈 공간·지지부를 별도 생성한 독립 외형 후보. 외관·배경은 AI 재해석이며 사용자 검수 대기입니다."
+          },
+          {
+            "id": "front",
+            "title": "앞쪽 검수점",
+            "xy": [
+              497,
+              637
+            ],
+            "description": "그림 위 검수 지점. 실제 보행 경로나 관광 지점이 아닙니다."
+          },
+          {
+            "id": "back",
+            "title": "뒤쪽 검수점",
+            "xy": [
+              525,
+              610
+            ],
+            "description": "건물 뒤 가림 시험 위치이며 실제 통행 가능 여부는 검증하지 않았습니다."
+          }
+        ],
+        "route": {
+          "title": "종로타워 앞·뒤 가림 시험",
+          "playback": "once",
+          "points": [
+            {
+              "xy": [
+                449,
+                651
+              ]
+            },
+            {
+              "xy": [
+                510,
+                631
+              ]
+            },
+            {
+              "xy": [
+                561,
+                611
+              ]
+            },
+            {
+              "xy": [
+                561,
+                601
+              ],
+              "behind": [
+                "landmark-body"
+              ]
+            },
+            {
+              "xy": [
+                508,
+                623
+              ],
+              "behind": [
+                "landmark-body"
+              ]
+            },
+            {
+              "xy": [
+                455,
+                605
+              ],
+              "behind": [
+                "landmark-body"
+              ]
+            },
+            {
+              "xy": [
+                442,
+                639
+              ]
+            },
+            {
+              "xy": [
+                449,
+                651
+              ]
+            }
+          ]
+        }
+      }
+    }
+  },
+  "verification": {
+    "technical_passed": true,
+    "requests": 5,
+    "geometry": {
+      "gwanghwamun": {
+        "size_change": [
+          0.16363636363636358,
+          0.4054054054054055
+        ],
+        "anchor_error_px": 1.5811388300841898,
+        "landmark_passed": false,
+        "uniform_scale": 0.125,
+        "placement_offset": [
+          0,
+          -8
+        ],
+        "source_bbox": [
+          475,
+          584,
+          530,
+          621
+        ],
+        "rendered_bbox": [
+          475,
+          570,
+          539,
+          622
+        ],
+        "note": "Measured after documented uniform placement; matching bounding size is not proof of matching internal geometry or geographic accuracy.",
+        "road_errors_px": [
+          null,
+          null
+        ],
+        "neighbor_width_change": null,
+        "background_passed": false,
+        "source_void_opaque_pixels": 0,
+        "source_void_alignment_passed": true,
+        "void_passed": true,
+        "overall_geometry_passed": false
+      },
+      "jongno-tower": {
+        "size_change": [
+          0,
+          -0.022471910112359605
+        ],
+        "anchor_error_px": 0.3708469574100784,
+        "landmark_passed": true,
+        "uniform_scale": 0.2060546875,
+        "placement_offset": [
+          4,
+          13
+        ],
+        "source_bbox": [
+          461,
+          439,
+          551,
+          617
+        ],
+        "rendered_bbox": [
+          460,
+          440,
+          550,
+          614
+        ],
+        "note": "Measured after documented uniform placement; matching bounding size is not proof of matching internal geometry or geographic accuracy.",
+        "road_errors_px": [
+          null,
+          null
+        ],
+        "neighbor_width_change": null,
+        "background_passed": false,
+        "source_void_opaque_pixels": 255,
+        "source_void_alignment_passed": false,
+        "void_passed": true,
+        "overall_geometry_passed": false
+      }
+    },
+    "user_visual_approval": false,
+    "manifest_sha256": "73e7c408c4db16af6ab333d8c5083d1e7e34202622f3b959953acca928468cd0"
+  },
+  "manifest": {
+    "version": 1,
+    "kind": "landmark-pilot",
+    "run_id": "20260914T144245416491Z",
+    "width": 1024,
+    "height": 1024,
+    "character": "traveler.png",
+    "asset_sha256": {
+      "traveler.png": "4612c1d8d3b492ac489dcaf774fd60edb322601f99296bb727fcda08d7a75b80",
+      "gwanghwamun_source.png": "729a9eb4ab8096828a8ba1e806be763d9565e5af2daed99669d2c65d10ce9bf9",
+      "gwanghwamun_before.png": "fc67eb0d5bdbc3a0995e7b248a742fa50836e9d346041393a4f9867e945f75f9",
+      "gwanghwamun_sprite.png": "1749ec19fd56010f05d54d8d4ae673f090e2f712f98a9b1e476293c8d94ed1c1",
+      "gwanghwamun_hit.png": "9ec5eb111e796393027f307048ad737b641612e41d3d60a36b3f8e9c6e32f21b",
+      "gwanghwamun_final.png": "a25503756e58f543fa0d92476632c8df32c450b24a36c67b6d949b0b26a3e3f7",
+      "jongno-tower_source.png": "fdc7ec5fdf04922b760b2196e795e41466bc5ee0841e50a39eac4c8c2d06454b",
+      "jongno-tower_before.png": "09d415fcd1b72051523f01e3c3a501c45dba18e1720db23908d4951d4aabb4c4",
+      "jongno-tower_sprite.png": "9de542adcd2319aefa151036280a8f94b243d9dd9bb077fc5f2c3e7c5048cae0",
+      "jongno-tower_hit.png": "8b721d2062a1f253570ac120c37d41839acfaba6d46c95bfedfb1eed8dbcbb0b",
+      "jongno-tower_final.png": "9df2f5fb98a28c908b6d046bca4cb87df71ba6d5e68e8cf29e2ada8cb8066567"
+    },
+    "overlay_sha256": {
+      "gwanghwamun": "fdb46f5582a15b8fa92ba506a52f7372a69a8733782f1849935a133241f19440",
+      "jongno-tower": "6b10fbe98e60e649b07095e55099f1683f127bf4ba8cd721f7633c61df0edc0f"
+    },
+    "scenes": {
+      "gwanghwamun": {
+        "label": "광화문",
+        "variants": {
+          "source": {
+            "label": "VWorld 정사영 원본",
+            "file": "gwanghwamun_source.png",
+            "sha256": "729a9eb4ab8096828a8ba1e806be763d9565e5af2daed99669d2c65d10ce9bf9"
+          },
+          "before": {
+            "label": "주변 배경만",
+            "file": "gwanghwamun_before.png",
+            "sha256": "fc67eb0d5bdbc3a0995e7b248a742fa50836e9d346041393a4f9867e945f75f9"
+          },
+          "final": {
+            "label": "독립 외형 합성",
+            "file": "gwanghwamun_final.png",
+            "sha256": "a25503756e58f543fa0d92476632c8df32c450b24a36c67b6d949b0b26a3e3f7"
+          }
+        },
+        "overlay": "gwanghwamun_overlay.json",
+        "review": "광화문 보정 후보: 부감 방향은 개선됐으나 원본 대비 크기·비율 기준 미달. 합성·선택·가림 시험용이며 채택/사용자 미감 미승인 · AI 재해석·수작업 가림·실제 길찾기 아님"
+      },
+      "jongno-tower": {
+        "label": "종로타워",
+        "variants": {
+          "source": {
+            "label": "VWorld 정사영 원본",
+            "file": "jongno-tower_source.png",
+            "sha256": "fdc7ec5fdf04922b760b2196e795e41466bc5ee0841e50a39eac4c8c2d06454b"
+          },
+          "before": {
+            "label": "주변 배경만",
+            "file": "jongno-tower_before.png",
+            "sha256": "09d415fcd1b72051523f01e3c3a501c45dba18e1720db23908d4951d4aabb4c4"
+          },
+          "final": {
+            "label": "독립 외형 합성",
+            "file": "jongno-tower_final.png",
+            "sha256": "9df2f5fb98a28c908b6d046bca4cb87df71ba6d5e68e8cf29e2ada8cb8066567"
+          }
+        },
+        "overlay": "jongno-tower_overlay.json",
+        "review": "종로타워 독립 외형 후보: 원본 폭 기준 균일 배율·접지 정렬, 상부 빈 공간의 투명 표현 확인. 주변 배경 지리 정합/사용자 미감 미승인 · AI 재해석·수작업 가림·실제 길찾기 아님"
+      }
+    },
+    "blocked_scenes": {}
+  },
+  "browser_qa": {
+    "passed": true,
+    "manifest_sha256": "73e7c408c4db16af6ab333d8c5083d1e7e34202622f3b959953acca928468cd0",
+    "errors": [],
+    "external": [],
+    "views": {
+      "desktop": {
+        "gwanghwamun": {
+          "independent_composite_identical": true,
+          "occlusion_samples": 101,
+          "partial_occlusion": true,
+          "full_occlusion": false,
+          "void_click_unselected": null
+        },
+        "jongno-tower": {
+          "independent_composite_identical": true,
+          "occlusion_samples": 101,
+          "partial_occlusion": true,
+          "full_occlusion": true,
+          "void_click_unselected": true
+        }
+      },
+      "tablet": {
+        "gwanghwamun": {
+          "independent_composite_identical": true,
+          "occlusion_samples": 101,
+          "partial_occlusion": true,
+          "full_occlusion": false,
+          "void_click_unselected": null
+        },
+        "jongno-tower": {
+          "independent_composite_identical": true,
+          "occlusion_samples": 101,
+          "partial_occlusion": true,
+          "full_occlusion": true,
+          "void_click_unselected": null
+        }
+      },
+      "mobile": {
+        "gwanghwamun": {
+          "independent_composite_identical": true,
+          "occlusion_samples": 101,
+          "partial_occlusion": true,
+          "full_occlusion": false,
+          "void_click_unselected": null
+        },
+        "jongno-tower": {
+          "independent_composite_identical": true,
+          "occlusion_samples": 101,
+          "partial_occlusion": true,
+          "full_occlusion": true,
+          "void_click_unselected": null
+        }
+      },
+      "mobile3": {
+        "gwanghwamun": {
+          "independent_composite_identical": true,
+          "occlusion_samples": 101,
+          "partial_occlusion": true,
+          "full_occlusion": false,
+          "void_click_unselected": null
+        },
+        "jongno-tower": {
+          "independent_composite_identical": true,
+          "occlusion_samples": 101,
+          "partial_occlusion": true,
+          "full_occlusion": true,
+          "void_click_unselected": null
+        }
+      }
+    },
+    "geographic_validation": false
+  },
+  "captures": {
+    "gwanghwamun": {
+      "scene": "gwanghwamun",
+      "spec": {
+        "label": "광화문",
+        "lon": 126.976971,
+        "lat": 37.576032,
+        "source_index_hint": 2336,
+        "required_features": [
+          "문루 지붕",
+          "석축",
+          "출입구"
+        ]
+      },
+      "camera": {
+        "heading_deg": 22.5,
+        "pitch_deg": -30,
+        "range_m": 900
+      },
+      "size": 1024,
+      "width_m": 800,
+      "visual_approved": false,
+      "ai_requests": 0,
+      "key_persisted": false,
+      "source": "국토교통부 / VWorld",
+      "validation": {
+        "passed": true,
+        "reference_100m_px": [
+          128.00000000029797,
+          128,
+          128.00000000029797
+        ],
+        "ground_anchor": [
+          511.9999977381155,
+          600.6809986257554
+        ]
+      },
+      "files": {
+        "source.png": "729a9eb4ab8096828a8ba1e806be763d9565e5af2daed99669d2c65d10ce9bf9"
+      }
+    },
+    "jongno-tower": {
+      "scene": "jongno-tower",
+      "spec": {
+        "label": "종로타워",
+        "lon": 126.983656,
+        "lat": 37.570718,
+        "source_index_hint": 3232,
+        "required_features": [
+          "떠 있는 상부",
+          "상부 아래 빈 공간",
+          "지지 구조"
+        ]
+      },
+      "camera": {
+        "heading_deg": 22.5,
+        "pitch_deg": -30,
+        "range_m": 900
+      },
+      "size": 1024,
+      "width_m": 800,
+      "visual_approved": false,
+      "ai_requests": 0,
+      "key_persisted": false,
+      "source": "국토교통부 / VWorld",
+      "validation": {
+        "passed": true,
+        "reference_100m_px": [
+          127.99999999970191,
+          127.99999999970203,
+          127.99999999970203
+        ],
+        "ground_anchor": [
+          511.9999978364469,
+          600.6809987354279
+        ]
+      },
+      "files": {
+        "source.png": "fdc7ec5fdf04922b760b2196e795e41466bc5ee0841e50a39eac4c8c2d06454b"
+      }
+    }
+  },
+  "tests": {
+    "python_unittest": 110,
+    "node_contract_suites": 7,
+    "browser_regressions": [
+      "projection_walk",
+      "living",
+      "expansion"
+    ],
+    "landmark_browser": "4 viewports × 2 scenes; actual assets",
+    "geographic_validation": false
+  },
+  "handoff": {
+    "branch": "feat/prototype2-landmark-pilot",
+    "merge": false,
+    "push": false,
+    "default_map_changed": false,
+    "excluded_other_session": [
+      "README.md",
+      "docs/planning/"
+    ]
+  }
+}

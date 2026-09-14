@@ -1,0 +1,10 @@
+import assert from 'node:assert/strict';
+import {labSize} from '../web/pilot/lab-size.js';
+import {validateLiving} from '../web/pilot/living-core.js';
+import {validOverlay} from '../web/pilot/lab-core.js';
+assert.deepEqual(labSize({width:1024,height:1024}),{width:1024,height:1024});
+const overlay={image_sha256:'test',spots:[{id:'gwanghwamun',xy:[500,600]},{id:'front',xy:[450,650]},{id:'back',xy:[550,580]}],route:{playback:'once',points:[{xy:[450,650]},{xy:[550,580],behind:['landmark-body']}]},occluders:[{id:'landmark-body',polygon:[[400,400],[600,400],[600,600]]}],landmark:{id:'gwanghwamun',mode:'independent',sprite:'sprite.png',hit:'hit.png',occluder_id:'landmark-body'},generation_edges:[]};
+validOverlay(overlay,'test',labSize({width:1024,height:1024}));validateLiving(overlay,labSize({width:1024,height:1024}));
+assert.throws(()=>validOverlay({...overlay,spots:[...overlay.spots.slice(0,2),{id:'invalid',xy:[1200,600]}]},'test',labSize({width:1024,height:1024})));
+assert.throws(()=>validateLiving({...overlay,landmark:{...overlay.landmark,mode:'unknown'}}));
+console.log('Landmark pilot: native size, independent mode, references and bounds passed');

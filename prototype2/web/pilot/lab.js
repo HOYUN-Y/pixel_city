@@ -17,7 +17,7 @@ export class LabMap extends PilotMap {
     this.actorCanvas=document.createElement('canvas');this.actorCanvas.width=48;this.actorCanvas.height=60;
     canvas.addEventListener('pointerdown',e=>{if(this.pointers.size>1)this.clickStart=null;else this.clickStart={x:e.clientX,y:e.clientY};});
     canvas.addEventListener('pointermove',e=>{if(this.clickStart&&Math.hypot(e.clientX-this.clickStart.x,e.clientY-this.clickStart.y)>5)this.clickStart=null;});
-    canvas.addEventListener('pointerup',e=>{if(!this.clickStart||!this.ready||this.mode!=='final')return;this.clickStart=null;const r=canvas.getBoundingClientRect(),p=this.world(e.clientX-r.left,e.clientY-r.top);const spots=(this.overlay?.spots||[]).filter(s=>!(this.overlay.landmark?.mode==='highlight_only'&&s.id===this.overlay.landmark.id));this.select(this.living?.hit(p)||(this.pinsVisible?hitSpot(spots,p,this.scale)?.id:null)||null);});
+    canvas.addEventListener('pointerup',e=>{if(!this.clickStart||!this.ready||this.mode!=='final')return;this.clickStart=null;const r=canvas.getBoundingClientRect(),p=this.world(e.clientX-r.left,e.clientY-r.top);const spots=(this.overlay?.spots||[]).filter(s=>!(['highlight_only','independent'].includes(this.overlay.landmark?.mode)&&s.id===this.overlay.landmark.id));this.select(this.living?.hit(p)||(this.pinsVisible?hitSpot(spots,p,this.scale)?.id:null)||null);});
     canvas.addEventListener('pointercancel',()=>this.clickStart=null);
     canvas.addEventListener('keydown',e=>{if(e.key==='Escape')this.select(null);});
     document.addEventListener('visibilitychange',()=>{this.lastTick=0;if(this.living)this.living.lastTick=0;if(!document.hidden)this.update();});
@@ -42,9 +42,9 @@ export class LabMap extends PilotMap {
     this.living?.close();this.living=living;
     for(const im of this.images.values())im.close();
     this.images=images;this.scene=id;this.sceneData=scene;this.overlay=overlay;this.mode='final';this.phase=0;this.selected=null;
-    this.masks=new Map(overlay.occluders.map(o=>{const c=document.createElement('canvas');c.width=c.height=this.manifest.width;const ctx=c.getContext('2d');ctx.beginPath();o.polygon.forEach(([x,y],i)=>i?ctx.lineTo(x,y):ctx.moveTo(x,y));ctx.closePath();ctx.fill();return[o.id,c];}));
+    this.masks=new Map(overlay.occluders.map(o=>{if(overlay.landmark?.mode==='independent'&&o.id===overlay.landmark.occluder_id)return[o.id,living.silhouette];const c=document.createElement('canvas');c.width=c.height=this.manifest.width;const ctx=c.getContext('2d');ctx.beginPath();o.polygon.forEach(([x,y],i)=>i?ctx.lineTo(x,y):ctx.moveTo(x,y));ctx.closePath();ctx.fill();return[o.id,c];}));
     this.routeCanvas=null;
-    if(overlay.landmark?.mode==='highlight_only'){
+    if(['highlight_only','independent'].includes(overlay.landmark?.mode)){
       const route=document.createElement('canvas');route.width=route.height=this.manifest.width;const rc=route.getContext('2d');
       rc.beginPath();overlay.route.points.forEach((p,i)=>i?rc.lineTo(...p.xy):rc.moveTo(...p.xy));rc.lineWidth=3;rc.strokeStyle='#FFF5CB';rc.stroke();rc.lineWidth=1;rc.strokeStyle='#CE672D';rc.setLineDash([6,5]);rc.stroke();
       rc.globalCompositeOperation='destination-out';for(const m of this.masks.values())rc.drawImage(m,0,0);this.routeCanvas=route;
@@ -64,11 +64,12 @@ export class LabMap extends PilotMap {
     const position=routePoint(this.overlay.route.points,this.phase);
     if(this.playing&&this.follow){this.center={x:position.xy[0],y:position.xy[1]};this.clamp();}
     const ox=this.w/2-this.center.x*this.scale,oy=this.h/2-this.center.y*this.scale;
-    c.imageSmoothingEnabled=false;c.drawImage(this.images.get(this.mode),ox,oy,this.manifest.width*this.scale,this.manifest.width*this.scale);
+    const background=this.mode==='final'&&this.overlay.landmark?.mode==='independent'?'before':this.mode;
+    c.imageSmoothingEnabled=false;c.drawImage(this.images.get(background),ox,oy,this.manifest.width*this.scale,this.manifest.width*this.scale);
     c.save();c.beginPath();c.rect(ox,oy,this.manifest.width*this.scale,this.manifest.width*this.scale);c.clip();
     if(this.mode==='final')this.living?.drawBackground(c,ox,oy,this.scale,this.selected?.id);
     if(this.showSeams){
-      const n=this.manifest.width,grid=n===2304?[768,1536]:[768];
+      const n=this.manifest.width,grid=n===2304?[768,1536]:n===1024?[]:[768];
       const lines=[...grid.flatMap(x=>[[[x,0],[x,n],'#FF4260'],[[0,x],[n,x],'#FF4260']]),
         ...(this.overlay.generation_edges||[[[896,0],[896,n]],[[0,896],[n,896]]]).map(([a,b])=>[a,b,'#31E1FF'])];
       for(const [a,b,color] of lines){c.strokeStyle=color;c.lineWidth=1.5;c.setLineDash([6,5]);c.beginPath();c.moveTo(ox+a[0]*this.scale,oy+a[1]*this.scale);c.lineTo(ox+b[0]*this.scale,oy+b[1]*this.scale);c.stroke();}c.setLineDash([]);
@@ -85,7 +86,7 @@ export class LabMap extends PilotMap {
       if(this.actorVisible!==false)c.drawImage(actor,ox+(position.xy[0]-24)*this.scale,oy+(position.xy[1]-54)*this.scale,48*this.scale,60*this.scale);
       this.canvas.dataset.actorVisible=String(visible);this.canvas.dataset.actorOccluded=String(total-visible);this.canvas.dataset.segment=String(position.segment);
       if(this.pinsVisible)for(const [i,s] of this.overlay.spots.entries()){
-        if(this.overlay.landmark?.mode==='highlight_only'&&s.id===this.overlay.landmark.id)continue;
+        if(['highlight_only','independent'].includes(this.overlay.landmark?.mode)&&s.id===this.overlay.landmark.id)continue;
         const x=ox+s.xy[0]*this.scale,y=oy+s.xy[1]*this.scale;
         c.fillStyle=this.selected?.id===s.id?'#E8735A':'#F2C14E';c.strokeStyle='#3A2A1E';c.lineWidth=2;c.beginPath();c.arc(x,y,13,0,Math.PI*2);c.fill();c.stroke();
         c.fillStyle='#3A2A1E';c.font='bold 13px monospace';c.textAlign='center';c.fillText(String(i+1),x,y+5);

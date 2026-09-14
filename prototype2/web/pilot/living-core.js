@@ -13,5 +13,5 @@ export function validateLiving(overlay, size={width:1536,height:1536}) {
     for(const o of t.occluders)if(o.polygon.length<3||o.polygon.some(p=>!xy(p)))throw Error('잘못된 차량 가림');
   }
   if(overlay.landmark&&(!overlay.spots.some(s=>s.id===overlay.landmark.id)||!overlay.occluders.some(o=>o.id===overlay.landmark.occluder_id)))throw Error('랜드마크 참조 불일치');
-  if(overlay.landmark?.mode!==undefined&&!['separated','highlight_only'].includes(overlay.landmark.mode))throw Error('랜드마크 모드 불일치');
+  if(overlay.landmark?.mode!==undefined&&!['separated','highlight_only','independent'].includes(overlay.landmark.mode))throw Error('랜드마크 모드 불일치');
 }

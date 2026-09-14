@@ -1,0 +1,24 @@
+{
+  "gwanghwamun": {
+    "capture":"20260914T143347349166Z/gwanghwamun",
+    "approved":true,
+    "review":"Agent native/8x inspection: two-tier roof, pale stone base and three gate openings are visible. Low-resolution wall detail is not surveyed restoration. VWorld-only experimental input; user aesthetic approval pending.",
+    "outline":[[514,584],[517,587],[520,591],[523,597],[526,599],[526,607],[529,615],[490,620],[482,616],[482,608],[478,599],[475,594],[479,591],[499,588]],
+    "holes":[],
+    "context":[440,536,568,664],
+    "anchor":[506,615],
+    "roads":[[579,658],[649,585]],
+    "neighbor_width":[[352,595],[392,612]]
+  },
+  "jongno-tower": {
+    "capture":"20260914T143527940806Z/jongno-tower",
+    "approved":true,
+    "review":"Agent native/3x inspection: detached upper structural volume, open gap beneath and side support structures visible. Background seen through the gap is not part of the landmark. VWorld-only experimental input; user aesthetic approval pending.",
+    "outline":[[498,439],[521,444],[545,454],[550,467],[550,610],[541,616],[515,609],[477,600],[462,591],[461,451],[474,443]],
+    "holes":[[[476,474],[535,486],[535,501],[524,500],[478,486]]],
+    "context":[396,400,620,624],
+    "anchor":[507,608],
+    "roads":[[542,641],[651,497]],
+    "neighbor_width":[[600,406],[634,399]]
+  }
+}

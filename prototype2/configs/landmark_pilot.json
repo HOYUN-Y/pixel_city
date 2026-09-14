@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "size": 1024,
+  "width_m": 800,
+  "camera": {"heading_deg":22.5,"pitch_deg":-30,"range_m":900},
+  "scenes": {
+    "gwanghwamun": {"label":"광화문","lon":126.976971,"lat":37.576032,"source_index_hint":2336,"required_features":["문루 지붕","석축","출입구"]},
+    "jongno-tower": {"label":"종로타워","lon":126.983656,"lat":37.570718,"source_index_hint":3232,"required_features":["떠 있는 상부","상부 아래 빈 공간","지지 구조"]}
+  },
+  "request_limits": {"gwanghwamun_background":1,"gwanghwamun_sprite":1,"gwanghwamun_repair":1,"jongno-tower_background":1,"jongno-tower_sprite":1,"jongno-tower_repair":1},
+  "source_policy":"VWorld first; no inferred principal silhouette. Block unverified scene, continue other reviewed scene. Additional photographs require per-image input-use review.",
+  "geometry_limits":{"road_error_px":8,"neighbor_width_ratio":0.15,"anchor_error_px":4,"landmark_size_ratio":0.05},
+  "style_reference":"eval/vworld/orthographic_lab/runs/20260914T093846326385Z/style.png",
+  "git_handoff":"local branch and commit only; no merge, push or default-map change"
+}
