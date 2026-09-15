@@ -27,6 +27,7 @@ export function validOverlay(data, hash, size={width:1536,height:1536}) {
   if(data.route.playback!==undefined&&!['once','loop'].includes(data.route.playback))throw Error('잘못된 재생 방식');
   const masks=new Set(data.occluders.map(o=>o.id));
   for(const p of data.route.points){if(!xy(p.xy)||(p.behind||[]).some(id=>!masks.has(id)))throw Error('잘못된 경로 또는 가림 참조');}
+  for(const route of Object.values(data.walk_routes||{}))if(!Array.isArray(route.points)||route.points.length<2||route.points.some(p=>!xy(p.xy)||(p.behind||[]).some(id=>!masks.has(id))))throw Error('잘못된 추가 보행 코스');
   for(const o of data.occluders){if(o.polygon.length<3||o.polygon.some(p=>!xy(p)))throw Error('잘못된 가림 윤곽');}
   if(data.generation_edges!==undefined&&(!Array.isArray(data.generation_edges)||data.generation_edges.some(line=>!Array.isArray(line)||line.length!==2||line.some(p=>!xy(p)))))throw Error('잘못된 생성 경계');
   return data;

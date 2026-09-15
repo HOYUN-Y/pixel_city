@@ -9,7 +9,7 @@ export function validateLiving(overlay, size={width:1536,height:1536}) {
   const t=overlay.traffic;
   if(t){
     if(t.lanes.length!==2||!Number.isFinite(t.speed)||t.speed<=0)throw Error('잘못된 차량 설정');
-    for(const l of t.lanes)if(!xy(l.start)||!xy(l.end)||Math.hypot(l.end[0]-l.start[0],l.end[1]-l.start[1])<100||l.offsets.length!==2||l.offsets.some(v=>!Number.isFinite(v)||v<0||v>=1))throw Error('잘못된 차량 경로');
+    for(const l of t.lanes)if(!xy(l.start)||!xy(l.end)||Math.hypot(l.end[0]-l.start[0],l.end[1]-l.start[1])<100||![1,2].includes(l.offsets.length)||l.offsets.some(v=>!Number.isFinite(v)||v<0||v>=1))throw Error('잘못된 차량 경로');
     for(const o of t.occluders)if(o.polygon.length<3||o.polygon.some(p=>!xy(p)))throw Error('잘못된 차량 가림');
   }
   if(overlay.landmark&&(!overlay.spots.some(s=>s.id===overlay.landmark.id)||!overlay.occluders.some(o=>o.id===overlay.landmark.occluder_id)))throw Error('랜드마크 참조 불일치');

@@ -31,21 +31,21 @@ export class LabMap extends PilotMap {
   async setScene(id){
     const token=this.loadToken=(this.loadToken||0)+1;this.ready=false;this.canvas.dataset.scene='';this.setPlaying(false);
     const scene=this.labManifest.scenes[id];if(!scene)throw Error('장면을 찾을 수 없습니다.');
-    const images=new Map();await Promise.all(Object.entries(scene.variants).map(async([key,v])=>{const im=await picture(this.base,v.file,v.sha256);if(im.width!==this.manifest.width||im.height!==this.manifest.width)throw Error('지도 크기 불일치');images.set(key,im);}));
+    const images=new Map();await Promise.all(Object.entries(scene.variants).map(async([key,v])=>{const im=await picture(this.base,v.file,v.sha256);if(im.width!==this.manifest.width||im.height!==this.manifest.height)throw Error('지도 크기 불일치');images.set(key,im);}));
     const response=await fetch(asset(this.base,scene.overlay),{cache:'no-store'});if(!response.ok)throw Error('가림·장소 데이터가 없습니다.');
     const bytes=await response.arrayBuffer(),expected=this.labManifest.overlay_sha256?.[id];
     if(expected){const digest=await crypto.subtle.digest('SHA-256',bytes);if([...new Uint8Array(digest)].map(x=>x.toString(16).padStart(2,'0')).join('')!==expected)throw Error('객체 데이터 해시 불일치');}
     const overlay=validOverlay(JSON.parse(new TextDecoder().decode(bytes)),scene.variants.final.sha256,this.manifest);
     const living=await LivingLayer.load(overlay,this.base,this.labManifest.asset_sha256,picture,this.manifest);
-    if(this.labManifest.kind==='projection-expand')living.trafficPlaying=false;
+    if(['projection-expand','landmark-link'].includes(this.labManifest.kind))living.trafficPlaying=false;
     if(token!==this.loadToken){for(const im of images.values())im.close();living.close();return;}
     this.living?.close();this.living=living;
     for(const im of this.images.values())im.close();
     this.images=images;this.scene=id;this.sceneData=scene;this.overlay=overlay;this.mode='final';this.phase=0;this.selected=null;
-    this.masks=new Map(overlay.occluders.map(o=>{if(overlay.landmark?.mode==='independent'&&o.id===overlay.landmark.occluder_id)return[o.id,living.silhouette];const c=document.createElement('canvas');c.width=c.height=this.manifest.width;const ctx=c.getContext('2d');ctx.beginPath();o.polygon.forEach(([x,y],i)=>i?ctx.lineTo(x,y):ctx.moveTo(x,y));ctx.closePath();ctx.fill();return[o.id,c];}));
+    this.masks=new Map(overlay.occluders.map(o=>{if(overlay.landmark?.mode==='independent'&&o.id===overlay.landmark.occluder_id)return[o.id,living.silhouette];const c=document.createElement('canvas');c.width=this.manifest.width;c.height=this.manifest.height;const ctx=c.getContext('2d');ctx.beginPath();o.polygon.forEach(([x,y],i)=>i?ctx.lineTo(x,y):ctx.moveTo(x,y));ctx.closePath();ctx.fill();return[o.id,c];}));
     this.routeCanvas=null;
     if(['highlight_only','independent'].includes(overlay.landmark?.mode)){
-      const route=document.createElement('canvas');route.width=route.height=this.manifest.width;const rc=route.getContext('2d');
+      const route=document.createElement('canvas');route.width=this.manifest.width;route.height=this.manifest.height;const rc=route.getContext('2d');
       rc.beginPath();overlay.route.points.forEach((p,i)=>i?rc.lineTo(...p.xy):rc.moveTo(...p.xy));rc.lineWidth=3;rc.strokeStyle='#FFF5CB';rc.stroke();rc.lineWidth=1;rc.strokeStyle='#CE672D';rc.setLineDash([6,5]);rc.stroke();
       rc.globalCompositeOperation='destination-out';for(const m of this.masks.values())rc.drawImage(m,0,0);this.routeCanvas=route;
     }
@@ -56,6 +56,11 @@ export class LabMap extends PilotMap {
   focusSpot(id){this.select(id);if(this.selected){this.center={x:this.selected.xy[0],y:this.selected.xy[1]};this.scale=Math.max(this.scale,.75);this.update();}}
   setPlaying(value){this.playing=!!value&&this.mode==='final';this.lastTick=0;if(this.playing){if(this.overlay.route.playback==='once'&&this.phase===1)this.phase=0;this.scale=Math.max(this.scale,this.w<900?1:.75);}this.update();}
   setPhase(value){this.playing=false;this.phase=Math.max(0,Math.min(1,value));this.lastTick=0;if(this.follow){const p=routePoint(this.overlay.route.points,this.phase);this.center={x:p.xy[0],y:p.xy[1]};}this.update();}
+  setRoute(route){
+    this.setPlaying(false);this.overlay.route=route;this.routeCanvas=document.createElement('canvas');this.routeCanvas.width=this.manifest.width;this.routeCanvas.height=this.manifest.height;
+    const c=this.routeCanvas.getContext('2d');c.beginPath();route.points.forEach((p,i)=>i?c.lineTo(...p.xy):c.moveTo(...p.xy));c.lineWidth=3;c.strokeStyle='#FFF5CB';c.stroke();c.lineWidth=1;c.strokeStyle='#CE672D';c.setLineDash([6,5]);c.stroke();
+    c.globalCompositeOperation='destination-out';for(const mask of this.masks.values())c.drawImage(mask,0,0);this.setPhase(0);
+  }
   draw(){
     const c=this.ctx;c.setTransform(this.dpr,0,0,this.dpr,0,0);c.fillStyle='#D9CBA5';c.fillRect(0,0,this.w,this.h);
     if(!this.ready||!this.images?.size)return;
@@ -65,18 +70,19 @@ export class LabMap extends PilotMap {
     if(this.playing&&this.follow){this.center={x:position.xy[0],y:position.xy[1]};this.clamp();}
     const ox=this.w/2-this.center.x*this.scale,oy=this.h/2-this.center.y*this.scale;
     const background=this.mode==='final'&&this.overlay.landmark?.mode==='independent'?'before':this.mode;
-    c.imageSmoothingEnabled=false;c.drawImage(this.images.get(background),ox,oy,this.manifest.width*this.scale,this.manifest.width*this.scale);
-    c.save();c.beginPath();c.rect(ox,oy,this.manifest.width*this.scale,this.manifest.width*this.scale);c.clip();
+    c.imageSmoothingEnabled=false;c.drawImage(this.images.get(background),ox,oy,this.manifest.width*this.scale,this.manifest.height*this.scale);
+    c.save();c.beginPath();c.rect(ox,oy,this.manifest.width*this.scale,this.manifest.height*this.scale);c.clip();
+    if(this.mode==='final')this.living?.sunset?.drawShadow(c,ox,oy,this.scale);
     if(this.mode==='final')this.living?.drawBackground(c,ox,oy,this.scale,this.selected?.id);
     if(this.showSeams){
-      const n=this.manifest.width,grid=n===2304?[768,1536]:n===1024?[]:[768];
+      const n=this.manifest.width,grid=n===2304?[768,1536]:[1024,1792].includes(n)?[]:[768];
       const lines=[...grid.flatMap(x=>[[[x,0],[x,n],'#FF4260'],[[0,x],[n,x],'#FF4260']]),
         ...(this.overlay.generation_edges||[[[896,0],[896,n]],[[0,896],[n,896]]]).map(([a,b])=>[a,b,'#31E1FF'])];
       for(const [a,b,color] of lines){c.strokeStyle=color;c.lineWidth=1.5;c.setLineDash([6,5]);c.beginPath();c.moveTo(ox+a[0]*this.scale,oy+a[1]*this.scale);c.lineTo(ox+b[0]*this.scale,oy+b[1]*this.scale);c.stroke();}c.setLineDash([]);
     }
     if(this.mode==='final'){
       this.living?.drawTraffic(c,ox,oy,this.scale);
-      if(this.routeVisible){if(this.routeCanvas)c.drawImage(this.routeCanvas,ox,oy,this.manifest.width*this.scale,this.manifest.width*this.scale);else{c.strokeStyle='#FFF5CB';c.lineWidth=5;c.beginPath();this.overlay.route.points.forEach((p,i)=>{const x=ox+p.xy[0]*this.scale,y=oy+p.xy[1]*this.scale;i?c.lineTo(x,y):c.moveTo(x,y);});c.stroke();c.strokeStyle='#CE672D';c.lineWidth=2;c.setLineDash([6,5]);c.stroke();c.setLineDash([]);}}
+      if(this.routeVisible){if(this.routeCanvas)c.drawImage(this.routeCanvas,ox,oy,this.manifest.width*this.scale,this.manifest.height*this.scale);else{c.strokeStyle='#FFF5CB';c.lineWidth=5;c.beginPath();this.overlay.route.points.forEach((p,i)=>{const x=ox+p.xy[0]*this.scale,y=oy+p.xy[1]*this.scale;i?c.lineTo(x,y):c.moveTo(x,y);});c.stroke();c.strokeStyle='#CE672D';c.lineWidth=2;c.setLineDash([6,5]);c.stroke();c.setLineDash([]);}}
       const actor=this.actorCanvas,ac=actor.getContext('2d',{willReadFrequently:true});ac.clearRect(0,0,48,60);ac.imageSmoothingEnabled=false;
       const bob=this.playing?Math.round(Math.sin(this.phase*100*Math.PI)):0;
       ac.save();if(position.direction<0){ac.translate(48,0);ac.scale(-1,1);}ac.drawImage(this.sprite,Math.round((48-this.sprite.width)/2),54-this.sprite.height+bob);ac.restore();
@@ -92,6 +98,8 @@ export class LabMap extends PilotMap {
         c.fillStyle='#3A2A1E';c.font='bold 13px monospace';c.textAlign='center';c.fillText(String(i+1),x,y+5);
       }
     }
+    if(this.mode==='final')this.living?.sunset?.drawTint(c,ox,oy,this.scale);
+    this.canvas.dataset.sunset=String(this.living?.sunset?.amount||0);this.canvas.dataset.shadowBuilds=String(this.living?.sunset?.builds||0);
     c.restore();this.canvas.dataset.scene=this.scene;this.canvas.dataset.phase=String(this.phase);this.canvas.dataset.playing=String(this.playing);this.canvas.dataset.selected=this.selected?.id||'';
     this.canvas.dataset.towerVisible=String(this.living.towerVisible);this.canvas.dataset.towerLight=String(this.living.light);this.canvas.dataset.trafficPlaying=String(this.living.trafficPlaying);this.canvas.dataset.trafficTime=String(this.living.seconds);this.canvas.dataset.vehicles=JSON.stringify(this.mode==='final'?this.living.samples||[]:[]);
     this.onChange(this);this.onFrame?.(this);

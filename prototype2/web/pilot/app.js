@@ -3,7 +3,7 @@ import {ObjectMap} from './objects.js';
 import {LabMap} from './lab.js';
 import {bootLab,labPanel} from './lab-ui.js';
 const objectView = new URLSearchParams(location.search).get('view') === 'objects';
-const labView = ['seam-lab','projection-walk','projection-expand','landmark-pilot'].includes(new URLSearchParams(location.search).get('view'));
+const labView = ['seam-lab','projection-walk','projection-expand','landmark-pilot','landmark-link'].includes(new URLSearchParams(location.search).get('view'));
 const projectionView = new URLSearchParams(location.search).get('view') === 'projection-lab';
 const $=s=>document.querySelector(s), mobile=()=>innerWidth<900;
 const definitions={chat:['AI 가이드','#3A2A1E',400,560],feed:['피드','#6FA657',420,560],book:['도감','#8CC5D8',440,520],spot:['명소','#F2C14E',380,600],upload:['올리기','#E8735A',380,600],post:['픽셀 엽서','#8CC5D8',400,480],route:['추천 코스','#6FA657',400,540]};

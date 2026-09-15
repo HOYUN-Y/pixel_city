@@ -1,0 +1,12 @@
+{
+  "capture_run":"20260915T125608086833Z",
+  "source_review":{"approved":true,"reviewer":"agent source inspection before generation","note":"Parallel source aligned with Jongno Tower. Main building masses, streets and overlap visible. Upper connecting street and tower-front road are manual image references, not a navigation network."},
+  "size":[1792,1024],"offsets":{"right":[768,0],"left":[0,0]},"overlap_px":256,
+  "limits":{"right":1,"left":1,"repair":1,"cars":1},
+  "references":{
+    "left":{"roads":[[710,192],[900,252]],"building":[[590,314],[633,295]]},
+    "right":{"roads":[[1347,658],[1417,585]],"building":[[1368,406],[1402,399]]}
+  },
+  "connection":{"road":[[710,192],[900,252]],"walk":[[706,203],[896,263]],"status":"Source-image candidate corridor; generated counterpart must be reviewed before motion approval"},
+  "git_handoff":"local commit only; no merge, push or default map changes"
+}

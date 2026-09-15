@@ -1,3 +1,4 @@
+import {bootSunset} from './sunset.js';
 const $=s=>document.querySelector(s);
 const escape=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
@@ -12,8 +13,8 @@ export function labPanel(map,key){
 }
 
 export async function bootLab(map,json,{open,close,render}){
-  const params=new URLSearchParams(location.search),landmark=params.get('view')==='landmark-pilot',expand=params.get('view')==='projection-expand',walk=landmark||expand||params.get('view')==='projection-walk';
-  const root=new URL(landmark?'../../eval/vworld/landmark_pilot/':expand?'../../eval/vworld/projection_expand/':walk?'../../eval/vworld/projection_walk/':'../../eval/vworld/seam_lab/',location.href);
+  const params=new URLSearchParams(location.search),link=params.get('view')==='landmark-link',landmark=link||params.get('view')==='landmark-pilot',expand=params.get('view')==='projection-expand',walk=landmark||expand||params.get('view')==='projection-walk';
+  const root=new URL(link?'../../eval/vworld/landmark_link/':landmark?'../../eval/vworld/landmark_pilot/':expand?'../../eval/vworld/projection_expand/':walk?'../../eval/vworld/projection_walk/':'../../eval/vworld/seam_lab/',location.href);
   let run=params.get('run');if(!run&&!walk)run=(await json(new URL('current.json',root))).run_id;
   if(!/^\d{8}T\d{12}Z$/.test(run))throw Error('올바르지 않은 시험 실행 ID입니다.');
   const base=new URL(`runs/${run}/`,root),manifest=await json(new URL('manifest.json',base));
@@ -93,5 +94,7 @@ export async function bootLab(map,json,{open,close,render}){
   const pinButton=$('.layers button');pinButton.removeAttribute('data-soon');pinButton.removeAttribute('aria-disabled');pinButton.onclick=()=>{$('#lab-pins').checked=!map.pinsVisible;map.pinsVisible=!map.pinsVisible;map.update();};
   $('#run-report').href=new URL('index.html',base);$('#run-report').hidden=false;
   $('#map-message').hidden=true;$('#map-message').dataset.state='ready';document.body.dataset.tilesReady='true';syncScene();map.update();
+  if(link){bootSunset(map);$('#traffic-controls strong').textContent='경계 횡단 차량 2대';}
   if(landmark){document.title='Pixel City · 독립 랜드마크 시험';$('.pilot-badge').textContent='LANDMARK LAB';$('#map-stage').setAttribute('aria-label','광화문 종로타워 독립 외형 시험');$('#inspection .presets + p').textContent='VWorld 원본 · 배경만 · 독립 외형 합성을 비교합니다. 실제 길찾기가 아닙니다.';map.fit();}else if(expand){document.title='Pixel City · 남산 3×3 확장';$('.pilot-badge').textContent='EXPAND LAB';$('#map-stage').setAttribute('aria-label','남산 도심 확장 시험');map.fit();}else if(walk){map.center={x:800,y:685};map.scale=innerWidth<900?1:.9;map.update();}
+  if(link){document.title='Pixel City · 종로타워 연결·노을';$('.pilot-badge').textContent='LINK LAB';$('#map-stage').setAttribute('aria-label','종로타워 2칸 연결·노을 미리보기');}
 }

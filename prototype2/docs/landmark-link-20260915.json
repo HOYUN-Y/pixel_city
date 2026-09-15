@@ -1,0 +1,839 @@
+{
+  "report": {
+    "run_id": "20260915T130211965290Z",
+    "kind": "landmark-link",
+    "model": "openai/gpt-image-2.5-sunburst",
+    "limits": {
+      "right": 1,
+      "left": 1,
+      "repair": 1,
+      "cars": 1
+    },
+    "request_limit": 4,
+    "requests": [
+      {
+        "group": "right",
+        "name": "right",
+        "status": "complete",
+        "prompt": "Use case: style-transfer. One continuous crisp pixel-art Seoul map. Exact parallel orthographic geometry, heading22.5 elevation30, constant128px per100m at every depth. Image1 is ONLY geometry/layout; Image2 is ONLY pixel style, never its layout. Preserve every road centerline, street width, building footprint, roof direction, facade height and relative size at exact input pixel positions. Soft neutral diffuse daylight suitable for later dynamic sunset overlay. No strong directional cast shadows; faint contact darkening only. No perspective, horizon, distant shrinking, autozoom, invented roads/buildings, humans, cars, farm objects, labels, text or panels. Opaque1024 square. Image3 marks Jongno Tower WHITE: remove that complete tower and its cast shadow, reconstruct ONLY its hidden ground/plaza. Do not replace it with another object. Preserve all surroundings.",
+        "options": {
+          "model": "openai/gpt-image-2.5-sunburst",
+          "n": 1,
+          "quality": "high",
+          "aspect_ratio": "1:1",
+          "background": "opaque",
+          "provider": {
+            "only": [
+              "openai"
+            ],
+            "allow_fallbacks": false
+          }
+        },
+        "reference_sha256": [
+          "6441529cc34babea8bf475ff995401bd5291a3294487c3a14594a8f7e233d715",
+          "333e045eb4457bab4b5d4ad630c0dcac2bed05b51ea0594b9560295b3dfcbb63",
+          "4a1a63866c53d183e3f89c2d7aba6aee03e47dfbe57f3205b99d3a9d30776df7"
+        ],
+        "usage": {
+          "prompt_tokens": 3060,
+          "completion_tokens": 1756,
+          "total_tokens": 4816,
+          "cost": 0.076524,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0.076524,
+            "upstream_inference_prompt_cost": 0.023844,
+            "upstream_inference_completions_cost": 0.05268
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 0,
+            "image_tokens": 1756
+          }
+        },
+        "seconds": 51.183,
+        "raw_storage": "original_response_bytes",
+        "raw_sha256": "67a5a04a7370c460293229edc8285c51ce03770944b811b02a621b8ee4e4f184",
+        "native_size": [
+          1024,
+          1024
+        ]
+      },
+      {
+        "group": "left",
+        "name": "left",
+        "status": "complete",
+        "prompt": "Use case: style-transfer. One continuous crisp pixel-art Seoul map. Exact parallel orthographic geometry, heading22.5 elevation30, constant128px per100m at every depth. Image1 is ONLY geometry/layout; Image2 is ONLY pixel style, never its layout. Preserve every road centerline, street width, building footprint, roof direction, facade height and relative size at exact input pixel positions. Soft neutral diffuse daylight suitable for later dynamic sunset overlay. No strong directional cast shadows; faint contact darkening only. No perspective, horizon, distant shrinking, autozoom, invented roads/buildings, humans, cars, farm objects, labels, text or panels. Opaque1024 square. Image3 contains completed neighbor art in the RIGHT256px. Image4 marks that existing overlap WHITE. Continue every roof and road coherently through the overlap without repositioning or duplicating buildings. Keep exact framing and colors.",
+        "options": {
+          "model": "openai/gpt-image-2.5-sunburst",
+          "n": 1,
+          "quality": "high",
+          "aspect_ratio": "1:1",
+          "background": "opaque",
+          "provider": {
+            "only": [
+              "openai"
+            ],
+            "allow_fallbacks": false
+          }
+        },
+        "reference_sha256": [
+          "591983091975f5552842165a03a18605995474d0627b1f4b1d755a757cfef7ef",
+          "333e045eb4457bab4b5d4ad630c0dcac2bed05b51ea0594b9560295b3dfcbb63",
+          "1ef7b6570108d9cb3e60e7e455598f697a3212fac5bd6dbb0aeb5a723d2ad5e7",
+          "60141fe719d6114224f717a24b47165eb48e63375f306266e892b3ccf0b8cfc0"
+        ],
+        "usage": {
+          "prompt_tokens": 4101,
+          "completion_tokens": 1756,
+          "total_tokens": 5857,
+          "cost": 0.084801,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0.084801,
+            "upstream_inference_prompt_cost": 0.032121,
+            "upstream_inference_completions_cost": 0.05268
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 0,
+            "image_tokens": 1756
+          }
+        },
+        "seconds": 52.72,
+        "raw_storage": "original_response_bytes",
+        "raw_sha256": "e9c5946ac91c2c4d918732b2142c197f3527a34bdcd93fc46e47cb671bddd08d",
+        "native_size": [
+          1024,
+          1024
+        ]
+      }
+    ],
+    "generation_closed": true,
+    "input_sha256": {
+      "traveler.png": "4612c1d8d3b492ac489dcaf774fd60edb322601f99296bb727fcda08d7a75b80",
+      "config.json": "b7a7662f7a35f1d4c381edfa47500bd9a5e391721f915dc27eb5f3147cb74fc2",
+      "jongno-tower_hit.png": "8b721d2062a1f253570ac120c37d41839acfaba6d46c95bfedfb1eed8dbcbb0b",
+      "capture.json": "41315945baf1690ea4d19f114f028ca754609bd565eca27475109d034d1a7e28",
+      "jongno-tower_sprite.png": "9de542adcd2319aefa151036280a8f94b243d9dd9bb077fc5f2c3e7c5048cae0",
+      "parent_overlay.json": "6b10fbe98e60e649b07095e55099f1683f127bf4ba8cd721f7633c61df0edc0f",
+      "source.png": "b989c5150e1fcf9a0ff90b9661d9407ae2b267964c51da8f53eaab1b31e99fce",
+      "jongno-tower_source_mask.png": "44fade64d36040f9a04248b03760268e40f9b4eb93e7997b1626653488ba6800",
+      "style.png": "66e016b75a74c1dd9726bf509eebd710944d3cbc62a48538a48983d49bae3dbe"
+    },
+    "status": "awaiting_user_review",
+    "user_visual_approval": false,
+    "total_cost_usd": 0.161325,
+    "geometry": {
+      "tiles": {
+        "left": {
+          "road_error_px": [
+            null,
+            1
+          ],
+          "neighbor_width_change": null,
+          "passed": false
+        },
+        "right": {
+          "road_error_px": [
+            null,
+            null
+          ],
+          "neighbor_width_change": null,
+          "passed": false
+        }
+      },
+      "passed": false,
+      "note": "Manual image correspondences, not survey/geographic proof"
+    }
+  },
+  "review": {
+    "summary": "종로타워 2칸 연결 후보 · 노을은 수동 2D 근사 · 배경 도로 정합/사용자 미감 미승인 · 실제 길찾기 아님",
+    "seam": [
+      [
+        896,
+        0
+      ],
+      [
+        896,
+        640
+      ],
+      [
+        950,
+        640
+      ],
+      [
+        950,
+        835
+      ],
+      [
+        900,
+        850
+      ],
+      [
+        833,
+        866
+      ],
+      [
+        833,
+        1024
+      ]
+    ],
+    "repair_accepted": false,
+    "references": {
+      "left": {
+        "roads": [
+          null,
+          [
+            900,
+            253
+          ]
+        ],
+        "building": null
+      },
+      "right": {
+        "roads": [
+          null,
+          null
+        ],
+        "building": null
+      }
+    },
+    "receiver": [
+      [
+        [
+          1217,
+          602
+        ],
+        [
+          1231,
+          570
+        ],
+        [
+          1272,
+          552
+        ],
+        [
+          1303,
+          543
+        ],
+        [
+          1324,
+          554
+        ],
+        [
+          1340,
+          572
+        ],
+        [
+          1320,
+          590
+        ],
+        [
+          1304,
+          620
+        ],
+        [
+          1286,
+          649
+        ],
+        [
+          1261,
+          664
+        ],
+        [
+          1231,
+          645
+        ]
+      ],
+      [
+        [
+          1304,
+          543
+        ],
+        [
+          1340,
+          531
+        ],
+        [
+          1351,
+          541
+        ],
+        [
+          1321,
+          560
+        ]
+      ]
+    ],
+    "route": {
+      "title": "종로타워 앞·뒤 가림 시험",
+      "playback": "once",
+      "points": [
+        {
+          "xy": [
+            1217,
+            651
+          ]
+        },
+        {
+          "xy": [
+            1278,
+            631
+          ]
+        },
+        {
+          "xy": [
+            1329,
+            611
+          ]
+        },
+        {
+          "xy": [
+            1329,
+            601
+          ],
+          "behind": [
+            "landmark-body"
+          ]
+        },
+        {
+          "xy": [
+            1276,
+            623
+          ],
+          "behind": [
+            "landmark-body"
+          ]
+        },
+        {
+          "xy": [
+            1223,
+            605
+          ],
+          "behind": [
+            "landmark-body"
+          ]
+        },
+        {
+          "xy": [
+            1210,
+            639
+          ]
+        },
+        {
+          "xy": [
+            1217,
+            651
+          ]
+        }
+      ]
+    },
+    "spots": [
+      {
+        "id": "front",
+        "title": "타워 앞 검수점",
+        "xy": [
+          1265,
+          637
+        ],
+        "description": "독립 외형과 지면 그림자 검수 위치. 실제 관광 동선 아님."
+      },
+      {
+        "id": "back",
+        "title": "타워 뒤 검수점",
+        "xy": [
+          1293,
+          610
+        ],
+        "description": "실제 알파 기반 가림 시험 위치."
+      }
+    ],
+    "connection_route": {
+      "title": "2칸 경계 보도 연결 시험",
+      "playback": "once",
+      "points": [
+        {
+          "xy": [
+            807,
+            228
+          ]
+        },
+        {
+          "xy": [
+            854,
+            248
+          ]
+        },
+        {
+          "xy": [
+            904,
+            269
+          ]
+        },
+        {
+          "xy": [
+            949,
+            289
+          ]
+        }
+      ]
+    },
+    "traffic": {
+      "approved": true,
+      "generate": false,
+      "direction_review": "Reused camera-compatible southeast/northwest car pair, upper connecting street. Diagram-sized car, not real scale. Final lane was corrected from an overly steep candidate to the visible road [812,213]–[950,271]; independent ground/corridor diagnostic recorded.",
+      "assets": {
+        "car_se.png": {
+          "file": "eval/vworld/projection_expand/runs/20260914T131603270823Z/car_se.png",
+          "sha256": "4e3ad0326494a9f73889b3a9e350143766bd2ca0d1bf76e78c0260df72baba45",
+          "box": [
+            0,
+            0,
+            14,
+            8
+          ],
+          "size": [
+            14,
+            9
+          ]
+        },
+        "car_nw.png": {
+          "file": "eval/vworld/projection_expand/runs/20260914T131603270823Z/car_nw.png",
+          "sha256": "22fb0a4c533e6733827a98203b06ad3d72a341c077f9fae4876b1205796c5e99",
+          "box": [
+            0,
+            0,
+            14,
+            8
+          ],
+          "size": [
+            14,
+            9
+          ]
+        }
+      },
+      "overlay": {
+        "speed": 16,
+        "lanes": [
+          {
+            "id": "east",
+            "start": [
+              812,
+              213
+            ],
+            "end": [
+              950,
+              271
+            ],
+            "offsets": [
+              0.15
+            ],
+            "sprite": "car_se.png"
+          },
+          {
+            "id": "west",
+            "start": [
+              948,
+              278
+            ],
+            "end": [
+              810,
+              220
+            ],
+            "offsets": [
+              0.15
+            ],
+            "sprite": "car_nw.png"
+          }
+        ],
+        "occluders": []
+      }
+    },
+    "seam_review": "Hard ownership routed around the complete tall white facade at x815..940/y685..825 and lower white/blue block x840..1020/y870..975. Upper overlap visually close but not all buildings individually audited.",
+    "reference_review": "Audit found road0 left on an open lot, both right markers on/near small building edges, and width endpoints not reliable same-facade spans. Original pre-generation inputs are retained, invalid correspondences remain null; no geographic pass.",
+    "posthoc_geometry": {
+      "purpose": "Diagnostic corridor correspondence selected after generation; not substituted for frozen pre-generation acceptance",
+      "source": [
+        [
+          825,
+          223
+        ],
+        [
+          875,
+          243
+        ],
+        [
+          925,
+          263
+        ]
+      ],
+      "generated": [
+        [
+          825,
+          226
+        ],
+        [
+          875,
+          245
+        ],
+        [
+          925,
+          263
+        ]
+      ],
+      "uncertainty_px": 4,
+      "road_error_px": [
+        3,
+        2,
+        0
+      ],
+      "geographic_validation": false
+    }
+  },
+  "verification": {
+    "technical_passed": true,
+    "requests": 2,
+    "tower_translation_only": true,
+    "geometry": {
+      "tiles": {
+        "left": {
+          "road_error_px": [
+            null,
+            1
+          ],
+          "neighbor_width_change": null,
+          "passed": false
+        },
+        "right": {
+          "road_error_px": [
+            null,
+            null
+          ],
+          "neighbor_width_change": null,
+          "passed": false
+        }
+      },
+      "passed": false,
+      "note": "Manual image correspondences, not survey/geographic proof"
+    },
+    "user_visual_approval": false,
+    "manifest_sha256": "193a3d7093fc278c459017e9d81a44ceb9d9f5beebfaa8ef5012da8157c6e976"
+  },
+  "manifest": {
+    "version": 1,
+    "kind": "landmark-link",
+    "run_id": "20260915T130211965290Z",
+    "width": 1792,
+    "height": 1024,
+    "character": "traveler.png",
+    "asset_sha256": {
+      "source.png": "b989c5150e1fcf9a0ff90b9661d9407ae2b267964c51da8f53eaab1b31e99fce",
+      "before.png": "108cdcefb6c611ef74f71adb27714fab262a58f3d65bfde81050574ce5eb9069",
+      "final.png": "a852b704c196f3648219f1e14ad2db795dbd67e744b85de13e54ef8133c34914",
+      "sprite.png": "76a6a10536deb94ad793d93f5d512e6bc3afd83e6a2cd7f4821d169e0ebdb268",
+      "hit.png": "3cee1cecd5e95cc9bf408cf0b1cf523386233ae87ccbc685236abb4b691dfe97",
+      "receiver.png": "6ed72043600df90c52b193495c140ebb4bce50eea92011adf1793d3b839ad547",
+      "traveler.png": "4612c1d8d3b492ac489dcaf774fd60edb322601f99296bb727fcda08d7a75b80",
+      "car_se.png": "4e3ad0326494a9f73889b3a9e350143766bd2ca0d1bf76e78c0260df72baba45",
+      "car_nw.png": "22fb0a4c533e6733827a98203b06ad3d72a341c077f9fae4876b1205796c5e99"
+    },
+    "overlay_sha256": {
+      "jongno-link": "ef3260ec244827c3c495357f349baa0b5fef34ab9ad28361628e10b034cdccdd"
+    },
+    "scenes": {
+      "jongno-link": {
+        "label": "종로타워 연결·노을",
+        "variants": {
+          "source": {
+            "label": "VWorld 공통 정사영 원본",
+            "file": "source.png",
+            "sha256": "b989c5150e1fcf9a0ff90b9661d9407ae2b267964c51da8f53eaab1b31e99fce"
+          },
+          "before": {
+            "label": "연결 배경만",
+            "file": "before.png",
+            "sha256": "108cdcefb6c611ef74f71adb27714fab262a58f3d65bfde81050574ce5eb9069"
+          },
+          "final": {
+            "label": "종로타워 독립 합성",
+            "file": "final.png",
+            "sha256": "a852b704c196f3648219f1e14ad2db795dbd67e744b85de13e54ef8133c34914"
+          }
+        },
+        "overlay": "overlay.json",
+        "review": "종로타워 2칸 연결 후보 · 노을은 수동 2D 근사 · 배경 도로 정합/사용자 미감 미승인 · 실제 길찾기 아님"
+      }
+    }
+  },
+  "browser_qa": {
+    "passed": true,
+    "manifest_sha256": "193a3d7093fc278c459017e9d81a44ceb9d9f5beebfaa8ef5012da8157c6e976",
+    "errors": [],
+    "external": [],
+    "views": {
+      "desktop": {
+        "pixel_comparisons": [
+          {
+            "identical": true,
+            "shadow_pixels": 0,
+            "outside_receiver": 0
+          },
+          {
+            "identical": true,
+            "shadow_pixels": 561,
+            "outside_receiver": 0
+          },
+          {
+            "identical": true,
+            "shadow_pixels": 547,
+            "outside_receiver": 0
+          },
+          {
+            "identical": true,
+            "shadow_pixels": 0,
+            "outside_receiver": 0
+          }
+        ],
+        "occlusion_samples": 101,
+        "partial_and_full_occlusion": true,
+        "traffic_samples": 61,
+        "void_click": true
+      },
+      "tablet": {
+        "pixel_comparisons": [
+          {
+            "identical": true,
+            "shadow_pixels": 0,
+            "outside_receiver": 0
+          },
+          {
+            "identical": true,
+            "shadow_pixels": 561,
+            "outside_receiver": 0
+          },
+          {
+            "identical": true,
+            "shadow_pixels": 547,
+            "outside_receiver": 0
+          },
+          {
+            "identical": true,
+            "shadow_pixels": 0,
+            "outside_receiver": 0
+          }
+        ],
+        "occlusion_samples": 101,
+        "partial_and_full_occlusion": true,
+        "traffic_samples": 61,
+        "void_click": false
+      },
+      "mobile": {
+        "pixel_comparisons": [
+          {
+            "identical": true,
+            "shadow_pixels": 0,
+            "outside_receiver": 0
+          },
+          {
+            "identical": true,
+            "shadow_pixels": 561,
+            "outside_receiver": 0
+          },
+          {
+            "identical": true,
+            "shadow_pixels": 547,
+            "outside_receiver": 0
+          },
+          {
+            "identical": true,
+            "shadow_pixels": 0,
+            "outside_receiver": 0
+          }
+        ],
+        "occlusion_samples": 101,
+        "partial_and_full_occlusion": true,
+        "traffic_samples": 61,
+        "void_click": false
+      },
+      "mobile3": {
+        "pixel_comparisons": [
+          {
+            "identical": true,
+            "shadow_pixels": 0,
+            "outside_receiver": 0
+          },
+          {
+            "identical": true,
+            "shadow_pixels": 561,
+            "outside_receiver": 0
+          },
+          {
+            "identical": true,
+            "shadow_pixels": 547,
+            "outside_receiver": 0
+          },
+          {
+            "identical": true,
+            "shadow_pixels": 0,
+            "outside_receiver": 0
+          }
+        ],
+        "occlusion_samples": 101,
+        "partial_and_full_occlusion": true,
+        "traffic_samples": 61,
+        "void_click": false
+      }
+    },
+    "real_time_playback_seconds": 60,
+    "geographic_validation": false,
+    "physical_shadow_validation": false
+  },
+  "capture": {
+    "run_id": "20260915T125608086833Z",
+    "size": [
+      1792,
+      1024
+    ],
+    "parent_offset": [
+      768,
+      0
+    ],
+    "width_m": 1400,
+    "visual_approved": false,
+    "ai_requests": 0,
+    "key_persisted": false,
+    "source": "국토교통부 / VWorld",
+    "validation": {
+      "passed": true,
+      "max_alignment_error_px": 5.961737770121545e-10,
+      "reference_100m_px": [
+        127.99999999970203,
+        128.0000000002981,
+        128.00000000059617
+      ]
+    },
+    "files": {
+      "source.png": "b989c5150e1fcf9a0ff90b9661d9407ae2b267964c51da8f53eaab1b31e99fce"
+    },
+    "final_sample": {
+      "viewport": [
+        1792,
+        1024
+      ],
+      "drawing_buffer": [
+        1792,
+        1024
+      ],
+      "orthographic": true,
+      "width": 1400,
+      "matrix": [
+        0.0014285714285714286,
+        0,
+        0,
+        0,
+        0,
+        0.0025,
+        0,
+        0,
+        0,
+        0,
+        -0.00020002000200020003,
+        0,
+        0,
+        0,
+        -1.0002000200020003,
+        1
+      ],
+      "position": [
+        -3045035.982319983,
+        4044254.962308738,
+        3867648.6871084734
+      ],
+      "direction": [
+        0.26716122183089314,
+        -0.9056440758560039,
+        0.3292927108466708
+      ],
+      "up": [
+        -0.39633732394691856,
+        0.20820817884508486,
+        0.8941845893933806
+      ],
+      "expected": {
+        "position": [
+          -3045035.982319983,
+          4044254.962308738,
+          3867648.6871084734
+        ],
+        "direction": [
+          0.2671612218308931,
+          -0.9056440758560038,
+          0.32929271084667106
+        ],
+        "up": [
+          -0.39633732394691906,
+          0.20820817884508674,
+          0.8941845893933797
+        ]
+      },
+      "lengths": [
+        127.99999999970203,
+        128.0000000002981,
+        128.00000000059617
+      ],
+      "east_screen": [
+        0.9238795325112875,
+        -0.1913417161825452
+      ],
+      "alignment_errors": [
+        2.979732016683556e-10,
+        0,
+        0,
+        5.960600901744328e-10,
+        5.961737770121545e-10,
+        0,
+        2.979732016683556e-10,
+        2.9808688850607723e-10,
+        2.97859514830634e-10
+      ],
+      "tiles_loaded": true,
+      "cesium_version": "1.99"
+    }
+  },
+  "extra_artifact_sha256": {
+    "sunset.png": "2b60cb7ac79012c957a4e14d90a95e2854a992ae42fcc1bb13d61dd66d06c699",
+    "ownership.png": "83f8ee8ccceeba9f02f8a37eb2f1ef1edc7c88becab87c34b942116df90777a7",
+    "review.json": "0d5db0115d583aaf820944f1ca03e1ec950a1c26438b3f24c0a807c4ec4ebf32",
+    "capture.json": "41315945baf1690ea4d19f114f028ca754609bd565eca27475109d034d1a7e28"
+  },
+  "tests": {
+    "python_unittest": 118,
+    "node_contract_suites": 7,
+    "real_asset_browser": "4 viewports; full canvas comparisons; day/sunset buttons; shadow checkbox; connection walk; real 60s traffic",
+    "legacy_browser_passed": [
+      "landmark_pilot",
+      "projection_expand",
+      "projection_walk",
+      "living"
+    ],
+    "known_failed_invocations": "Initial Node command used nonexistent test_viewer.mjs; two legacy browser commands omitted --run. Corrected invocations passed.",
+    "geographic_acceptance": false,
+    "physical_shadow_acceptance": false
+  },
+  "handoff": {
+    "branch": "feat/prototype2-landmark-link",
+    "parent_commit": "b30e0c1",
+    "merge": false,
+    "push": false,
+    "default_map_changed": false,
+    "excluded": [
+      "README.md",
+      "docs/planning/",
+      "scripts/"
+    ]
+  }
+}
