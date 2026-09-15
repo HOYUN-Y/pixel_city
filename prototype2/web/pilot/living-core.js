@@ -17,6 +17,8 @@ export function validateLiving(overlay, size={width:1536,height:1536}) {
   if(overlay.landmarks!==undefined&&(!Array.isArray(overlay.landmarks)||overlay.landmark))throw Error('랜드마크 형식 중복');
   const ids=new Set(), masks=new Set();
   for(const l of landmarks(overlay)){
+    if(l.reveal_only!==undefined&&typeof l.reveal_only!=='boolean')throw Error('가림 해제 형식 불일치');
+    if(l.reveal_only&&overlay.reveal?.targetId!==l.id)throw Error('가림 해제 대상 누락');
     if(ids.has(l.id)||masks.has(l.occluder_id)||!overlay.spots.some(s=>s.id===l.id)||!overlay.occluders.some(o=>o.id===l.occluder_id))throw Error('랜드마크 참조 불일치');
     if(l.mode!==undefined&&!['separated','highlight_only','independent'].includes(l.mode))throw Error('랜드마크 모드 불일치');
     if(overlay.landmarks&&l.mode!=='independent')throw Error('복수 랜드마크는 독립 모드만 지원');

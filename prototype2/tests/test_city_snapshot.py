@@ -43,4 +43,13 @@ class CitySnapshotTest(unittest.TestCase):
                     self.assertNotIn('/Users/',p.read_text());self.assertNotIn('hoyun0131.pro@gmail.com',p.read_text())
             with self.assertRaises(ValueError):city_release.stage(dest)
 
+    def test_user_decision_is_not_rights_approval(self):
+        if not city.DEST.exists(): self.skipTest('snapshot not built')
+        with tempfile.TemporaryDirectory() as tmp:
+            decision=Path(tmp)/'decision.json'
+            city.write(decision,{'userAuthorized':True,'rightsVerified':False,
+                'finalSha256':city.sha(city.DEST/'final.png'),'acknowledgement':'Pilot requested; rights unresolved'})
+            dest=Path(tmp)/'release';city_release.stage(dest,decision=decision)
+            self.assertEqual(city.read(dest/'release-rights.json'),{'approved':False,'userDirectedPilot':True,'rightsVerified':False})
+
 if __name__=='__main__':unittest.main()

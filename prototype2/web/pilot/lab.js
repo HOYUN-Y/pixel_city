@@ -3,6 +3,7 @@ import {routePoint,routePhase,hitSpot,validOverlay} from './lab-core.js';
 import {LivingLayer} from './living.js';
 import {labSize} from './lab-size.js';
 import {landmarks} from './living-core.js';
+import {RevealLayer} from './reveal.js';
 
 function asset(base,file){if(!/^[a-zA-Z0-9_./-]+$/.test(file)||file.includes('..')||file.startsWith('/'))throw Error('잘못된 에셋 경로');return new URL(file,base);}
 async function picture(base,file,expected){
@@ -18,7 +19,7 @@ export class LabMap extends PilotMap {
     this.actorCanvas=document.createElement('canvas');this.actorCanvas.width=48;this.actorCanvas.height=60;
     canvas.addEventListener('pointerdown',e=>{if(this.pointers.size>1)this.clickStart=null;else this.clickStart={x:e.clientX,y:e.clientY};});
     canvas.addEventListener('pointermove',e=>{if(this.clickStart&&Math.hypot(e.clientX-this.clickStart.x,e.clientY-this.clickStart.y)>5)this.clickStart=null;});
-    canvas.addEventListener('pointerup',e=>{if(!this.clickStart||!this.ready||this.mode!=='final')return;this.clickStart=null;const r=canvas.getBoundingClientRect(),p=this.world(e.clientX-r.left,e.clientY-r.top);const spots=(this.overlay?.spots||[]).filter(s=>!landmarks(this.overlay).some(l=>['highlight_only','independent'].includes(l.mode)&&s.id===l.id));this.select(this.living?.hit(p)||(this.pinsVisible?hitSpot(spots,p,this.scale)?.id:null)||null);});
+    canvas.addEventListener('pointerup',e=>{if(!this.clickStart||!this.ready||this.mode!=='final')return;this.clickStart=null;const r=canvas.getBoundingClientRect(),p=this.world(e.clientX-r.left,e.clientY-r.top);const spots=(this.overlay?.spots||[]).filter(s=>!landmarks(this.overlay).some(l=>['highlight_only','independent'].includes(l.mode)&&s.id===l.id));this.select(this.reveal?.hit(p)||this.living?.hit(p)||(this.pinsVisible?hitSpot(spots,p,this.scale)?.id:null)||null);});
     canvas.addEventListener('pointercancel',()=>this.clickStart=null);
     canvas.addEventListener('keydown',e=>{if(e.key==='Escape')this.select(null);});
     document.addEventListener('visibilitychange',()=>{this.lastTick=0;if(this.living)this.living.lastTick=0;if(!document.hidden)this.update();});
@@ -38,9 +39,10 @@ export class LabMap extends PilotMap {
     if(expected){const digest=await crypto.subtle.digest('SHA-256',bytes);if([...new Uint8Array(digest)].map(x=>x.toString(16).padStart(2,'0')).join('')!==expected)throw Error('객체 데이터 해시 불일치');}
     const overlay=validOverlay(JSON.parse(new TextDecoder().decode(bytes)),scene.variants.final.sha256,this.manifest);
     const living=await LivingLayer.load(overlay,this.base,this.labManifest.asset_sha256,picture,this.manifest);
+    let reveal;try{reveal=await RevealLayer.load(overlay.reveal,this.base,this.labManifest.asset_sha256,picture,this.manifest,living);}catch(e){living.close();throw e;}
     if(['projection-expand','landmark-link'].includes(this.labManifest.kind))living.trafficPlaying=false;
     if(token!==this.loadToken){for(const im of images.values())im.close();living.close();return;}
-    this.living?.close();this.living=living;
+    this.living?.close();this.living=living;this.reveal=reveal;
     for(const im of this.images.values())im.close();
     this.images=images;this.scene=id;this.sceneData=scene;this.overlay=overlay;this.mode='final';this.phase=0;this.selected=null;
     this.masks=new Map(overlay.occluders.map(o=>{const shape=living.silhouetteFor(o.id);if(shape)return[o.id,shape];const c=document.createElement('canvas');c.width=this.manifest.width;c.height=this.manifest.height;const ctx=c.getContext('2d');ctx.beginPath();o.polygon.forEach(([x,y],i)=>i?ctx.lineTo(x,y):ctx.moveTo(x,y));ctx.closePath();ctx.fill();return[o.id,c];}));
@@ -48,19 +50,19 @@ export class LabMap extends PilotMap {
     if(landmarks(overlay).some(l=>['highlight_only','independent'].includes(l.mode))){
       const route=document.createElement('canvas');route.width=this.manifest.width;route.height=this.manifest.height;const rc=route.getContext('2d');
       rc.beginPath();overlay.route.points.forEach((p,i)=>i?rc.lineTo(...p.xy):rc.moveTo(...p.xy));rc.lineWidth=3;rc.strokeStyle='#FFF5CB';rc.stroke();rc.lineWidth=1;rc.strokeStyle='#CE672D';rc.setLineDash([6,5]);rc.stroke();
-      rc.globalCompositeOperation='destination-out';for(const m of this.masks.values())rc.drawImage(m,0,0);this.routeCanvas=route;
+      rc.globalCompositeOperation='destination-out';for(const [id,m] of this.masks)if(living.occluderEnabled(id))rc.drawImage(m,0,0);this.routeCanvas=route;
     }
     this.ready=true;this.update();this.onScene?.(scene);this.onSelection?.(null);
   }
   setMode(mode){if(!this.images.has(mode))return;this.mode=mode;if(mode!=='final'){this.setPlaying(false);if(this.living)this.living.trafficPlaying=false;this.select(null);}this.update();}
-  select(id){this.selected=this.overlay?.spots.find(s=>s.id===id)||null;this.onSelection?.(this.selected);this.update();}
+  select(id){if(this.reveal&&id!==this.reveal.data.targetId)this.reveal.set(false);this.selected=this.overlay?.spots.find(s=>s.id===id)||null;this.onSelection?.(this.selected);this.update();}
   focusSpot(id){this.select(id);if(this.selected){this.center={x:this.selected.xy[0],y:this.selected.xy[1]};this.scale=Math.max(this.scale,.75);this.update();}}
   setPlaying(value){this.playing=!!value&&this.mode==='final';this.lastTick=0;if(this.playing){if(this.overlay.route.playback==='once'&&this.phase===1)this.phase=0;this.scale=Math.max(this.scale,this.w<900?1:.75);}this.update();}
   setPhase(value){this.playing=false;this.phase=Math.max(0,Math.min(1,value));this.lastTick=0;if(this.follow){const p=routePoint(this.overlay.route.points,this.phase);this.center={x:p.xy[0],y:p.xy[1]};}this.update();}
   setRoute(route){
     this.setPlaying(false);this.overlay.route=route;this.routeCanvas=document.createElement('canvas');this.routeCanvas.width=this.manifest.width;this.routeCanvas.height=this.manifest.height;
     const c=this.routeCanvas.getContext('2d');c.beginPath();route.points.forEach((p,i)=>i?c.lineTo(...p.xy):c.moveTo(...p.xy));c.lineWidth=3;c.strokeStyle='#FFF5CB';c.stroke();c.lineWidth=1;c.strokeStyle='#CE672D';c.setLineDash([6,5]);c.stroke();
-    c.globalCompositeOperation='destination-out';for(const mask of this.masks.values())c.drawImage(mask,0,0);this.setPhase(0);
+    c.globalCompositeOperation='destination-out';for(const [id,mask] of this.masks)if(this.living.occluderEnabled(id))c.drawImage(mask,0,0);this.setPhase(0);
   }
   draw(){
     const c=this.ctx;c.setTransform(this.dpr,0,0,this.dpr,0,0);c.fillStyle='#D9CBA5';c.fillRect(0,0,this.w,this.h);
@@ -75,6 +77,7 @@ export class LabMap extends PilotMap {
     c.save();c.beginPath();c.rect(ox,oy,this.manifest.width*this.scale,this.manifest.height*this.scale);c.clip();
     if(this.mode==='final')this.living?.sunset?.drawShadow(c,ox,oy,this.scale);
     if(this.mode==='final')this.living?.drawBackground(c,ox,oy,this.scale,this.selected?.id);
+    if(this.mode==='final')this.reveal?.draw(c,ox,oy,this.scale,now,this.selected?.id);
     if(this.showSeams){
       const n=this.manifest.width,grid=n===2304?[768,1536]:[1024,1792].includes(n)?[]:[768];
       const lines=[...grid.flatMap(x=>[[[x,0],[x,n],'#FF4260'],[[0,x],[n,x],'#FF4260']]),
@@ -103,7 +106,8 @@ export class LabMap extends PilotMap {
     this.canvas.dataset.sunset=String(this.living?.sunset?.amount||0);this.canvas.dataset.shadowBuilds=String(this.living?.sunset?.builds||0);
     c.restore();this.rain?.draw(c,this.w,this.h,now);this.canvas.dataset.scene=this.scene;this.canvas.dataset.phase=String(this.phase);this.canvas.dataset.playing=String(this.playing);this.canvas.dataset.selected=this.selected?.id||'';
     this.canvas.dataset.towerVisible=String(this.living.towerVisible);this.canvas.dataset.towerLight=String(this.living.light);this.canvas.dataset.trafficPlaying=String(this.living.trafficPlaying);this.canvas.dataset.trafficTime=String(this.living.seconds);this.canvas.dataset.vehicles=JSON.stringify(this.mode==='final'?this.living.samples||[]:[]);
+    this.canvas.dataset.reveal=String(this.reveal?.active||false);this.canvas.dataset.revealAmount=String(this.reveal?.amount||0);
     this.onChange(this);this.onFrame?.(this);
-    if((this.playing||trafficMoving||this.rain?.moving)&&!document.hidden&&!this.tickTimer)this.tickTimer=setTimeout(()=>{this.tickTimer=0;this.update();},33);
+    if((this.playing||trafficMoving||this.rain?.moving||this.reveal?.moving)&&!document.hidden&&!this.tickTimer)this.tickTimer=setTimeout(()=>{this.tickTimer=0;this.update();},33);
   }
 }

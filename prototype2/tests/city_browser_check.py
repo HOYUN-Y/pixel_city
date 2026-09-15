@@ -21,6 +21,22 @@ def check(url, dest):
             assert page.locator('[data-city-place^="landmark-"]').count()==8
             page.locator('[data-city-place="landmark-6"]').click()
             assert '보신각' in page.locator('.panel-content').last.inner_text()
+            if page.locator('[data-city-reveal]').count():
+                assert page.locator('#map').get_attribute('data-reveal')=='false'
+                page.locator('[data-city-reveal]').click()
+                page.wait_for_function('()=>Number(document.querySelector("#map").dataset.revealAmount)===1')
+                page.screenshot(path=str(dest/(name+'_bosingak.png')))
+                if width<900:
+                    page.locator('.sheet-tabs [data-open="book"]').click()
+                    page.locator('[data-city-place="landmark-6"]').click()
+                assert 'AI 재구성' in page.locator('.panel-content').last.inner_text()
+                page.locator('[data-reveal-opacity="0.25"]').click()
+                page.locator('[data-city-reveal]').click()
+                page.wait_for_function('()=>Number(document.querySelector("#map").dataset.revealAmount)===0')
+                assert page.locator('#map').get_attribute('data-reveal')=='false'
+                if width<900:
+                    page.locator('.sheet-tabs [data-open="book"]').click()
+                    page.locator('[data-city-place="landmark-6"]').click()
             page.locator('[data-collect]').click()
             assert page.evaluate('JSON.parse(localStorage.getItem("pixel-city.collection.v1"))').count('landmark-6')==1
             page.reload();page.wait_for_selector('body[data-city-ready="true"]')
@@ -59,8 +75,24 @@ def check(url, dest):
               const after=[l.hit({x:15,y:15}),l.hit({x:35,y:15}),l.occluderEnabled('ma'),l.occluderEnabled('mb')];l.close();return {hits,after};
             }''')
             assert result=={'hits':['a','b',None],'after':[None,'b',False,True]},result
+            reveal=page.evaluate('''async()=>{
+              const {RevealLayer}=await import(new URL('./reveal.js',document.querySelector('script[type="module"]').src));
+              const size={width:16,height:16},make=()=>Object.assign(document.createElement('canvas'),size);
+              const hit=new Uint8ClampedArray(16*16*4);hit[(8*16+8)*4]=255;
+              const layer=new RevealLayer({targetId:'b'},make(),hit,size);layer.patch=make();layer.outline=make();
+              const pc=layer.patch.getContext('2d');pc.fillStyle='#0000ff';pc.fillRect(6,6,4,4);
+              const c=make(),ctx=c.getContext('2d'),sample=()=>Array.from(ctx.getImageData(8,8,1,1).data);
+              const reset=()=>{ctx.fillStyle='#ff0000';ctx.fillRect(0,0,16,16);};
+              reset();layer.draw(ctx,0,0,1,0,null);const normal=sample(),hiddenHit=layer.hit({x:8,y:8});
+              layer.set(true);layer.amount=1;reset();layer.draw(ctx,0,0,1,1,null);
+              const blend=sample(),outside=Array.from(ctx.getImageData(0,0,1,1).data),visibleHit=layer.hit({x:8,y:8}),emptyHit=layer.hit({x:1,y:1});
+              layer.set(false);layer.amount=0;reset();layer.draw(ctx,0,0,1,2,null);return{normal,hiddenHit,blend,outside,visibleHit,emptyHit,restored:sample(),moving:layer.moving};
+            }''')
+            assert reveal['normal']==reveal['restored']==reveal['outside']==[255,0,0,255],reveal
+            assert reveal['hiddenHit'] is None and reveal['visibleHit']=='b' and reveal['emptyHit'] is None and not reveal['moving'],reveal
+            assert abs(reveal['blend'][0]-115)<=1 and abs(reveal['blend'][2]-140)<=1,reveal
             assert not errors,errors
-            results.append({'viewport':name,'errors':errors,'paidRequests':0,'mockGuideRequests':len(posts),'collection':True,'search':True,'rain':True,'zoom':True,'multipleAlphaMasks':True})
+            results.append({'viewport':name,'errors':errors,'paidRequests':0,'mockGuideRequests':len(posts),'collection':True,'search':True,'rain':True,'zoom':True,'multipleAlphaMasks':True,'revealBlendRestoreHit':True})
             ctx.close()
         browser.close()
     (dest/'browser_qa.json').write_text(json.dumps(results,indent=2));print(json.dumps(results))

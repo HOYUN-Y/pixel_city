@@ -31,7 +31,7 @@ export class LivingLayer {
       return layer;
     }catch(e){layer.close();throw e;}
   }
-  constructor(overlay){this.data=overlay;this.children=[];this.images=new Map();this.masks=[];this.towerVisible=true;this.light=false;this.trafficVisible=true;this.trafficPlaying=!!overlay.traffic&&!matchMedia('(prefers-reduced-motion: reduce)').matches;this.seconds=0;this.lastTick=0;this.scratch=canvas(64,64);}
+  constructor(overlay){this.data=overlay;this.children=[];this.images=new Map();this.masks=[];this.towerVisible=!overlay.landmark?.reveal_only;this.light=false;this.trafficVisible=true;this.trafficPlaying=!!overlay.traffic&&!matchMedia('(prefers-reduced-motion: reduce)').matches;this.seconds=0;this.lastTick=0;this.scratch=canvas(64,64);}
   close(){for(const child of this.children)child.close();for(const im of this.images.values())im.close();this.images.clear();}
   silhouetteFor(id){return this.children.find(c=>c.data.landmark.occluder_id===id)?.silhouette || (this.data.landmark?.mode==='independent'&&this.data.landmark.occluder_id===id?this.silhouette:null);}
   hit(p){if(!this.towerVisible)return null;for(const child of [...this.children].reverse()){const id=child.hit(p);if(id)return id;}return p.x>=0&&p.y>=0&&p.x<this.size.width&&p.y<this.size.height&&this.hitPixels?.[(Math.floor(p.y)*this.size.width+Math.floor(p.x))*4]>=128?this.data.landmark.id:null;}
