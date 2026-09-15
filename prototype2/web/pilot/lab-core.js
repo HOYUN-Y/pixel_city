@@ -23,7 +23,7 @@ export function validOverlay(data, hash, size={width:1536,height:1536}) {
   const ids=new Set();
   const xy=p=>Array.isArray(p)&&p.length===2&&p.every((v,i)=>Number.isFinite(v)&&v>=0&&v<=[size.width,size.height][i]);
   for(const s of data.spots){if(ids.has(s.id)||!xy(s.xy))throw Error('잘못된 장소 데이터');ids.add(s.id);}
-  if(data.spots.length!==3||data.route.points.length<2)throw Error('불완전한 시험 코스');
+  if(!data.spots.length||data.route.points.length<2)throw Error('불완전한 시험 코스');
   if(data.route.playback!==undefined&&!['once','loop'].includes(data.route.playback))throw Error('잘못된 재생 방식');
   const masks=new Set(data.occluders.map(o=>o.id));
   for(const p of data.route.points){if(!xy(p.xy)||(p.behind||[]).some(id=>!masks.has(id)))throw Error('잘못된 경로 또는 가림 참조');}

@@ -6,6 +6,11 @@ function canvas(w=1536,h=1536){const c=document.createElement('canvas');c.width=
 export class LivingLayer {
   static async load(overlay,base,hashes,picture,size={width:1536,height:1536}){
     validateLiving(overlay,size);const layer=new LivingLayer(overlay);layer.size=size;const w=size.width,h=size.height,worldCanvas=()=>canvas(w,h);
+    if(overlay.landmarks){
+      try{
+        for(const landmark of overlay.landmarks){const child={...overlay,landmark};delete child.landmarks;delete child.traffic;delete child.sunset;layer.children.push(await LivingLayer.load(child,base,hashes,picture,size));}
+      }catch(e){layer.close();throw e;}
+    }
     const files=new Set(overlay.traffic?.lanes.map(l=>l.sprite)||[]);
     const mode=overlay.landmark?.mode;
     const keys=mode==='highlight_only'?['hit']:mode==='independent'?['sprite','hit']:['background','sprite','hit','light'];
@@ -26,16 +31,19 @@ export class LivingLayer {
       return layer;
     }catch(e){layer.close();throw e;}
   }
-  constructor(overlay){this.data=overlay;this.images=new Map();this.masks=[];this.towerVisible=true;this.light=false;this.trafficVisible=true;this.trafficPlaying=!!overlay.traffic&&!matchMedia('(prefers-reduced-motion: reduce)').matches;this.seconds=0;this.lastTick=0;this.scratch=canvas(64,64);}
-  close(){for(const im of this.images.values())im.close();this.images.clear();}
-  hit(p){return this.towerVisible&&p.x>=0&&p.y>=0&&p.x<this.size.width&&p.y<this.size.height&&this.hitPixels?.[(Math.floor(p.y)*this.size.width+Math.floor(p.x))*4]>=128?this.data.landmark.id:null;}
-  occluderEnabled(id){return !(this.data.landmark?.occluder_id===id&&!this.towerVisible);}
+  constructor(overlay){this.data=overlay;this.children=[];this.images=new Map();this.masks=[];this.towerVisible=true;this.light=false;this.trafficVisible=true;this.trafficPlaying=!!overlay.traffic&&!matchMedia('(prefers-reduced-motion: reduce)').matches;this.seconds=0;this.lastTick=0;this.scratch=canvas(64,64);}
+  close(){for(const child of this.children)child.close();for(const im of this.images.values())im.close();this.images.clear();}
+  silhouetteFor(id){return this.children.find(c=>c.data.landmark.occluder_id===id)?.silhouette || (this.data.landmark?.mode==='independent'&&this.data.landmark.occluder_id===id?this.silhouette:null);}
+  hit(p){if(!this.towerVisible)return null;for(const child of [...this.children].reverse()){const id=child.hit(p);if(id)return id;}return p.x>=0&&p.y>=0&&p.x<this.size.width&&p.y<this.size.height&&this.hitPixels?.[(Math.floor(p.y)*this.size.width+Math.floor(p.x))*4]>=128?this.data.landmark.id:null;}
+  setLandmarkVisible(id,visible){const layer=this.children.find(c=>c.data.landmark.id===id)||(this.data.landmark?.id===id?this:null);if(layer)layer.towerVisible=!!visible;}
+  occluderEnabled(id){const child=this.children.find(c=>c.data.landmark.occluder_id===id);if(child)return this.towerVisible&&child.occluderEnabled(id);return !(this.data.landmark?.occluder_id===id&&!this.towerVisible);}
   advance(now,active){const moving=active&&!document.hidden&&this.trafficVisible&&this.trafficPlaying&&!!this.data.traffic;if(moving&&this.lastTick)this.seconds+=Math.min(100,now-this.lastTick)/1000;this.lastTick=moving?now:0;return moving;}
   drawBackground(c,ox,oy,scale,selected){
+    if(this.towerVisible)for(const child of this.children)child.drawBackground(c,ox,oy,scale,selected);
     const l=this.data.landmark;if(!l)return;
     const draw=im=>c.drawImage(im,ox,oy,this.size.width*scale,this.size.height*scale);
     if(l.mode==='highlight_only'){if(selected===l.id)draw(this.outline);return;}
-    if(l.mode==='independent'){draw(this.images.get(l.sprite));if(selected===l.id)draw(this.outline);return;}
+    if(l.mode==='independent'){if(this.towerVisible){draw(this.images.get(l.sprite));if(selected===l.id)draw(this.outline);}return;}
     draw(this.images.get(l.background));if(this.towerVisible){draw(this.images.get(l.sprite));if(this.light)draw(this.images.get(l.light));if(selected===l.id)draw(this.outline);}
   }
   drawTraffic(c,ox,oy,scale){

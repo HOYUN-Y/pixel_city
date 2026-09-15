@@ -25,3 +25,12 @@ html,body{width:100%;height:100%}
 #object-card .actions{gap:5px}#object-card .actions button{font-size:11px;padding:6px 8px}
 @media(max-width:899px){#object-summary{left:14px;right:14px;font-size:9px;line-height:1.8}}
 @media(max-width:899px){#object-card{right:68px;left:14px;bottom:155px;max-width:none;padding:10px}#object-card small{display:none}}
+/* Feedback beta: retain the original floating-window design. */
+.city-controls{position:fixed;left:50%;bottom:110px;transform:translateX(-50%);display:flex;gap:6px;z-index:4;background:#fbf3e4;padding:8px;border:2px solid #3a2a1e;box-shadow:3px 3px #3a2a1e}
+.city-controls button{white-space:nowrap;padding:7px;font-size:12px}
+.city-place{text-align:left;margin:8px 0;padding:12px}.city-place small,.city-messages small{display:block;margin-top:8px;font-size:11px;line-height:1.5}
+.city-messages .bubble{white-space:pre-wrap;margin:12px 0;overflow-wrap:anywhere}.city-user{background:#dce8cd!important}
+.panel-content a{color:#325d72;text-decoration:underline}.panel-content h2{margin:12px 0}.panel-content p{line-height:1.65}
+body[data-city-ready="true"] .toolbar .daytime{display:none}
+body[data-city-ready="true"] .mobile-time{font-size:10px;white-space:nowrap;min-width:58px;width:auto;padding:7px}
+@media(max-width:899px){.city-controls{bottom:105px;max-width:calc(100vw - 20px);flex-wrap:wrap;justify-content:center;width:max-content}.city-controls button{font-size:11px;padding:5px}.toolbar-right>button[data-rain]{font-size:11px}}

@@ -9,3 +9,6 @@ web/data/generated/
 # third-party pixels; keep them out of source control.
 eval/vworld
 eval/object_pilot/
+assets/city_pilot/
+.vercel/
+.env*
