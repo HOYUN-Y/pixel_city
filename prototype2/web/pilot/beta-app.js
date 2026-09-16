@@ -1,11 +1,11 @@
 // Public entry: no run selector, source viewer, raw asset links or debug zoom.
-import {LabMap} from './lab.js';
+import {DenseMap} from './dense-map.js';
 import {bootCity} from './city.js';
 const $=s=>document.querySelector(s), mobile=()=>innerWidth<900;
 const titles={chat:'AI 가이드',book:'서울 픽셀 도감',places:'주변 장소',spot:'명소',feed:'피드',upload:'올리기'};
 let active=null,opener=null;
 const toast=text=>{$('#toast').textContent=text||'준비 중인 기능입니다. 전송하거나 저장하지 않습니다.';$('#toast').hidden=false;setTimeout(()=>$('#toast').hidden=true,3000);};
-const map=new LabMap($('#map'),m=>{
+const map=new DenseMap($('#map'),m=>{
   $('#zoom-label').textContent=Math.round(m.scale*100)+'%';$('#zoom-in').disabled=!m.ready||m.scale>=m.maxScale;$('#zoom-out').disabled=!m.ready||m.scale<=m.minScale;
   const w=m.manifest?.width||1792,h=m.manifest?.height||1024,x=Math.max(0,m.center.x-m.w/(2*m.scale)),y=Math.max(0,m.center.y-m.h/(2*m.scale));
   $('#mini-viewport').style.cssText=`left:${x/w*100}%;top:${y/h*100}%;width:${Math.max(0,Math.min(w,m.center.x+m.w/(2*m.scale))-x)/w*100}%;height:${Math.max(0,Math.min(h,m.center.y+m.h/(2*m.scale))-y)/h*100}%`;

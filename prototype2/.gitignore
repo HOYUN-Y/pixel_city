@@ -10,5 +10,6 @@ web/data/generated/
 eval/vworld
 eval/object_pilot/
 assets/city_pilot/
+assets/city_dense/
 .vercel/
 .env*

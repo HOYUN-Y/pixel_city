@@ -43,15 +43,17 @@ export async function bootCity(map,json,{open,close,render,toast}){
   },true);
   if($('#inspection'))$('#inspection').hidden=true;$('#map-message').hidden=true;$('#map-message').dataset.state='ready';
   $('.brand .region').textContent='광화문 · 종로';$('.search small').textContent='· 자료 기반';$('#map-stage').setAttribute('aria-label','광화문·종로 픽셀 지도');
-  $('#mini-image').src=new URL('final.png',base);$('.minimap span').textContent='JONGNO · PIXEL CITY';$('.pilot-badge').textContent='FEEDBACK BETA';
+  $('#mini-image').src=new URL(manifest.minimap||manifest.preview||'final.png',base);$('.minimap span').textContent=map.dense?'SEOUL · PIXEL CITY':'JONGNO · PIXEL CITY';$('.pilot-badge').textContent='FEEDBACK BETA';
+  if(map.dense){$('.brand .region').textContent='경복궁 · 광화문 · 종각';$('#map-stage').setAttribute('aria-label','경복궁·광화문·종각 고밀도 픽셀 지도');}
   $('.daytime').hidden=true;const rain=$('.toolbar-right > button');rain.removeAttribute('data-soon');rain.removeAttribute('aria-disabled');rain.textContent='☂ 날씨 미리보기: 꺼짐';rain.setAttribute('aria-label','날씨 미리보기 변경');
   const levels=['off','light','heavy'],labels=['꺼짐','약한 비','강한 비'];
   const mobileRain=$('.mobile-time');mobileRain.removeAttribute('data-soon');mobileRain.removeAttribute('aria-disabled');mobileRain.setAttribute('aria-label','날씨 미리보기 변경');mobileRain.textContent='☂ 꺼짐';
   rain.onclick=mobileRain.onclick=()=>{const i=(levels.indexOf(map.rain.level)+1)%3;map.rain.set(levels[i]);for(const button of [rain,mobileRain]){button.textContent='☂ '+labels[i];button.dataset.rain=levels[i];}map.update();};
   const controls=document.createElement('div');controls.className='city-controls';controls.innerHTML='<button data-open="places">주변 장소</button><button id="city-traffic">차량 일시정지</button><button id="city-road">차량 구간 보기</button><button id="city-walk">보행 시험</button>';
   $('#map-stage').append(controls);
+  if(map.dense){const nav=document.createElement('nav');nav.className='city-landmarks';nav.setAttribute('aria-label','지도 명소 바로가기');nav.innerHTML=[['gwanghwamun','광화문'],['bosingak','보신각'],['jongno-tower','종로타워']].map(([id,label])=>`<button data-city-focus="${id}">${label}</button>`).join('');$('#map-stage').append(nav);}
   $('#city-traffic').textContent=map.living.trafficPlaying?'차량 일시정지':'차량 재생';$('#city-traffic').onclick=()=>{map.living.trafficPlaying=!map.living.trafficPlaying;$('#city-traffic').textContent=map.living.trafficPlaying?'차량 일시정지':'차량 재생';map.update();};
-  $('#city-road').onclick=()=>{map.center={x:880,y:245};map.zoom(1);};
+  $('#city-road').onclick=()=>{const p=map.dense?map.overlay.traffic.focus:[880,245];map.zoom(1);map.center={x:p[0],y:p[1]};map.update();};
   $('#city-walk').onclick=()=>{map.actorVisible=!map.actorVisible;map.routeVisible=map.actorVisible;map.setPlaying(map.actorVisible);$('#city-walk').textContent=map.actorVisible?'보행 중지':'보행 시험';};
   $('#attribution').textContent='국토교통부 / VWorld 기반 AI 재해석 · 관광 정보: 한국관광공사 TourAPI · 실제 길찾기 아님';
   document.body.dataset.tilesReady='true';document.body.dataset.cityReady='true';document.title='Pixel City · 종로 산책';render();map.update();

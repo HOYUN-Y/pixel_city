@@ -3,6 +3,7 @@
 배포 환경·서버 환경변수·운영 절차는 [DEPLOYMENT.md](DEPLOYMENT.md)에 정리한다.
 가려진 보신각의 반투명 표시 후속 계획은 [보신각 가림 해제 Plan](planning/bosingak-occlusion.md)을 참고한다.
 공개 사이트: **https://pixel-city-beta-six.vercel.app** (production, 로그인 없이 접근 가능).
+후속 [1.65㎢ 고밀도 확장](DENSE_CITY.md)은 별도 진행 중이며, 검증 완료 전에는 이 공개본을 유지한다.
 
 ## 확인하기
 
