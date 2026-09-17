@@ -1,6 +1,7 @@
 import sys
 import tempfile
 import unittest
+from unittest.mock import patch
 from pathlib import Path
 from PIL import Image
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'scripts'))
@@ -41,5 +42,16 @@ class DenseSnapshotTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             src=Path(tmp)/'source';d=fixture(src);d['acceptance']['geometryPassed']=False;write(src/'delivery.json',d)
             with self.assertRaisesRegex(ValueError,'acceptance'):dense.export(src,Path(tmp)/'export')
+
+    def test_review_snapshot_preserves_failed_gates_and_cannot_deploy(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root=Path(tmp);src=root/'source';d=fixture(src)
+            d['testFixture']=False;d['acceptance']['geometryPassed']=False;write(src/'delivery.json',d)
+            with patch.object(dense,'P2',root):
+                with self.assertRaisesRegex(ValueError,'local work'):dense.export(src,root/'outside',review_only=True)
+                dest=root/'work/review';dense.export(src,dest,review_only=True)
+            self.assertTrue(read(dest/'manifest.json')['reviewOnly'])
+            self.assertFalse(read(dest/'build.json')['acceptance']['geometryPassed'])
+            with self.assertRaisesRegex(ValueError,'Review-only'):city_release.stage(root/'release',snapshot=dest)
 
 if __name__=='__main__':unittest.main()

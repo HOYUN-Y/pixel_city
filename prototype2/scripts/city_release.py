@@ -22,6 +22,7 @@ def stage(dest, approval=None, decision=None, snapshot=DEST):
     dense=manifest.get('kind')=='city-dense-pilot'
     if dense:
         if manifest.get('testFixture'): raise ValueError('Diagnostic fixtures cannot be deployed')
+        if manifest.get('reviewOnly'): raise ValueError('Review-only snapshots cannot be deployed')
         from dense_snapshot import GATES
         build=json.loads((snapshot / 'build.json').read_text())
         if not all(build.get('acceptance',{}).get(k) is True for k in GATES): raise ValueError('Dense release acceptance incomplete')

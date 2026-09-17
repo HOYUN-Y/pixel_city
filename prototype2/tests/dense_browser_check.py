@@ -12,7 +12,7 @@ sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'scripts'))
 from dense_snapshot import export
 from city_snapshot import P2
 
-def check(dest,snapshot=None):
+def check(dest,snapshot=None,full_regression=False):
     dest.mkdir(parents=True,exist_ok=True)
     source=dest/'source';public=snapshot.resolve() if snapshot else dest/'assets'
     if not snapshot and not public.exists():fixture(source);export(source,public)
@@ -60,9 +60,30 @@ def check(dest,snapshot=None):
                 page.screenshot(path=str(dest/f'{width}_tower.png'))
                 page.locator('#city-road').click();page.locator('#city-traffic').click()
                 before_time=float(page.locator('#map').get_attribute('data-traffic-time'))
+                before_cars=json.loads(page.locator('#map').get_attribute('data-vehicles'))
+                page.screenshot(path=str(dest/f'{width}_traffic_start.png'))
                 page.wait_for_function('(t)=>Number(document.querySelector("#map").dataset.trafficTime)>t',arg=before_time)
+                crossing=None
+                if manifest.get('reviewOnly'):
+                    page.wait_for_function('(t)=>Number(document.querySelector("#map").dataset.trafficTime)>=t+8',arg=before_time)
+                    after_time=float(page.locator('#map').get_attribute('data-traffic-time'))
+                    after_cars=json.loads(page.locator('#map').get_attribute('data-vehicles'))
+                    assert len(before_cars)==len(after_cars)==2
+                    distances=[((a['xy'][0]-b['xy'][0])**2+(a['xy'][1]-b['xy'][1])**2)**.5 for a,b in zip(after_cars,before_cars)]
+                    assert all(abs(d/(after_time-before_time)-32)<1 for d in distances),distances
+                    crossing=any(int(a['xy'][0]//768)!=int(b['xy'][0]//768) for a,b in zip(after_cars,before_cars))
+                    assert crossing,'Vehicle did not cross a generation-core boundary'
                 page.screenshot(path=str(dest/f'{width}_traffic.png'))
                 page.locator('#city-traffic').click()
+                for _ in range(6):
+                    if page.locator('#zoom-in').is_disabled():break
+                    page.locator('#zoom-in').click()
+                assert float(page.locator('#map').get_attribute('data-scale'))==1
+                assert page.locator('#zoom-in').is_disabled()
+                for _ in range(10):
+                    if page.locator('#zoom-out').is_disabled():break
+                    page.locator('#zoom-out').click()
+                assert 0<float(page.locator('#map').get_attribute('data-scale'))<.5
                 page.locator('#fit').click();page.screenshot(path=str(dest/f'{width}_whole.png'))
                 # Newly requested unavailable tiles must not make the map unusable or retry forever.
                 page.route('**/tiles/**',lambda route:route.fulfill(status=503,body='offline'))
@@ -72,13 +93,17 @@ def check(dest,snapshot=None):
                 page.wait_for_function('()=>document.querySelector("#map").dataset.tilePending==="0"')
                 before=page.locator('#map').get_attribute('data-tile-requests');page.wait_for_timeout(250)
                 assert page.locator('#map').get_attribute('data-tile-requests')==before
+                assert int(page.locator('#map').get_attribute('data-tile-failed'))>0,'Failure fallback was not exercised'
                 assert page.locator('body').get_attribute('data-city-ready')=='true'
                 assert not posts and not errors,(posts,errors)
-                results.append({'viewport':[width,height],'testFixture':is_fixture,'cache':int(page.locator('#map').get_attribute('data-tile-cache')),'failedTiles':int(page.locator('#map').get_attribute('data-tile-failed')),'errors':errors,'paidCalls':0,'navigationRevealFallback':True,'trafficAdvances':True})
+                results.append({'viewport':[width,height],'testFixture':is_fixture,'reviewOnly':bool(manifest.get('reviewOnly')),'cache':int(page.locator('#map').get_attribute('data-tile-cache')),'failedTiles':int(page.locator('#map').get_attribute('data-tile-failed')),'errors':errors,'paidCalls':0,'navigationRevealFallback':True,'trafficAdvances':True,'trafficCrossesCore':crossing,'zoomLimit100Percent':True})
                 page.close()
             browser.close()
+        if full_regression:
+            from city_browser_check import check as city_check
+            city_check(f'http://127.0.0.1:{server.server_port}/',dest/'city-regression')
     finally:server.shutdown();server.server_close()
     (dest/'browser_qa.json').write_text(json.dumps(results,indent=2));print(json.dumps(results))
 
 if __name__=='__main__':
-    p=argparse.ArgumentParser();p.add_argument('--dest',type=Path,required=True);p.add_argument('--snapshot',type=Path);a=p.parse_args();check(a.dest,a.snapshot)
+    p=argparse.ArgumentParser();p.add_argument('--dest',type=Path,required=True);p.add_argument('--snapshot',type=Path);p.add_argument('--full-regression',action='store_true');a=p.parse_args();check(a.dest,a.snapshot,a.full_regression)

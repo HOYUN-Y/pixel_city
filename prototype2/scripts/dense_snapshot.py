@@ -7,10 +7,12 @@ from city_snapshot import P2, DEST, read, write, sha
 
 GATES = ('capturePassed','firstPairPassed','geometryPassed','seamsPassed','landmarksPassed')
 
-def export(source, dest):
+def export(source, dest, *, review_only=False):
     d=read(source/'delivery.json')
     if (d.get('width'),d.get('height'))!=(4608,3072): raise ValueError('Dense scope changed')
-    if not all(d.get('acceptance',{}).get(k) is True for k in GATES): raise ValueError('Dense release acceptance incomplete')
+    if review_only:
+        if (P2/'work').resolve() not in dest.resolve().parents: raise ValueError('Review snapshots must stay in local work directory')
+    elif not all(d.get('acceptance',{}).get(k) is True for k in GATES): raise ValueError('Dense release acceptance incomplete')
     if dest.exists(): raise ValueError('Use a new output directory; never overwrite a delivered snapshot')
     def src(name):
         p=(source/name).resolve()
@@ -63,12 +65,12 @@ def export(source, dest):
         l['mapSpotId']=next((id for id,name in names.items() if l['name']==name),None)
         if l['name']=='보신각':l['geometryStatus']='estimated'
     write(dest/'places.json',data)
-    manifest={'version':1,'kind':'city-dense-pilot','run_id':d['run_id'],'testFixture':bool(d.get('testFixture')),'width':4608,'height':3072,
+    manifest={'version':1,'kind':'city-dense-pilot','run_id':d['run_id'],'testFixture':bool(d.get('testFixture')),'reviewOnly':review_only,'width':4608,'height':3072,
               'tile_size':512,'levels':[.25,.5,1],'preview':'preview.png','minimap':'minimap.png','overlay':'overlay.json','character':'traveler.png',
               'initialView':{'center':next(l['anchor'] for l in landmarks if l['id']=='gwanghwamun'),'scale':.5},
               'asset_sha256':{str(p.relative_to(dest)):sha(p) for p in sorted(dest.rglob('*')) if p.is_file()}}
     write(dest/'manifest.json',manifest)
-    write(dest/'build.json',{'acceptance':d['acceptance'],'deliverySha256':sha(source/'delivery.json'),'publicRightsApproved':False})
+    write(dest/'build.json',{'acceptance':d['acceptance'],'reviewOnly':review_only,'deliverySha256':sha(source/'delivery.json'),'publicRightsApproved':False})
     return {'files':len(manifest['asset_sha256']),'manifestSha256':sha(dest/'manifest.json')}
 
 if __name__=='__main__':
