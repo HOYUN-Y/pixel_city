@@ -109,14 +109,18 @@ def init():
     return folder
 
 
-def paid(folder, report, key, group, name, prompt, references, transparent=False, limits=None):
+def paid(folder, report, key, group, name, prompt, references, transparent=False, limits=None,
+         reserved_failures=None):
     limits = LIMITS if limits is None else limits
     requests = report['requests']
     if len(requests) >= sum(limits.values()) or sum(r['group'] == group for r in requests) >= limits[group]:
         raise ValueError('Approved request budget exhausted')
     if any(r['name'] == name for r in requests):
         raise ValueError('Already attempted; never retry')
-    if any(r['status'] != 'complete' for r in requests):
+    reserved_failures = reserved_failures or {}
+    if any(r['status'] != 'complete' and not (
+            r['status'] == 'failed' and reserved_failures.get(r['name']) == .75
+            and (r.get('usage') or {}).get('cost') is None) for r in requests):
         raise ValueError('Previous request failed or billing is unresolved')
     for i, im in enumerate(references):
         im.save(folder / f'{name}_ref{i}.png')
@@ -130,6 +134,9 @@ def paid(folder, report, key, group, name, prompt, references, transparent=False
     try:
         result = api.request_json('/images', key, {**options, 'prompt': prompt,
                                   'input_references': [api.reference(im) for im in references]})
+        generation_id = api.safe_generation_id(result.get('id'))
+        if generation_id:
+            entry['generation_id'] = generation_id
         entry['usage'] = result.get('usage'); entry['seconds'] = round(time.monotonic() - started, 3)
         entries = result.get('data', [])
         if len(entries) != 1:
@@ -146,8 +153,15 @@ def paid(folder, report, key, group, name, prompt, references, transparent=False
         entry['status'] = 'complete'
         print(json.dumps({'asset': name, 'requests': len(requests), 'seconds': entry['seconds'], 'usage': entry['usage']}), flush=True)
         return raw
-    except (Exception, KeyboardInterrupt):
+    except (Exception, KeyboardInterrupt) as exc:
         entry['status'] = 'failed'; report['status'] = 'failed'
+        entry['seconds'] = round(time.monotonic() - started, 3)
+        # Do not persist exception messages, response bodies, credentials or URLs.
+        entry['error'] = {'type': type(exc).__name__, 'billing_requires_verification': True}
+        if isinstance(exc, api.RequestFailure):
+            entry['error']['http_status'] = exc.http_status
+            if exc.generation_id:
+                entry['generation_id'] = exc.generation_id
         raise RuntimeError('Request/output failed. No retry. Original retained; verify billing before continuing.') from None
     finally:
         costs = [(r.get('usage') or {}).get('cost') for r in requests]

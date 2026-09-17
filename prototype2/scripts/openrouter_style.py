@@ -5,6 +5,7 @@ import html
 import io
 import json
 import os
+import re
 import shutil
 import time
 import urllib.error
@@ -26,6 +27,18 @@ class NoRedirect(urllib.request.HTTPRedirectHandler):
         return None  # Never forward authorization or images to another URL.
 
 
+def safe_generation_id(value):
+    """Keep only provider generation identifiers, never arbitrary response text."""
+    return value if isinstance(value, str) and re.fullmatch(r'gen-[A-Za-z0-9_-]{1,160}', value) else None
+
+
+class RequestFailure(RuntimeError):
+    def __init__(self, message, *, http_status=None, generation_id=None):
+        super().__init__(message)
+        self.http_status = http_status
+        self.generation_id = safe_generation_id(generation_id)
+
+
 def request_json(path, key, payload=None):
     req = urllib.request.Request(API + path, headers={"Authorization": f"Bearer {key}",
                                  "Content-Type": "application/json"},
@@ -37,9 +50,11 @@ def request_json(path, key, payload=None):
             raise ValueError("Response exceeds 64 MiB")
         return json.loads(data)
     except urllib.error.HTTPError as exc:
-        raise RuntimeError(f"OpenRouter HTTP {exc.code}; no automatic retry") from None
+        raise RequestFailure(f"OpenRouter HTTP {exc.code}; no automatic retry",
+                             http_status=exc.code,
+                             generation_id=exc.headers.get('x-generation-id') if exc.headers else None) from None
     except urllib.error.URLError:
-        raise RuntimeError("OpenRouter network error; billing status may be unknown; no retry") from None
+        raise RequestFailure("OpenRouter network error; billing status may be unknown; no retry") from None
 
 
 def validate_capabilities(data):

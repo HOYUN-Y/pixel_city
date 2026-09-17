@@ -57,6 +57,37 @@ class SeamLabTest(unittest.TestCase):
             self.assertTrue((folder / 'a_raw.png').is_file())
             self.assertEqual(report['total_cost_usd'], .01)
 
+    def test_failure_records_safe_diagnostics_without_retry(self):
+        failure = lab.api.RequestFailure('secret response body', http_status=503,
+                                         generation_id='gen-123-example')
+        with tempfile.TemporaryDirectory() as tmp, patch.object(lab.api, 'request_json', side_effect=failure) as call:
+            folder = Path(tmp); report = {'requests': []}
+            with self.assertRaises(RuntimeError):
+                lab.paid(folder, report, 'secret', 'downtown', 'a', 'test', [])
+            entry = report['requests'][0]
+            self.assertEqual(entry['error']['http_status'], 503)
+            self.assertEqual(entry['generation_id'], 'gen-123-example')
+            self.assertIsNone(report['total_cost_usd'])
+            self.assertNotIn('secret', (folder / 'report.json').read_text())
+            with self.assertRaises(ValueError):
+                lab.paid(folder, report, 'secret', 'downtown', 'b', 'test', [])
+            self.assertEqual(call.call_count, 1)
+
+    def test_generation_id_rejects_arbitrary_content(self):
+        for value in (None, {}, 'https://example.com/secret', 'gen-123\nsecret', 'gen-' + 'a' * 161):
+            self.assertIsNone(lab.api.safe_generation_id(value))
+        self.assertEqual(lab.api.safe_generation_id('gen-123-abc'), 'gen-123-abc')
+
+    def test_reserved_historical_failure_does_not_exempt_new_failure(self):
+        with tempfile.TemporaryDirectory() as tmp, patch.object(lab.api, 'request_json', side_effect=RuntimeError('offline')) as call:
+            report = {'requests': [{'group': 'downtown', 'name': 'old', 'status': 'failed'}]}
+            with self.assertRaises(RuntimeError):
+                lab.paid(Path(tmp), report, 'key', 'downtown', 'new', 'test', [], reserved_failures={'old': .75})
+            with self.assertRaises(ValueError):
+                lab.paid(Path(tmp), report, 'key', 'downtown', 'next', 'test', [], reserved_failures={'old': .75})
+            self.assertEqual(call.call_count, 1)
+            self.assertIsNone(report['total_cost_usd'])
+
     def test_true_alpha_survives_response(self):
         im = Image.new('RGBA', (1024, 1024), (0, 0, 0, 0)); im.paste((240, 80, 30, 255), (400, 300, 600, 700))
         encoded = lab.api.reference(im)['image_url']['url'].split(',')[1]
