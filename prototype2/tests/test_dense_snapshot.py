@@ -26,6 +26,42 @@ def fixture(source):
     write(source/'delivery.json',data);return data
 
 class DenseSnapshotTest(unittest.TestCase):
+    def setUp(self):
+        self.assets=tempfile.TemporaryDirectory();self.addCleanup(self.assets.cleanup)
+        root=Path(self.assets.name)
+        for name in ['traveler.png','car_se.png','car_nw.png']:Image.new('RGBA',(16,16),'white').save(root/name)
+        write(root/'places.json',{'landmarks':[{'id':str(i),'name':name} for i,name in enumerate(['광화문','보신각','종로타워','미연결'])],'places':[]})
+        mocked=patch.object(dense,'DEST',root);mocked.start();self.addCleanup(mocked.stop)
+
+    def test_auto_foreground_and_visual_results_preserved(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            src=Path(tmp)/'source';d=fixture(src)
+            Image.new('L',(100,100),255).save(src/'foreground.png')
+            d['reveal'].update(auto=True,foregroundMask='foreground.png')
+            d['visualAcceptance']={'userVisualApproval':False}
+            write(src/'delivery.json',d);dest=Path(tmp)/'export';dense.export(src,dest)
+            self.assertTrue(read(dest/'overlay.json')['reveal']['auto'])
+            self.assertIn('bosingak_foreground.png',read(dest/'manifest.json')['asset_sha256'])
+            self.assertFalse(read(dest/'build.json')['visualAcceptance']['userVisualApproval'])
+    def test_traffic_occlusion_mask_export(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            src=Path(tmp)/'source';d=fixture(src)
+            Image.new('L',(20,30),255).save(src/'traffic.png')
+            d['traffic']['occluders']=[{'id':'building','rect':[100,100,20,30],'mask':'traffic.png','lanes':['east']}]
+            write(src/'delivery.json',d);dest=Path(tmp)/'export';dense.export(src,dest)
+            item=read(dest/'overlay.json')['traffic']['occluders'][0]
+            self.assertEqual(item['mask'],'traffic_occlusion_0.png')
+            self.assertEqual(sha(src/'traffic.png'),read(dest/'manifest.json')['asset_sha256'][item['mask']])
+
+    def test_bad_traffic_occlusion_rejected(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            src=Path(tmp)/'source';d=fixture(src)
+            Image.new('L',(20,30),255).save(src/'traffic.png')
+            d['traffic']['occluders']=[{'id':'building','rect':[100,100,21,30],'mask':'traffic.png','lanes':['east']}]
+            write(src/'delivery.json',d)
+            with self.assertRaisesRegex(ValueError,'traffic mask'):dense.export(src,Path(tmp)/'bad-size')
+            d['traffic']['occluders'][0]['lanes']=['missing'];write(src/'delivery.json',d)
+            with self.assertRaisesRegex(ValueError,'placement'):dense.export(src,Path(tmp)/'bad-lane')
     def test_tile_export_contract_and_fixture_deployment_block(self):
         with tempfile.TemporaryDirectory() as tmp:
             src=Path(tmp)/'source';fixture(src);dest=Path(tmp)/'export';dense.export(src,dest)

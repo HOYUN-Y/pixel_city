@@ -11,7 +11,7 @@ export function compose(size, ground, groundDepth, objects, {mode = 'ai', hidden
   const ids = new Uint32Array(size * size);
   for (const object of objects) {
     if (hidden.has(object.id)) continue;
-    const source = mode === 'source' ? object.basePixels : object.spritePixels;
+    const source = mode === 'source' ? object.basePixels : mode === 'previous' && object.previousPixels ? object.previousPixels : object.spritePixels;
     const [width, height] = object.size, [left, top] = object.xy;
     for (let y = 0; y < height; y++) for (let x = 0; x < width; x++) {
       const from = y * width + x, px = left + x, py = top + y;

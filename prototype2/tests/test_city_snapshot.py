@@ -13,7 +13,7 @@ class CitySnapshotTest(unittest.TestCase):
         self.assertEqual(city.plain('a'*20, 5), 'aaaaa')
 
     def test_collected_data_and_source_immutable(self):
-        if not city.SOURCE.exists(): self.skipTest('local TourAPI collection unavailable')
+        if not city.SOURCE.exists() or not (city.RUN/'manifest.json').exists(): self.skipTest('local TourAPI collection/map run unavailable')
         hashes={f:city.sha(city.SOURCE/f) for f in ['manifest.json','places.json','landmarks.json']}
         old_manifest=city.sha(city.RUN/'manifest.json')
         with tempfile.TemporaryDirectory() as tmp:

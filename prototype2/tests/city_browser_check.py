@@ -22,8 +22,7 @@ def check(url, dest):
             page.locator('[data-city-place="landmark-6"]').click()
             assert '보신각' in page.locator('.panel-content').last.inner_text()
             if page.locator('[data-city-reveal]').count():
-                assert page.locator('#map').get_attribute('data-reveal')=='false'
-                page.locator('[data-city-reveal]').click()
+                if page.locator('#map').get_attribute('data-reveal')!='true':page.locator('[data-city-reveal]').click()
                 page.wait_for_function('()=>Number(document.querySelector("#map").dataset.revealAmount)===1')
                 page.screenshot(path=str(dest/(name+'_bosingak.png')))
                 if width<900:

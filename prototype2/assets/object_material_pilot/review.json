@@ -1,0 +1,23 @@
+{
+  "date": "2026-09-19",
+  "reviewer": "agent",
+  "user_visual_approval": false,
+  "geometry_status": "18 objects: identical alpha, encoded depth, placement and base geometry; unchanged ground",
+  "visual_status": "comparison_candidate_not_ready_for_map_replacement",
+  "observations": [
+    "All six raw materials, full three-way comparison and representative modern/timber crops inspected.",
+    "The modern wall output has strong warm yellow masonry-like framing despite the cool-glass/cream-mullion prompt; material type separation is weaker than intended.",
+    "At 512-square scene resolution a 3m bay spans only a few pixels. Repeated windows and point-sampled fine detail look dense and noisy, especially on the tall buildings.",
+    "The old isolated 4485 AI candidate has a more authored roof and facade. The new material version cannot be claimed visually superior.",
+    "Timber ceramic material changes the roof appearance but cannot improve the existing simplified flat/extruded roof geometry.",
+    "The old orange ground repetition remains deliberately unchanged and limits the overall scene aesthetic."
+  ],
+  "limitations": [
+    "Creative material families and 3m/2.5m bay heights are not measured facade styles or floor counts.",
+    "No doors, new roof volumes, vegetation, terrain slopes, landmarks, vehicles or shadows added.",
+    "Internal raster invariance is not survey accuracy or proof of city-scale performance."
+  ],
+  "next_gate": "User visual review before any extra paid generation, Jongno application, expansion or production replacement.",
+  "calls": 6,
+  "cost_usd": 0.360595
+}

@@ -3,6 +3,14 @@ __pycache__/
 *.pyc
 .venv/
 
+# Local credentials and installed agent tooling (preserved on disk).
+.env
+.env.*
+!.env.example
+.vercel/
+.agents/
+skills-lock.json
+
 # prototype1 — 수집 캐시 (재생성 가능)
 prototype1/poc/gf_*.json
 prototype1/poc/cache_*

@@ -6,6 +6,10 @@ assert.ok(a.xy.every(v=>Math.abs(v-140)<1e-8));assert.ok(b.xy.every(v=>Math.abs(
 assert.equal(vehiclePosition(lane,0,0).alpha,0);
 assert.ok(vehiclePosition(lane,10,.1).xy[0]>a.xy[0]);
 assert.equal(vehiclePosition(lane,Math.hypot(400,400)/28,0).alpha,0);
+const bent={points:[[0,0],[30,0],[30,40]]};
+assert.ok(vehiclePosition(bent,5,0,10).xy.every((v,i)=>Math.abs(v-[30,20][i])<1e-8));
+assert.equal(vehiclePosition(bent,7,0,10).alpha,0);
+assert.deepEqual(vehiclePosition({points:[[2,3],[2,3]]},0,0).xy,[2,3]);
 validateLiving({});
 assert.throws(()=>validateLiving({traffic:{lanes:[lane],speed:28,occluders:[]}}));
 assert.throws(()=>validateLiving({landmark:{id:'x'},spots:[],occluders:[]}));

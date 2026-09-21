@@ -18,6 +18,16 @@ export function hitSpot(spots, point, scale) {
   return [...spots].reverse().find(s=>Math.hypot((s.xy[0]-point.x)*scale,(s.xy[1]-point.y)*scale)<=22)||null;
 }
 
+export function polygonHit(polygon, {x,y}) {
+  let inside=false;
+  for(let i=0,j=polygon.length-1;i<polygon.length;j=i++){
+    const [ax,ay]=polygon[j],[bx,by]=polygon[i];
+    if(Math.abs((x-ax)*(by-ay)-(y-ay)*(bx-ax))<1e-8&&x>=Math.min(ax,bx)&&x<=Math.max(ax,bx)&&y>=Math.min(ay,by)&&y<=Math.max(ay,by))return true;
+    if((ay>y)!==(by>y)&&x<(bx-ax)*(y-ay)/(by-ay)+ax)inside=!inside;
+  }
+  return inside;
+}
+
 export function validOverlay(data, hash, size={width:1536,height:1536}) {
   if(data.image_sha256!==hash)throw Error('장소·가림 데이터가 선택한 이미지와 맞지 않습니다.');
   const ids=new Set();

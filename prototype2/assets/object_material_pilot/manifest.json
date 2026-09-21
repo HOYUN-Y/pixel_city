@@ -1,0 +1,1855 @@
+{
+  "version": 1,
+  "kind": "object_pilot",
+  "status": "awaiting_user_review",
+  "run_id": "object-material-pilot",
+  "width": 1536,
+  "height": 1536,
+  "art_pixel": 3,
+  "camera": {
+    "size": 512,
+    "scale": 0.8177959524373848,
+    "cx": 908.0868679144944,
+    "cy": 218.49479744092474,
+    "alpha_deg": 22.5,
+    "phi_deg": 30.0
+  },
+  "origin": {
+    "lon0": 126.983,
+    "lat0": 37.566500000000005,
+    "mlon": 88237.38064104554,
+    "mlat": 110540
+  },
+  "snapshot_sha256": "4ca518fde1c4a6c2e9907c8100aa9aa1c1c4f30985f10a1158ded1b785465d68",
+  "depth_encoding": {
+    "offset": 10000,
+    "scale": 100,
+    "near": "maximum",
+    "background": 0
+  },
+  "ground": "ground.png",
+  "ground_base": "ground.png",
+  "ground_depth": "ground_depth.png",
+  "objects": [
+    {
+      "id": 4323,
+      "source_index": 4322,
+      "footprint": [
+        [
+          -369.4,
+          128.0
+        ],
+        [
+          -391.6,
+          128.4
+        ],
+        [
+          -391.7,
+          133.8
+        ],
+        [
+          -398.4,
+          134.4
+        ],
+        [
+          -398.2,
+          143.6
+        ],
+        [
+          -397.7,
+          166.8
+        ],
+        [
+          -397.7,
+          170.0
+        ],
+        [
+          -349.3,
+          169.4
+        ],
+        [
+          -350.0,
+          143.6
+        ],
+        [
+          -350.3,
+          132.7
+        ],
+        [
+          -363.0,
+          133.3
+        ],
+        [
+          -363.1,
+          130.1
+        ],
+        [
+          -369.3,
+          130.0
+        ],
+        [
+          -369.4,
+          128.0
+        ]
+      ],
+      "height": 45.0,
+      "kind": 0,
+      "xy": [
+        379,
+        156
+      ],
+      "size": [
+        72,
+        82
+      ],
+      "base": "building_4323_base.png",
+      "sprite": "building_4323.png",
+      "depth": "building_4323_depth.png",
+      "light": "building_4323_light.png",
+      "status": "material_candidate_unreviewed",
+      "has_light": false,
+      "previous": "building_4323_previous.png",
+      "previous_status": "baseline",
+      "archetype": "modern"
+    },
+    {
+      "id": 4333,
+      "source_index": 4332,
+      "footprint": [
+        [
+          -449.1,
+          143.4
+        ],
+        [
+          -449.2,
+          143.6
+        ],
+        [
+          -453.8,
+          164.1
+        ],
+        [
+          -448.5,
+          165.6
+        ],
+        [
+          -445.1,
+          166.6
+        ],
+        [
+          -445.8,
+          170.7
+        ],
+        [
+          -443.5,
+          171.3
+        ],
+        [
+          -444.4,
+          176.1
+        ],
+        [
+          -443.5,
+          176.4
+        ],
+        [
+          -443.9,
+          178.9
+        ],
+        [
+          -436.3,
+          181.1
+        ],
+        [
+          -435.1,
+          181.0
+        ],
+        [
+          -434.7,
+          181.9
+        ],
+        [
+          -420.4,
+          177.7
+        ],
+        [
+          -416.5,
+          171.8
+        ],
+        [
+          -417.0,
+          150.4
+        ],
+        [
+          -417.4,
+          150.3
+        ],
+        [
+          -416.9,
+          146.8
+        ],
+        [
+          -431.5,
+          148.3
+        ],
+        [
+          -442.1,
+          145.6
+        ],
+        [
+          -442.2,
+          144.7
+        ],
+        [
+          -448.0,
+          143.6
+        ],
+        [
+          -448.5,
+          143.5
+        ],
+        [
+          -449.1,
+          143.4
+        ]
+      ],
+      "height": 48.0,
+      "kind": 0,
+      "xy": [
+        318,
+        165
+      ],
+      "size": [
+        51,
+        78
+      ],
+      "base": "building_4333_base.png",
+      "sprite": "building_4333.png",
+      "depth": "building_4333_depth.png",
+      "light": "building_4333_light.png",
+      "status": "material_candidate_unreviewed",
+      "has_light": false,
+      "previous": "building_4333_previous.png",
+      "previous_status": "baseline",
+      "archetype": "modern"
+    },
+    {
+      "id": 4335,
+      "source_index": 4334,
+      "footprint": [
+        [
+          -364.6,
+          120.7
+        ],
+        [
+          -365.7,
+          126.7
+        ],
+        [
+          -353.4,
+          130.5
+        ],
+        [
+          -342.0,
+          131.6
+        ],
+        [
+          -342.3,
+          121.7
+        ],
+        [
+          -353.4,
+          121.4
+        ],
+        [
+          -364.6,
+          120.7
+        ]
+      ],
+      "height": 27.0,
+      "kind": 0,
+      "xy": [
+        435,
+        195
+      ],
+      "size": [
+        30,
+        41
+      ],
+      "base": "building_4335_base.png",
+      "sprite": "building_4335.png",
+      "depth": "building_4335_depth.png",
+      "light": "building_4335_light.png",
+      "status": "material_candidate_unreviewed",
+      "has_light": false,
+      "previous": "building_4335_previous.png",
+      "previous_status": "baseline",
+      "archetype": "masonry"
+    },
+    {
+      "id": 4399,
+      "source_index": 4398,
+      "footprint": [
+        [
+          -368.5,
+          97.9
+        ],
+        [
+          -368.5,
+          102.4
+        ],
+        [
+          -369.6,
+          102.4
+        ],
+        [
+          -370.7,
+          109.7
+        ],
+        [
+          -356.2,
+          109.4
+        ],
+        [
+          -355.8,
+          98.6
+        ],
+        [
+          -368.5,
+          97.9
+        ]
+      ],
+      "height": 15.0,
+      "kind": 0,
+      "xy": [
+        437,
+        224
+      ],
+      "size": [
+        23,
+        26
+      ],
+      "base": "building_4399_base.png",
+      "sprite": "building_4399.png",
+      "depth": "building_4399_depth.png",
+      "light": "building_4399_light.png",
+      "status": "material_candidate_unreviewed",
+      "has_light": false,
+      "previous": "building_4399_previous.png",
+      "previous_status": "baseline",
+      "archetype": "masonry"
+    },
+    {
+      "id": 4438,
+      "source_index": 4437,
+      "footprint": [
+        [
+          -343.0,
+          78.2
+        ],
+        [
+          -375.3,
+          79.4
+        ],
+        [
+          -374.9,
+          90.4
+        ],
+        [
+          -373.2,
+          90.5
+        ],
+        [
+          -373.1,
+          93.0
+        ],
+        [
+          -368.6,
+          92.7
+        ],
+        [
+          -368.6,
+          94.2
+        ],
+        [
+          -367.6,
+          94.1
+        ],
+        [
+          -367.6,
+          95.7
+        ],
+        [
+          -342.8,
+          94.7
+        ],
+        [
+          -343.0,
+          78.2
+        ]
+      ],
+      "height": 57.0,
+      "kind": 0,
+      "xy": [
+        442,
+        184
+      ],
+      "size": [
+        42,
+        78
+      ],
+      "base": "building_4438_base.png",
+      "sprite": "building_4438.png",
+      "depth": "building_4438_depth.png",
+      "light": "building_4438_light.png",
+      "status": "material_candidate_unreviewed",
+      "has_light": false,
+      "previous": "building_4438_previous.png",
+      "previous_status": "baseline",
+      "archetype": "modern"
+    },
+    {
+      "id": 4441,
+      "source_index": 4440,
+      "footprint": [
+        [
+          -400.2,
+          96.3
+        ],
+        [
+          -395.0,
+          109.9
+        ],
+        [
+          -380.5,
+          109.0
+        ],
+        [
+          -393.5,
+          93.5
+        ],
+        [
+          -400.2,
+          96.3
+        ]
+      ],
+      "height": 9.0,
+      "kind": 0,
+      "xy": [
+        410,
+        236
+      ],
+      "size": [
+        18,
+        22
+      ],
+      "base": "building_4441_base.png",
+      "sprite": "building_4441.png",
+      "depth": "building_4441_depth.png",
+      "light": "building_4441_light.png",
+      "status": "material_candidate_unreviewed",
+      "has_light": false,
+      "previous": "building_4441_previous.png",
+      "previous_status": "baseline",
+      "archetype": "masonry"
+    },
+    {
+      "id": 4448,
+      "source_index": 4447,
+      "footprint": [
+        [
+          -400.9,
+          93.0
+        ],
+        [
+          -414.9,
+          95.7
+        ],
+        [
+          -413.7,
+          102.6
+        ],
+        [
+          -414.4,
+          102.7
+        ],
+        [
+          -413.0,
+          108.8
+        ],
+        [
+          -408.7,
+          111.3
+        ],
+        [
+          -395.4,
+          110.2
+        ],
+        [
+          -399.3,
+          99.3
+        ],
+        [
+          -400.6,
+          99.4
+        ],
+        [
+          -400.9,
+          93.0
+        ]
+      ],
+      "height": 30.0,
+      "kind": 0,
+      "xy": [
+        390,
+        216
+      ],
+      "size": [
+        22,
+        46
+      ],
+      "base": "building_4448_base.png",
+      "sprite": "building_4448.png",
+      "depth": "building_4448_depth.png",
+      "light": "building_4448_light.png",
+      "status": "material_candidate_unreviewed",
+      "has_light": false,
+      "previous": "building_4448_previous.png",
+      "previous_status": "baseline",
+      "archetype": "modern"
+    },
+    {
+      "id": 4480,
+      "source_index": 4479,
+      "footprint": [
+        [
+          -391.2,
+          65.7
+        ],
+        [
+          -390.3,
+          73.9
+        ],
+        [
+          -385.6,
+          79.5
+        ],
+        [
+          -385.5,
+          80.6
+        ],
+        [
+          -384.2,
+          80.5
+        ],
+        [
+          -384.3,
+          79.4
+        ],
+        [
+          -378.2,
+          78.8
+        ],
+        [
+          -378.3,
+          77.8
+        ],
+        [
+          -356.8,
+          76.7
+        ],
+        [
+          -357.9,
+          66.0
+        ],
+        [
+          -353.4,
+          65.5
+        ],
+        [
+          -353.8,
+          61.8
+        ],
+        [
+          -391.2,
+          65.7
+        ]
+      ],
+      "height": 21.0,
+      "kind": 0,
+      "xy": [
+        432,
+        236
+      ],
+      "size": [
+        48,
+        37
+      ],
+      "base": "building_4480_base.png",
+      "sprite": "building_4480.png",
+      "depth": "building_4480_depth.png",
+      "light": "building_4480_light.png",
+      "status": "material_candidate_unreviewed",
+      "has_light": false,
+      "previous": "building_4480_previous.png",
+      "previous_status": "baseline",
+      "archetype": "masonry"
+    },
+    {
+      "id": 4485,
+      "source_index": 4484,
+      "footprint": [
+        [
+          -462.2,
+          69.2
+        ],
+        [
+          -462.3,
+          78.3
+        ],
+        [
+          -467.2,
+          78.1
+        ],
+        [
+          -467.8,
+          79.1
+        ],
+        [
+          -468.9,
+          124.0
+        ],
+        [
+          -468.1,
+          124.8
+        ],
+        [
+          -463.5,
+          124.9
+        ],
+        [
+          -463.7,
+          133.5
+        ],
+        [
+          -462.9,
+          134.5
+        ],
+        [
+          -448.5,
+          134.6
+        ],
+        [
+          -440.3,
+          134.7
+        ],
+        [
+          -439.1,
+          133.6
+        ],
+        [
+          -439.2,
+          125.3
+        ],
+        [
+          -434.3,
+          125.2
+        ],
+        [
+          -433.7,
+          124.6
+        ],
+        [
+          -432.9,
+          79.6
+        ],
+        [
+          -433.2,
+          79.1
+        ],
+        [
+          -437.9,
+          78.8
+        ],
+        [
+          -437.9,
+          69.6
+        ],
+        [
+          -448.5,
+          69.4
+        ],
+        [
+          -462.2,
+          69.2
+        ]
+      ],
+      "height": 60.0,
+      "kind": 0,
+      "xy": [
+        320,
+        181
+      ],
+      "size": [
+        62,
+        107
+      ],
+      "base": "building_4485_base.png",
+      "sprite": "building_4485.png",
+      "depth": "building_4485_depth.png",
+      "light": "building_4485_light.png",
+      "status": "material_candidate_unreviewed",
+      "has_light": false,
+      "previous": "building_4485_previous.png",
+      "previous_status": "candidate_unreviewed",
+      "archetype": "modern"
+    },
+    {
+      "id": 4496,
+      "source_index": 4495,
+      "footprint": [
+        [
+          -406.9,
+          67.5
+        ],
+        [
+          -417.4,
+          68.2
+        ],
+        [
+          -420.8,
+          70.6
+        ],
+        [
+          -415.3,
+          95.5
+        ],
+        [
+          -401.1,
+          92.9
+        ],
+        [
+          -401.1,
+          92.3
+        ],
+        [
+          -401.2,
+          89.8
+        ],
+        [
+          -402.3,
+          81.1
+        ],
+        [
+          -404.1,
+          76.2
+        ],
+        [
+          -406.9,
+          67.5
+        ]
+      ],
+      "height": 18.0,
+      "kind": 0,
+      "xy": [
+        394,
+        240
+      ],
+      "size": [
+        23,
+        38
+      ],
+      "base": "building_4496_base.png",
+      "sprite": "building_4496.png",
+      "depth": "building_4496_depth.png",
+      "light": "building_4496_light.png",
+      "status": "material_candidate_unreviewed",
+      "has_light": false,
+      "previous": "building_4496_previous.png",
+      "previous_status": "baseline",
+      "archetype": "masonry"
+    },
+    {
+      "id": 4505,
+      "source_index": 4504,
+      "footprint": [
+        [
+          -390.9,
+          72.3
+        ],
+        [
+          -391.6,
+          66.3
+        ],
+        [
+          -396.1,
+          66.7
+        ],
+        [
+          -406.7,
+          67.5
+        ],
+        [
+          -404.0,
+          75.4
+        ],
+        [
+          -401.8,
+          81.9
+        ],
+        [
+          -395.3,
+          72.8
+        ],
+        [
+          -390.9,
+          72.3
+        ]
+      ],
+      "height": 21.0,
+      "kind": 0,
+      "xy": [
+        415,
+        244
+      ],
+      "size": [
+        20,
+        32
+      ],
+      "base": "building_4505_base.png",
+      "sprite": "building_4505.png",
+      "depth": "building_4505_depth.png",
+      "light": "building_4505_light.png",
+      "status": "material_candidate_unreviewed",
+      "has_light": false,
+      "previous": "building_4505_previous.png",
+      "previous_status": "baseline",
+      "archetype": "masonry"
+    },
+    {
+      "id": 4538,
+      "source_index": 4537,
+      "footprint": [
+        [
+          -645.0,
+          155.2
+        ],
+        [
+          -621.8,
+          161.8
+        ],
+        [
+          -622.0,
+          162.7
+        ],
+        [
+          -613.0,
+          165.3
+        ],
+        [
+          -604.9,
+          161.7
+        ],
+        [
+          -634.2,
+          128.8
+        ],
+        [
+          -638.0,
+          132.2
+        ],
+        [
+          -638.5,
+          132.1
+        ],
+        [
+          -645.0,
+          155.2
+        ]
+      ],
+      "height": 12.0,
+      "kind": 0,
+      "xy": [
+        106,
+        255
+      ],
+      "size": [
+        44,
+        40
+      ],
+      "base": "building_4538_base.png",
+      "sprite": "building_4538.png",
+      "depth": "building_4538_depth.png",
+      "light": "building_4538_light.png",
+      "status": "material_candidate_unreviewed",
+      "has_light": false,
+      "previous": "building_4538_previous.png",
+      "previous_status": "baseline",
+      "archetype": "masonry"
+    },
+    {
+      "id": 4577,
+      "source_index": 4576,
+      "footprint": [
+        [
+          -609.5,
+          107.8
+        ],
+        [
+          -630.3,
+          124.7
+        ],
+        [
+          -614.9,
+          142.1
+        ],
+        [
+          -595.6,
+          126.5
+        ],
+        [
+          -609.5,
+          107.8
+        ]
+      ],
+      "height": 15.0,
+      "kind": 0,
+      "xy": [
+        137,
+        266
+      ],
+      "size": [
+        40,
+        35
+      ],
+      "base": "building_4577_base.png",
+      "sprite": "building_4577.png",
+      "depth": "building_4577_depth.png",
+      "light": "building_4577_light.png",
+      "status": "material_candidate_unreviewed",
+      "has_light": false,
+      "previous": "building_4577_previous.png",
+      "previous_status": "geometry_rejected",
+      "archetype": "masonry"
+    },
+    {
+      "id": 4602,
+      "source_index": 4601,
+      "footprint": [
+        [
+          -687.6,
+          125.9
+        ],
+        [
+          -688.9,
+          126.0
+        ],
+        [
+          -690.4,
+          126.5
+        ],
+        [
+          -691.5,
+          127.5
+        ],
+        [
+          -692.1,
+          129.0
+        ],
+        [
+          -695.3,
+          128.4
+        ],
+        [
+          -699.2,
+          143.6
+        ],
+        [
+          -705.9,
+          169.6
+        ],
+        [
+          -707.0,
+          173.9
+        ],
+        [
+          -705.9,
+          174.2
+        ],
+        [
+          -676.7,
+          181.8
+        ],
+        [
+          -666.8,
+          143.6
+        ],
+        [
+          -664.9,
+          136.0
+        ],
+        [
+          -684.7,
+          131.0
+        ],
+        [
+          -684.4,
+          129.8
+        ],
+        [
+          -684.4,
+          128.9
+        ],
+        [
+          -684.6,
+          127.8
+        ],
+        [
+          -685.3,
+          126.8
+        ],
+        [
+          -686.2,
+          126.2
+        ],
+        [
+          -687.6,
+          125.9
+        ]
+      ],
+      "height": 24.0,
+      "kind": 0,
+      "xy": [
+        28,
+        248
+      ],
+      "size": [
+        66,
+        61
+      ],
+      "base": "building_4602_base.png",
+      "sprite": "building_4602.png",
+      "depth": "building_4602_depth.png",
+      "light": "building_4602_light.png",
+      "status": "material_candidate_unreviewed",
+      "has_light": false,
+      "previous": "building_4602_previous.png",
+      "previous_status": "baseline",
+      "archetype": "masonry"
+    },
+    {
+      "id": 4628,
+      "source_index": 4627,
+      "footprint": [
+        [
+          -645.9,
+          100.5
+        ],
+        [
+          -649.9,
+          110.1
+        ],
+        [
+          -643.0,
+          112.6
+        ],
+        [
+          -645.4,
+          118.7
+        ],
+        [
+          -650.5,
+          116.7
+        ],
+        [
+          -650.2,
+          115.7
+        ],
+        [
+          -654.2,
+          114.3
+        ],
+        [
+          -655.7,
+          118.2
+        ],
+        [
+          -654.8,
+          118.5
+        ],
+        [
+          -656.5,
+          123.0
+        ],
+        [
+          -658.4,
+          122.4
+        ],
+        [
+          -657.1,
+          118.9
+        ],
+        [
+          -670.6,
+          113.8
+        ],
+        [
+          -670.2,
+          113.0
+        ],
+        [
+          -674.2,
+          111.4
+        ],
+        [
+          -674.6,
+          112.3
+        ],
+        [
+          -687.6,
+          107.6
+        ],
+        [
+          -687.3,
+          106.8
+        ],
+        [
+          -692.9,
+          104.6
+        ],
+        [
+          -695.2,
+          110.0
+        ],
+        [
+          -689.7,
+          112.4
+        ],
+        [
+          -691.0,
+          115.5
+        ],
+        [
+          -677.8,
+          120.4
+        ],
+        [
+          -678.1,
+          121.5
+        ],
+        [
+          -674.2,
+          123.0
+        ],
+        [
+          -673.9,
+          121.9
+        ],
+        [
+          -649.2,
+          131.0
+        ],
+        [
+          -644.8,
+          129.0
+        ],
+        [
+          -642.1,
+          122.0
+        ],
+        [
+          -630.6,
+          112.7
+        ],
+        [
+          -633.6,
+          108.6
+        ],
+        [
+          -636.8,
+          107.5
+        ],
+        [
+          -636.5,
+          106.4
+        ],
+        [
+          -639.7,
+          105.2
+        ],
+        [
+          -639.3,
+          104.0
+        ],
+        [
+          -642.8,
+          102.7
+        ],
+        [
+          -642.4,
+          101.6
+        ],
+        [
+          -645.9,
+          100.5
+        ]
+      ],
+      "height": 5.0,
+      "kind": 1,
+      "xy": [
+        57,
+        286
+      ],
+      "size": [
+        98,
+        38
+      ],
+      "base": "building_4628_base.png",
+      "sprite": "building_4628.png",
+      "depth": "building_4628_depth.png",
+      "light": "building_4628_light.png",
+      "status": "material_candidate_unreviewed",
+      "has_light": false,
+      "previous": "building_4628_previous.png",
+      "previous_status": "geometry_rejected",
+      "archetype": "wood"
+    },
+    {
+      "id": 4688,
+      "source_index": 4687,
+      "footprint": [
+        [
+          -671.8,
+          91.4
+        ],
+        [
+          -670.7,
+          87.7
+        ],
+        [
+          -669.2,
+          88.3
+        ],
+        [
+          -667.3,
+          83.5
+        ],
+        [
+          -668.5,
+          81.3
+        ],
+        [
+          -671.6,
+          80.7
+        ],
+        [
+          -675.9,
+          90.2
+        ],
+        [
+          -671.8,
+          91.4
+        ]
+      ],
+      "height": 3.0,
+      "kind": 0,
+      "xy": [
+        102,
+        320
+      ],
+      "size": [
+        14,
+        11
+      ],
+      "base": "building_4688_base.png",
+      "sprite": "building_4688.png",
+      "depth": "building_4688_depth.png",
+      "light": "building_4688_light.png",
+      "status": "material_candidate_unreviewed",
+      "has_light": false,
+      "previous": "building_4688_previous.png",
+      "previous_status": "baseline",
+      "archetype": "masonry"
+    },
+    {
+      "id": 4693,
+      "source_index": 4692,
+      "footprint": [
+        [
+          -613.7,
+          36.3
+        ],
+        [
+          -615.8,
+          37.4
+        ],
+        [
+          -615.3,
+          38.7
+        ],
+        [
+          -619.6,
+          40.7
+        ],
+        [
+          -620.2,
+          39.4
+        ],
+        [
+          -622.5,
+          40.4
+        ],
+        [
+          -621.8,
+          41.6
+        ],
+        [
+          -627.4,
+          44.3
+        ],
+        [
+          -625.5,
+          48.0
+        ],
+        [
+          -623.9,
+          47.3
+        ],
+        [
+          -621.2,
+          53.3
+        ],
+        [
+          -641.4,
+          63.2
+        ],
+        [
+          -642.4,
+          61.1
+        ],
+        [
+          -647.0,
+          63.6
+        ],
+        [
+          -645.1,
+          67.8
+        ],
+        [
+          -645.8,
+          68.0
+        ],
+        [
+          -644.8,
+          70.0
+        ],
+        [
+          -645.4,
+          71.2
+        ],
+        [
+          -645.6,
+          72.4
+        ],
+        [
+          -645.3,
+          73.9
+        ],
+        [
+          -644.6,
+          74.7
+        ],
+        [
+          -643.6,
+          75.4
+        ],
+        [
+          -642.3,
+          75.7
+        ],
+        [
+          -641.3,
+          77.7
+        ],
+        [
+          -640.4,
+          77.4
+        ],
+        [
+          -638.5,
+          81.7
+        ],
+        [
+          -633.9,
+          79.6
+        ],
+        [
+          -634.4,
+          78.0
+        ],
+        [
+          -614.2,
+          68.8
+        ],
+        [
+          -611.2,
+          75.0
+        ],
+        [
+          -612.2,
+          75.4
+        ],
+        [
+          -610.6,
+          79.2
+        ],
+        [
+          -605.5,
+          77.0
+        ],
+        [
+          -605.1,
+          78.0
+        ],
+        [
+          -602.9,
+          77.1
+        ],
+        [
+          -603.5,
+          75.7
+        ],
+        [
+          -599.2,
+          73.8
+        ],
+        [
+          -598.5,
+          75.0
+        ],
+        [
+          -596.6,
+          74.2
+        ],
+        [
+          -598.2,
+          70.0
+        ],
+        [
+          -597.5,
+          69.2
+        ],
+        [
+          -596.9,
+          68.3
+        ],
+        [
+          -596.7,
+          67.3
+        ],
+        [
+          -596.9,
+          66.3
+        ],
+        [
+          -597.4,
+          65.7
+        ],
+        [
+          -598.2,
+          64.6
+        ],
+        [
+          -599.2,
+          64.3
+        ],
+        [
+          -600.6,
+          64.4
+        ],
+        [
+          -601.5,
+          62.6
+        ],
+        [
+          -598.1,
+          61.0
+        ],
+        [
+          -599.7,
+          57.6
+        ],
+        [
+          -591.7,
+          54.0
+        ],
+        [
+          -591.0,
+          55.1
+        ],
+        [
+          -588.9,
+          54.2
+        ],
+        [
+          -589.7,
+          52.3
+        ],
+        [
+          -589.0,
+          51.8
+        ],
+        [
+          -588.2,
+          49.6
+        ],
+        [
+          -589.7,
+          46.5
+        ],
+        [
+          -593.1,
+          45.2
+        ],
+        [
+          -593.8,
+          43.8
+        ],
+        [
+          -595.9,
+          44.8
+        ],
+        [
+          -595.2,
+          46.2
+        ],
+        [
+          -603.6,
+          49.7
+        ],
+        [
+          -605.1,
+          46.6
+        ],
+        [
+          -608.3,
+          47.9
+        ],
+        [
+          -609.1,
+          46.2
+        ],
+        [
+          -608.3,
+          45.5
+        ],
+        [
+          -607.8,
+          44.5
+        ],
+        [
+          -607.7,
+          43.6
+        ],
+        [
+          -608.2,
+          42.2
+        ],
+        [
+          -608.9,
+          41.1
+        ],
+        [
+          -609.6,
+          40.5
+        ],
+        [
+          -610.3,
+          40.3
+        ],
+        [
+          -611.3,
+          40.2
+        ],
+        [
+          -611.9,
+          40.3
+        ],
+        [
+          -613.7,
+          36.3
+        ]
+      ],
+      "height": 9.0,
+      "kind": 0,
+      "xy": [
+        144,
+        306
+      ],
+      "size": [
+        77,
+        36
+      ],
+      "base": "building_4693_base.png",
+      "sprite": "building_4693.png",
+      "depth": "building_4693_depth.png",
+      "light": "building_4693_light.png",
+      "status": "material_candidate_unreviewed",
+      "has_light": false,
+      "previous": "building_4693_previous.png",
+      "previous_status": "baseline",
+      "archetype": "masonry"
+    },
+    {
+      "id": 4735,
+      "source_index": 4734,
+      "footprint": [
+        [
+          -628.3,
+          38.4
+        ],
+        [
+          -621.4,
+          38.1
+        ],
+        [
+          -614.6,
+          35.4
+        ],
+        [
+          -600.3,
+          34.8
+        ],
+        [
+          -584.8,
+          31.7
+        ],
+        [
+          -580.1,
+          23.1
+        ],
+        [
+          -600.4,
+          20.1
+        ],
+        [
+          -635.6,
+          21.4
+        ],
+        [
+          -636.4,
+          24.2
+        ],
+        [
+          -631.7,
+          25.8
+        ],
+        [
+          -627.2,
+          35.4
+        ],
+        [
+          -628.3,
+          38.4
+        ]
+      ],
+      "height": 12.0,
+      "kind": 0,
+      "xy": [
+        177,
+        324
+      ],
+      "size": [
+        65,
+        32
+      ],
+      "base": "building_4735_base.png",
+      "sprite": "building_4735.png",
+      "depth": "building_4735_depth.png",
+      "light": "building_4735_light.png",
+      "status": "material_candidate_unreviewed",
+      "has_light": false,
+      "previous": "building_4735_previous.png",
+      "previous_status": "baseline",
+      "archetype": "masonry"
+    }
+  ],
+  "materials": [
+    {
+      "name": "wood_wall",
+      "image": "wood_wall.png",
+      "repeat": "wood_wall_repeat.png"
+    },
+    {
+      "name": "wood_roof",
+      "image": "wood_roof.png",
+      "repeat": "wood_roof_repeat.png"
+    },
+    {
+      "name": "masonry_wall",
+      "image": "masonry_wall.png",
+      "repeat": "masonry_wall_repeat.png"
+    },
+    {
+      "name": "masonry_roof",
+      "image": "masonry_roof.png",
+      "repeat": "masonry_roof_repeat.png"
+    },
+    {
+      "name": "modern_wall",
+      "image": "modern_wall.png",
+      "repeat": "modern_wall_repeat.png"
+    },
+    {
+      "name": "modern_roof",
+      "image": "modern_roof.png",
+      "repeat": "modern_roof_repeat.png"
+    }
+  ],
+  "ai_building_ids": [
+    4323,
+    4333,
+    4335,
+    4399,
+    4438,
+    4441,
+    4448,
+    4480,
+    4485,
+    4496,
+    4505,
+    4538,
+    4577,
+    4602,
+    4628,
+    4688,
+    4693,
+    4735
+  ],
+  "preview": "preview.png",
+  "review_summary": "18동 면별 AI 재료 · 기하 고정 · 미감 미승인 · 이전 AI 채택은 1동",
+  "attribution": "국토교통부 / VWorld 공간데이터 · AI 외관 재해석 · 보도/보행 경로는 시험용 · 로컬 검수 · 외관 시험: 평면 지형·추정 양식·층간격",
+  "generation": {
+    "model": "openai/gpt-image-2.5-sunburst",
+    "requests_started": 6,
+    "total_cost_usd": 0.360595
+  },
+  "asset_sha256": {
+    "building_4323.png": "9879043c0dad5da5ccb345a08e1c0945fd65d2ada0a0252a0d8c7e8972df0454",
+    "building_4323_base.png": "d1b18fd23e59045bf36e8c42a24dd9bd7d0efd823c220d351cdd9ccaa6fd10c0",
+    "building_4323_depth.png": "fce78279eff02612dd2293fd3428985c3e1dff5bba82c519bc145c11feaf6fc1",
+    "building_4323_light.png": "4b95ccdac94f84e0ae6d63dae6616140d0d108574ae69c3444acd0f672d1207a",
+    "building_4323_previous.png": "d1b18fd23e59045bf36e8c42a24dd9bd7d0efd823c220d351cdd9ccaa6fd10c0",
+    "building_4333.png": "6c1f17020e84e63d4c41620ef41b3b52be2992bd5d88304050dee5bd5037df47",
+    "building_4333_base.png": "5eb79086dc74ab48d1679f7f6b40f4334cec82fdc593105bbd1b7e4e1ca645db",
+    "building_4333_depth.png": "9a066453ce87aa5dc44371f8e987845f6fd77f20b947d38ee5afb5fbf95e73e0",
+    "building_4333_light.png": "173e792d2259c4e477222de64307819ff4c48ab6ba2f6afcae10268119c1d6c2",
+    "building_4333_previous.png": "5eb79086dc74ab48d1679f7f6b40f4334cec82fdc593105bbd1b7e4e1ca645db",
+    "building_4335.png": "ba69c28e683f54d18ecab22356b6d04ccefa7cb0ab7314d3c039b23f374505c6",
+    "building_4335_base.png": "566eb9e0bf14258e9db2b70a77741c44990c759219f53f1f42f5fcee18ecb83f",
+    "building_4335_depth.png": "f4363714997f31ed798d3a3e38cc08ad3b0261582714cb0fd204cc8a60f93984",
+    "building_4335_light.png": "f95bd5e541d522182d221540436673ab1bb9bceb5a0425a0ac591563bd278b94",
+    "building_4335_previous.png": "566eb9e0bf14258e9db2b70a77741c44990c759219f53f1f42f5fcee18ecb83f",
+    "building_4399.png": "fa7f81b9702382e40952873940e4987891e3d692767ccfa5bbbe3949993d3428",
+    "building_4399_base.png": "76e7d9b231b8e9c1fe5165857c72f4c10baf6bbe22125c4386bdcadfac4754f8",
+    "building_4399_depth.png": "f6d4a67de452605c533419a7c37d5d6502601b52bdd4683d691c3d86b43dfce8",
+    "building_4399_light.png": "50b71594db91a7128e6c800b566a7e875b0280a93b297d8ba88ebed4c3fa9302",
+    "building_4399_previous.png": "76e7d9b231b8e9c1fe5165857c72f4c10baf6bbe22125c4386bdcadfac4754f8",
+    "building_4438.png": "566c725327f34874b14e0d175fc335a81f0e1484828e49554946a5b118f171a8",
+    "building_4438_base.png": "753dfe71ee09183aa50c864af5646c51b665395fab49caa383dbc5ff8d30b2b7",
+    "building_4438_depth.png": "1c6089ddcd7e85ce061e2a32c79d8bcf8ed0854bd7dfb8497d9822399a8f1864",
+    "building_4438_light.png": "ef6af674291d34766bcc51aeae8fee1fb1a04aaa1dd23fd848813502d4e584cc",
+    "building_4438_previous.png": "753dfe71ee09183aa50c864af5646c51b665395fab49caa383dbc5ff8d30b2b7",
+    "building_4441.png": "f9db1db0044b69b5fa600116df284ad577005cd71b5a8b65f318988a8fd82fff",
+    "building_4441_base.png": "6bc18be502bcb30616504ea17f39479e3f86ba567a97d5fe02ddeea193c101d3",
+    "building_4441_depth.png": "993569dd736d8827d7721345fca2010026ab93b5614ada8b8e1d6dd49413ee41",
+    "building_4441_light.png": "9235f14909f32631582ec62f04e95b08a2e7a97f05aad5224cf534fcc1f78017",
+    "building_4441_previous.png": "6bc18be502bcb30616504ea17f39479e3f86ba567a97d5fe02ddeea193c101d3",
+    "building_4448.png": "0c9f6d13e6e8b1113f1ad3dc7fb573dff51c038bcb6c9e3c2312e6458a42177c",
+    "building_4448_base.png": "908a661c98e7549bdbf58fbae8e83899a8a0bcb4913fefc755011b5f0bbcd493",
+    "building_4448_depth.png": "a3f30d26857f5f62d008b902372936ca4ff61e494bf9a851379792b255922413",
+    "building_4448_light.png": "08694168fc073b29430a303e56d8375d2e1cd331b7f0f0cec81611df240a0a65",
+    "building_4448_previous.png": "908a661c98e7549bdbf58fbae8e83899a8a0bcb4913fefc755011b5f0bbcd493",
+    "building_4480.png": "93bcfa4f9df2279c433f75814fc43bf0556ade16cb3b3154b81cd4777f402b11",
+    "building_4480_base.png": "f4e34cc08522676a1622092a47e81eb4b9f09c3291a3a9fbf05086a613f737cd",
+    "building_4480_depth.png": "ec2f8ce582375139022ec7b86a26daab6a29570f6dfe317adefd577ab74c71b4",
+    "building_4480_light.png": "182e2876237ebc11c919d85ef5276da50abd9969636f46ce510bda0ddea89e2c",
+    "building_4480_previous.png": "f4e34cc08522676a1622092a47e81eb4b9f09c3291a3a9fbf05086a613f737cd",
+    "building_4485.png": "907e6a45897f70d94487cc3828c1de114c3cdb54d40ada903adf94fab549339d",
+    "building_4485_base.png": "f0eece11134042b5d66a6e427119674f4bb26ec0ec4760ab994e7f4cef152008",
+    "building_4485_depth.png": "8184d2b1db546f0b8309c0482b159c360f128162b466b442542865fd6b3deb66",
+    "building_4485_light.png": "2cd6ca3f1567abef767b8102c6979037f705234d6cf3f144c2c7760221fa9dc5",
+    "building_4485_previous.png": "1c96236793f7986c04e2657af12d650e891227c4aab0ba34766e4524c7612be0",
+    "building_4496.png": "7b54eb687a91d6aa75e580f3d12bb108aaa834c63e22ece914387c24c8e1ab9f",
+    "building_4496_base.png": "d706ca8d75b39b3ba8486c9cb95156f3f8b80e5ba0d9b04f724fc85c56505b1c",
+    "building_4496_depth.png": "cc57b92e0c47004ee4d4e91b0faf79093624281b268be551320bfee60e7f2ab6",
+    "building_4496_light.png": "ef9e5d065960339468dfc8eedbe21d7d52f19771c8bc5a18bcfa0931c28e98a7",
+    "building_4496_previous.png": "d706ca8d75b39b3ba8486c9cb95156f3f8b80e5ba0d9b04f724fc85c56505b1c",
+    "building_4505.png": "c11f4d5b31a03da47573b5d71aa9e092459a6b4d78182d0405ed7c95b81faa8a",
+    "building_4505_base.png": "d3fb46ff5110587db098241eb0a2e804d1c285029ae6ebf2dad2e34526f9119a",
+    "building_4505_depth.png": "ad523312750ab5f79e591eefbc90ccc664c201d65c61bbd9306d7363301f3f13",
+    "building_4505_light.png": "096f0b1bed2e6299141a40de724a3a00d1479cc3210b6f7c4bc9bea2022b3ec6",
+    "building_4505_previous.png": "d3fb46ff5110587db098241eb0a2e804d1c285029ae6ebf2dad2e34526f9119a",
+    "building_4538.png": "90a486f28b6780d121ac06af4ff45045b15b64dcec5466321b83616cb2a97366",
+    "building_4538_base.png": "37bb6c86c68fedc3695ea8fe791e500f619bf62060f05244e30aeee214dd7d29",
+    "building_4538_depth.png": "31890ecf196a78868bc887716b14814ea6b34e4b1d8629db7fee18d5f75cfae7",
+    "building_4538_light.png": "8c89577114ec0695622673a5386621680a60ead1fd1fe51935488de1eb31f417",
+    "building_4538_previous.png": "37bb6c86c68fedc3695ea8fe791e500f619bf62060f05244e30aeee214dd7d29",
+    "building_4577.png": "249a212cd1cb49fe858625265f778f787d6baebb7a8572ccd9a9548cba6aa747",
+    "building_4577_base.png": "f8205e3d5367e8d3dcbbaaaf9e30d80351919abea6a44994ef49a418643aa2f6",
+    "building_4577_depth.png": "9478d6433341e5344edc6722076c6c3512a5f7edde720bf534687e6bafec4a8b",
+    "building_4577_light.png": "448df877fb413c0b618beb44efbaf1182326c88ca8386a4caba9c243a18181b0",
+    "building_4577_previous.png": "f8205e3d5367e8d3dcbbaaaf9e30d80351919abea6a44994ef49a418643aa2f6",
+    "building_4602.png": "e026ee5bd8020f0f9ba498ebbd3b54db3c39783de7ed9ada5ea2b889de8965f8",
+    "building_4602_base.png": "23e2cb04ac10a52bb1064b9046ec34a76d0992d79539871bb0ac320c622432c7",
+    "building_4602_depth.png": "e9a191ef52dc542ede94fc99e9f7f23e04061d34d2fbebcaa38c4cc5ced5640d",
+    "building_4602_light.png": "1187699f2bf2cada6b6cc8d236004a978598b340adebf461170aa86930b60f6a",
+    "building_4602_previous.png": "23e2cb04ac10a52bb1064b9046ec34a76d0992d79539871bb0ac320c622432c7",
+    "building_4628.png": "e4d1d8df6b57ece967d5bc58a642694612b1c6aab3420a21c85cbcabc9ed62a2",
+    "building_4628_base.png": "30a1cbc861e0f4f4099aa9f9ebaa173323212f2a301212c908bad39ae2672089",
+    "building_4628_depth.png": "6f5f6b242abdf97bfb7dfe2ec1445cd52a12612b55ed7a2777342eecc20b6e02",
+    "building_4628_light.png": "c25544291c26d01d428bfe36489c06cc2f17f8a5cade86a89202c4d8e2c3395f",
+    "building_4628_previous.png": "30a1cbc861e0f4f4099aa9f9ebaa173323212f2a301212c908bad39ae2672089",
+    "building_4688.png": "ae02708df170d243034df73a41042c8200b478b91f5018bad85a3db4a9fda020",
+    "building_4688_base.png": "5b58d82587f5bde8489a5a8ee9cfe4bf1764f65e30b37412f189b9fbd27e6fbe",
+    "building_4688_depth.png": "75d55f81350819a220b072397fee68da2ae2243560d6c453412e410637cc11de",
+    "building_4688_light.png": "e0db4af1e76fb71820b33bc14a71abdc87697f034c58d99aa60ab925d9dbeeb8",
+    "building_4688_previous.png": "5b58d82587f5bde8489a5a8ee9cfe4bf1764f65e30b37412f189b9fbd27e6fbe",
+    "building_4693.png": "6d40ee26adc608a9497b7ec4447cf619bbb599255357b2e604ce3e91d7b99172",
+    "building_4693_base.png": "5de7ff6c0abf60065aa0a35cc72894bc0e1c363e5a74d173723dea802a22bd9f",
+    "building_4693_depth.png": "e807c36e5f416d794d0ac0040c9bd1efb010fcc841e62e0919e6de590f1f5622",
+    "building_4693_light.png": "93744d2c3813be0bbccc7aa643af44503b43bd25637cdc6b93c22a9af44075a1",
+    "building_4693_previous.png": "5de7ff6c0abf60065aa0a35cc72894bc0e1c363e5a74d173723dea802a22bd9f",
+    "building_4735.png": "fb7e8258ad1397f4a89eb946f310efe34afcacb418d9b54ba6fcf59d0100f3d0",
+    "building_4735_base.png": "0e982daa08b02b551eab82df56c181c1a35488c95af976be6d3351c28d5036d0",
+    "building_4735_depth.png": "7345b9c662a338b20fa5ebc17698c0cceecb6d2ba094202174230f8b5e7fd0c5",
+    "building_4735_light.png": "d0ba9ada6a57a2c8df73dd2106ef1911072a7a4c66ae8d0403676327e96d7305",
+    "building_4735_previous.png": "0e982daa08b02b551eab82df56c181c1a35488c95af976be6d3351c28d5036d0",
+    "comparison.png": "d49670b3e3ae2c4ac15bf76733628dfef72179525b67153b396836c567f6147f",
+    "ground.png": "2eb20f92eb15b22b0772b96045e0d5cbce380767affa8c4bc2b4741306e6659d",
+    "ground_depth.png": "2f790fb903e8a096cac599ffd11f1152937650a34ffb01e16480df663571ef6c",
+    "masonry_roof.png": "659ecb6abef5122c7e0156569083a571dfe830beeaf79774d30307ec8f387d6e",
+    "masonry_roof_repeat.png": "da9a001768d38b45af3d820e1f827a5644c921b8deb87ed63f6935908743089b",
+    "masonry_wall.png": "eb941b1b90a5ca352e67109b279eada21cfee51433cccd69326516625ad9ed31",
+    "masonry_wall_repeat.png": "07af8af617b733b472301adc9647b4f5f5ea6983d4b467bbddce980e58eb728b",
+    "modern_roof.png": "d17f91e3767098c7aca0df4a0c5b85d8fb2e16be26547e153f4dbc69ee8506f0",
+    "modern_roof_repeat.png": "7c1e8a8ce53b6b1dd89ee4c92dd67ed072ce0a7b380edbb243bb73f6936531b9",
+    "modern_wall.png": "2a777931653c9d4eded2d9c63cc39f384d4a3d585e12280c85bbed20c4549c9a",
+    "modern_wall_repeat.png": "bdc54a7d757ffe30939ecaf28a7e7e0b7cbedaaa224f09094595ae552765c944",
+    "preview.png": "54ecc2584384d2b451ebb16e84f240e0c8423d7750dd6906a2421ed5e088d015",
+    "previous.png": "9de8df45b4fe27c988b60a7bca283b619ad236b01a7a95fbac4bb6385b37d4ee",
+    "representative_4485.png": "aa0a8a0da356113bb12b0e7ee5cd2ff53574719f6b15841c203c50de79c83126",
+    "representative_4485_3x.png": "403e4a0e930b8c65593f4fc13d2e842c55208a3c4198ca20e17fbae59145789f",
+    "representative_4577.png": "ba424afacb8f98c0ed80b19225ac5ea20e832094ac20f1ee652e37303647ee25",
+    "representative_4577_3x.png": "5cb9c956f031bd8e55c49c655c2d52ced2345f8f28d1d6c661d7a10dccf5f452",
+    "representative_4628.png": "380cc902f4a87c6f79b3b5e4f71f7ee5c85a16e399fb06fb196e3029cae93fc3",
+    "representative_4628_3x.png": "14499c8d2b2566b0069ff5d1d9995cee372d01134488c35e7546fb2428c09e13",
+    "source.png": "ba4d3b79802f70883020abb61bdd50bdc9e5ecc8d1bed1f630aed8c8a602653d",
+    "wood_roof.png": "d4aa44c6a0a15b52ca20a49082b6dc99a32b1cc5f009abaa11fa1281afc6a7f1",
+    "wood_roof_repeat.png": "ed3d84983521db66203d3ad64d3337a2caa7717e274b8074a08c7dcde31bdd2c",
+    "wood_wall.png": "99c6d4da70ba6ea7f4f69ea5ea12d8af80b818c52696d1603c8c54de16094c86",
+    "wood_wall_repeat.png": "3408b9d7c1f041cb5be4fed6582854b4271ad6a5c075491d8335bffe25191377"
+  },
+  "appearance_mode": "face_materials",
+  "user_visual_approval": false
+}

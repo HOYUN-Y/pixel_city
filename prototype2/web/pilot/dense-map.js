@@ -1,6 +1,6 @@
 import {LabMap} from './lab.js';
 import {TileLayer,tilePicture,verifiedBytes} from './tile-layer.js';
-import {validateDense,cropHit} from './dense-core.js';
+import {validateDense,cropHit,paintVehicle} from './dense-core.js';
 import {routePoint,routePhase} from './lab-core.js';
 import {vehiclePosition} from './living-core.js';
 
@@ -9,7 +9,7 @@ function maskCanvas(im){
   const c=canvas(im.width,im.height),ctx=c.getContext('2d',{willReadFrequently:true});ctx.drawImage(im,0,0);
   const pixels=ctx.getImageData(0,0,c.width,c.height);for(let i=0;i<pixels.data.length;i+=4){pixels.data[i+3]=pixels.data[i]>=128?255:0;pixels.data[i]=255;pixels.data[i+1]=198;pixels.data[i+2]=65;}ctx.putImageData(pixels,0,0);return c;
 }
-class CroppedObjects{
+export class CroppedObjects{
   static async load(overlay,base,hashes){
     const l=new CroppedObjects(overlay);
     try{
@@ -23,30 +23,53 @@ class CroppedObjects{
         l.children.push({data:{landmark:d},sprite,pixels,shape,outline,visible:!d.reveal_only});
       }
       for(const lane of overlay.traffic.lanes)await read(lane.sprite);
+      for(const item of overlay.traffic.occluders??[]){
+        const im=await read(item.mask);
+        if(im.width!==item.rect[2]||im.height!==item.rect[3])throw Error('차량 가림 마스크 크기 불일치');
+        l.trafficOccluders.push({...item,shape:maskCanvas(im)});
+      }
       return l;
     }catch(e){l.close();throw e;}
   }
-  constructor(data){this.data=data;this.children=[];this.images=new Map();this.seconds=0;this.lastTick=0;this.trafficVisible=true;this.trafficPlaying=!matchMedia('(prefers-reduced-motion: reduce)').matches;this.towerVisible=true;this.samples=[];}
-  close(){for(const im of this.images.values())im.close();this.images.clear();}
+  constructor(data){this.data=data;this.children=[];this.images=new Map();this.trafficOccluders=[];this.vehicleLayers=new Map();this.seconds=0;this.lastTick=0;this.trafficVisible=true;this.trafficPlaying=!matchMedia('(prefers-reduced-motion: reduce)').matches;this.towerVisible=true;this.samples=[];}
+  close(){for(const im of this.images.values())im.close();this.images.clear();this.vehicleLayers.clear();this.trafficOccluders=[];}
   hit(p){return [...this.children].reverse().find(l=>l.visible&&cropHit(p,l.data.landmark.rect,l.pixels))?.data.landmark.id||null;}
   occluderEnabled(id){return !!this.children.find(l=>l.data.landmark.occluder_id===id&&l.visible);}
   setLandmarkVisible(id,value){const l=this.children.find(l=>l.data.landmark.id===id);if(l)l.visible=!!value;}
   advance(now){const moving=this.trafficPlaying&&this.trafficVisible&&!document.hidden;if(moving&&this.lastTick)this.seconds+=Math.min(100,now-this.lastTick)/1000;this.lastTick=moving?now:0;return moving;}
   draw(c,ox,oy,s,selected){for(const l of this.children)if(l.visible){const [x,y,w,h]=l.data.landmark.rect;c.drawImage(l.sprite,ox+x*s,oy+y*s,w*s,h*s);if(l.data.landmark.id===selected)c.drawImage(l.outline,ox+(x-2)*s,oy+(y-2)*s,(w+4)*s,(h+4)*s);}}
-  drawTraffic(c,ox,oy,s){
+  drawTraffic(c,ox,oy,s,reveal){
     this.samples=[];if(!this.trafficVisible)return;
-    for(const lane of this.data.traffic.lanes)for(const offset of lane.offsets){const p=vehiclePosition(lane,this.seconds,offset,this.data.traffic.speed),im=this.images.get(lane.sprite);c.save();c.globalAlpha=p.alpha;c.drawImage(im,ox+(p.xy[0]-im.width)*s,oy+(p.xy[1]-im.height)*s,im.width*2*s,im.height*2*s);c.restore();this.samples.push({lane:lane.id,xy:p.xy,alpha:p.alpha});}
+    for(const [laneIndex,lane] of this.data.traffic.lanes.entries())for(const [index,offset] of lane.offsets.entries()){
+      const p=vehiclePosition(lane,this.seconds,offset,this.data.traffic.speed),im=this.images.get(lane.sprite),rect=[Math.round(p.xy[0]-im.width),Math.round(p.xy[1]-im.height),im.width*2,im.height*2];
+      const vehicleId=`${lane.id??laneIndex}:${index}`;
+      let layer=this.vehicleLayers.get(vehicleId);if(!layer){layer=canvas(rect[2],rect[3]);this.vehicleLayers.set(vehicleId,layer);}
+      const masks=this.trafficOccluders.filter(o=>o.lanes.includes(lane.id));
+      if(this.data.reveal.auto){
+        for(const child of this.children)if(child.visible)masks.push({rect:child.data.landmark.rect,shape:child.shape});
+        if(reveal?.foreground)masks.push({rect:reveal.data.rect,shape:reveal.foreground,opacity:1-reveal.amount*(1-reveal.opacity)});
+        if(reveal?.amount)masks.push({rect:reveal.target.data.landmark.rect,shape:reveal.target.shape,opacity:reveal.amount});
+      }
+      const applied=paintVehicle(layer.getContext('2d'),im,rect,masks);
+      c.save();c.globalAlpha=p.alpha;c.drawImage(layer,ox+rect[0]*s,oy+rect[1]*s,rect[2]*s,rect[3]*s);c.restore();
+      this.samples.push({vehicleId,lane:lane.id,rect,xy:p.xy,alpha:p.alpha,occluderOverlaps:applied});
+    }
   }
 }
-class CroppedReveal{
+export class CroppedReveal{
   static async load(data,objects,base,hashes){
     const target=objects.children.find(l=>l.data.landmark.id===data.targetId),ims=[];
     try{
-      for(const f of [data.underlay,data.mask])ims.push(await tilePicture(base,f,hashes[f]));
+      for(const f of [data.underlay,data.mask,...(data.foregroundMask?[data.foregroundMask]:[])])ims.push(await tilePicture(base,f,hashes[f]));
       const [x,y,w,h]=data.rect;if(ims.some(im=>im.width!==w||im.height!==h))throw Error('재구성 패치 크기 불일치');
       const patch=canvas(w,h),c=patch.getContext('2d');c.drawImage(ims[0],0,0);const r=target.data.landmark.rect;c.drawImage(target.sprite,r[0]-x,r[1]-y);
-      c.globalCompositeOperation='destination-in';c.drawImage(maskCanvas(ims[1]),0,0);
-      return new CroppedReveal(data,target,patch);
+      const foreground=ims[2]?maskCanvas(ims[2]):null;
+      c.globalCompositeOperation='destination-in';c.drawImage(foreground??maskCanvas(ims[1]),0,0);
+      const reveal=new CroppedReveal(data,target,patch);reveal.foreground=foreground;
+      if(foreground){
+        reveal.uncovered=canvas(w,h);const uc=reveal.uncovered.getContext('2d');uc.drawImage(target.sprite,r[0]-x,r[1]-y);uc.globalCompositeOperation='destination-out';uc.drawImage(foreground,0,0);
+      }
+      return reveal;
     }finally{for(const im of ims)im.close();}
   }
   constructor(data,target,patch){this.data=data;this.target=target;this.patch=patch;this.opacity=.45;this.active=false;this.amount=0;this.last=0;this.reduced=matchMedia('(prefers-reduced-motion: reduce)');}
@@ -56,12 +79,20 @@ class CroppedReveal{
   draw(c,ox,oy,s,now,selected){
     const goal=this.active?1:0;if(this.reduced.matches)this.amount=goal;else if(!document.hidden){const step=this.last?Math.min(50,now-this.last)/200:0;this.amount+=Math.sign(goal-this.amount)*Math.min(Math.abs(goal-this.amount),step);}this.last=document.hidden?0:now;
     if(!this.amount)return;const [x,y,w,h]=this.data.rect;c.save();c.globalAlpha=this.amount*(1-this.opacity);c.drawImage(this.patch,ox+x*s,oy+y*s,w*s,h*s);c.restore();
+    if(this.uncovered){c.save();c.globalAlpha=this.amount;c.drawImage(this.uncovered,ox+x*s,oy+y*s,w*s,h*s);c.restore();}
     if(selected===this.data.targetId){const r=this.target.data.landmark.rect;c.save();c.globalAlpha=this.amount;c.drawImage(this.target.outline,ox+(r[0]-2)*s,oy+(r[1]-2)*s,(r[2]+4)*s,(r[3]+4)*s);c.restore();}
   }
 }
 
 // Old manifests retain the existing LabMap implementation without conversion.
 export class DenseMap extends LabMap{
+  select(id){
+    if(this.dense&&this.overlay?.reveal.auto&&id!==this.selected?.id){
+      if(id===this.reveal.data.targetId)this.reveal.opacity=.45;
+      this.reveal.set(id===this.reveal.data.targetId);
+    }
+    super.select(id);
+  }
   async loadLab(m,base,scene){
     if(m.kind!=='city-dense-pilot'){this.dense=false;return super.loadLab(m,base,scene);}
     this.ready=false;this.dense=true;this.base=base;this.manifest=m;this.labManifest=m;this.scene='seoul-dense';
@@ -86,7 +117,8 @@ export class DenseMap extends LabMap{
     c.imageSmoothingEnabled=false;this.tiles.draw(c,ox,oy,s,{x:-ox/s,y:-oy/s,width:this.w/s,height:this.h/s});
     c.save();c.beginPath();c.rect(ox,oy,this.manifest.width*s,this.manifest.height*s);c.clip();
     if(this.routeVisible){c.strokeStyle='#F2C14E';c.lineWidth=2;c.setLineDash([5,4]);c.beginPath();this.overlay.route.points.forEach((p,i)=>i?c.lineTo(ox+p.xy[0]*s,oy+p.xy[1]*s):c.moveTo(ox+p.xy[0]*s,oy+p.xy[1]*s));c.stroke();c.setLineDash([]);}
-    this.living.draw(c,ox,oy,s,this.selected?.id);this.reveal.draw(c,ox,oy,s,now,this.selected?.id);this.living.drawTraffic(c,ox,oy,s);
+    this.living.draw(c,ox,oy,s,this.selected?.id);this.reveal.draw(c,ox,oy,s,now,this.selected?.id);this.living.drawTraffic(c,ox,oy,s,this.reveal);
+    if(this.selected?.hitPolygon){c.beginPath();this.selected.hitPolygon.forEach(([x,y],i)=>i?c.lineTo(ox+x*s,oy+y*s):c.moveTo(ox+x*s,oy+y*s));c.closePath();c.strokeStyle='#ffe68c';c.lineWidth=3;c.stroke();}
     if(this.actorVisible){
       const ac=this.actorCanvas.getContext('2d');ac.clearRect(0,0,96,120);ac.imageSmoothingEnabled=false;ac.save();if(position.direction<0){ac.translate(96,0);ac.scale(-1,1);}ac.drawImage(this.sprite,48-this.sprite.width,108-this.sprite.height*2,this.sprite.width*2,this.sprite.height*2);ac.restore();
       ac.globalCompositeOperation='destination-out';for(const l of this.living.children)if(l.visible&&position.behind.includes(l.data.landmark.occluder_id)){const r=l.data.landmark.rect;ac.drawImage(l.shape,r[0]-position.xy[0]+48,r[1]-position.xy[1]+108);}ac.globalCompositeOperation='source-over';

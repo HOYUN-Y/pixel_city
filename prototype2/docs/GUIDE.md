@@ -281,6 +281,14 @@ prototype2/.venv/bin/python prototype2/tests/lab_browser_check.py --run 20260913
 별도 승인 대상**이다. 진행 중/실패 요청이 남거나 같은 이름을 다시 호출하면 중단한다. 동시 생성은 파일 잠금으로 막는다.
 검수 설정은 특정 실행에 고정되어 새 결과에 자동 적용되지 않는다. 원본·모델·키·화풍 참고는 Git에 올리지 않는다.
 
+## 새 비교 — 기하 고정형 AI 외관 18동 (2026-09-19)
+
+[외관 비교 화면](http://127.0.0.1:8766/web/pilot/?view=objects-materials) ·
+[전체·개별 PNG 비교](../assets/object_material_pilot/index.html) ·
+[실험 문서](../../docs/OBJECT_MATERIAL_PILOT.md).
+벽면·지붕 재료6종을18동에 적용했다. 같은 기하·바닥의 기본 도형/이전 후보/새 외관을 전환한다.
+6회/$0.360595, 기하 보존·PC/모바일 동작 통과. 반복감·강한 색감이 남아 **미감 미승인**이며 기존 공개본은 유지한다.
+
 ## 보존한 결과 — 객체형 지도와 AI 에셋 6종 (2026-09-14)
 
 - [객체형 지도 열기](http://127.0.0.1:8766/web/pilot/?view=objects)

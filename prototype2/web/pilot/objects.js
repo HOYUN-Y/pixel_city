@@ -44,6 +44,8 @@ export class ObjectMap extends PilotMap {
       throw Error('지원하지 않는 객체 장면입니다.');
     if (manifest.objects.length !== 18 || new Set(manifest.objects.map(b => b.id)).size !== 18) throw Error('건물 목록이 올바르지 않습니다.');
     this.manifest = manifest; this.base = base; this.size = 512;
+    this.materialPilot = manifest.appearance_mode === 'face_materials';
+    if (this.materialPilot) this.walking = false;
     for (const b of manifest.objects) {
       if (!Number.isInteger(b.id) || b.id <= 0 || !b.xy.every(Number.isInteger) || !b.size.every(n => Number.isInteger(n) && n > 0 && n <= 512))
         throw Error('건물 에셋 정보가 올바르지 않습니다.');
@@ -52,7 +54,8 @@ export class ObjectMap extends PilotMap {
     this.groundPixels = ground; this.groundBasePixels = groundBase; this.groundDepth = decodeDepth(z);
     this.objects = await Promise.all(manifest.objects.map(async b => {
       const [spritePixels, basePixels, depthPixels, lightPixels] = await Promise.all([b.sprite, b.base, b.depth, b.light].map(p => this.pixels(p, ...b.size)));
-      return {...b, spritePixels, basePixels, lightPixels, depthValues: decodeDepth(depthPixels)};
+      const previousPixels = this.materialPilot ? await this.pixels(b.previous, ...b.size) : null;
+      return {...b, spritePixels, basePixels, previousPixels, lightPixels, depthValues: decodeDepth(depthPixels)};
     }));
     this.buffer = document.createElement('canvas'); this.buffer.width = this.buffer.height = 512;
     this.bufferContext = this.buffer.getContext('2d');
@@ -128,7 +131,7 @@ export class ObjectMap extends PilotMap {
     const ox = this.w / 2 - this.center.x * this.scale, oy = this.h / 2 - this.center.y * this.scale;
     const step = this.scale * this.manifest.art_pixel;
     c.imageSmoothingEnabled = false; c.drawImage(this.buffer, ox, oy, 512 * step, 512 * step);
-    this.drawWalker(c, ox, oy, step);
+    if (!this.materialPilot) this.drawWalker(c, ox, oy, step);
     if (this.showGeometry) {
       c.save(); c.strokeStyle = '#df3d67'; c.lineWidth = 1;
       for (const b of this.objects) {

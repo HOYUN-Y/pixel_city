@@ -1,9 +1,14 @@
 export function landmarks(overlay) { return overlay.landmarks ?? (overlay.landmark ? [overlay.landmark] : []); }
 
 export function vehiclePosition(lane, seconds, offset, speed=28) {
-  const length=Math.hypot(lane.end[0]-lane.start[0],lane.end[1]-lane.start[1]);
+  const points=lane.points??[lane.start,lane.end],segments=points.slice(1).map((p,i)=>Math.hypot(p[0]-points[i][0],p[1]-points[i][1]));
+  const length=segments.reduce((a,b)=>a+b,0);
+  if(!length)return {xy:[...points[0]],phase:0,alpha:0};
   const phase=((seconds*speed/length+offset)%1+1)%1;
-  return {xy:lane.start.map((v,i)=>v+(lane.end[i]-v)*phase),phase,alpha:Math.min(1,phase*length/12,(1-phase)*length/12)};
+  let distance=phase*length,index=0;
+  while(index<segments.length-1&&distance>=segments[index])distance-=segments[index++];
+  const fraction=segments[index]?distance/segments[index]:0;
+  return {xy:points[index].map((v,i)=>v+(points[index+1][i]-v)*fraction),phase,alpha:Math.min(1,phase*length/12,(1-phase)*length/12)};
 }
 
 export function validateLiving(overlay, size={width:1536,height:1536}) {

@@ -16,5 +16,9 @@ a=compose(2,ground,groundDepth,[far,near],{hidden:new Set([2])});assert.equal(a.
 a=compose(2,ground,groundDepth,[far,near],{hidden:new Set([1,2])});assert.equal(a.ids[0],0);assert.equal(a.pixels[0],90);
 a=compose(2,ground,groundDepth,[far,near],{lights:new Set([2])});assert.equal(a.pixels[0],250);
 a=compose(2,ground,groundDepth,[far,near],{mode:'source',lights:new Set([2])});assert.equal(a.pixels[0],20);
+near.previousPixels=new Uint8ClampedArray([33,44,55,255]);
+const previous=compose(2,ground,groundDepth,[far,near],{mode:'previous',lights:new Set([2])});
+assert.equal(previous.pixels[0],33);assert.equal(previous.ids[0],2);assert.equal(previous.depth[0],20);
+assert.deepEqual([...compose(2,ground,groundDepth,[far],{mode:'previous'}).pixels],[...compose(2,ground,groundDepth,[far]).pixels]);
 near.spritePixels[3]=0;a=compose(2,ground,groundDepth,[near,far]);assert.equal(a.ids[0],1);
 console.log('Object compositor: depth, picking IDs, alpha, hide/restore, lights and projection passed');

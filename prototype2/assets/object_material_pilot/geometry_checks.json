@@ -1,0 +1,153 @@
+{
+  "buildings": [
+    {
+      "id": 4323,
+      "archetype": "modern",
+      "alpha_equal": true,
+      "depth_equal": true,
+      "placement_equal": true,
+      "base_equal": true
+    },
+    {
+      "id": 4333,
+      "archetype": "modern",
+      "alpha_equal": true,
+      "depth_equal": true,
+      "placement_equal": true,
+      "base_equal": true
+    },
+    {
+      "id": 4335,
+      "archetype": "masonry",
+      "alpha_equal": true,
+      "depth_equal": true,
+      "placement_equal": true,
+      "base_equal": true
+    },
+    {
+      "id": 4399,
+      "archetype": "masonry",
+      "alpha_equal": true,
+      "depth_equal": true,
+      "placement_equal": true,
+      "base_equal": true
+    },
+    {
+      "id": 4438,
+      "archetype": "modern",
+      "alpha_equal": true,
+      "depth_equal": true,
+      "placement_equal": true,
+      "base_equal": true
+    },
+    {
+      "id": 4441,
+      "archetype": "masonry",
+      "alpha_equal": true,
+      "depth_equal": true,
+      "placement_equal": true,
+      "base_equal": true
+    },
+    {
+      "id": 4448,
+      "archetype": "modern",
+      "alpha_equal": true,
+      "depth_equal": true,
+      "placement_equal": true,
+      "base_equal": true
+    },
+    {
+      "id": 4480,
+      "archetype": "masonry",
+      "alpha_equal": true,
+      "depth_equal": true,
+      "placement_equal": true,
+      "base_equal": true
+    },
+    {
+      "id": 4485,
+      "archetype": "modern",
+      "alpha_equal": true,
+      "depth_equal": true,
+      "placement_equal": true,
+      "base_equal": true
+    },
+    {
+      "id": 4496,
+      "archetype": "masonry",
+      "alpha_equal": true,
+      "depth_equal": true,
+      "placement_equal": true,
+      "base_equal": true
+    },
+    {
+      "id": 4505,
+      "archetype": "masonry",
+      "alpha_equal": true,
+      "depth_equal": true,
+      "placement_equal": true,
+      "base_equal": true
+    },
+    {
+      "id": 4538,
+      "archetype": "masonry",
+      "alpha_equal": true,
+      "depth_equal": true,
+      "placement_equal": true,
+      "base_equal": true
+    },
+    {
+      "id": 4577,
+      "archetype": "masonry",
+      "alpha_equal": true,
+      "depth_equal": true,
+      "placement_equal": true,
+      "base_equal": true
+    },
+    {
+      "id": 4602,
+      "archetype": "masonry",
+      "alpha_equal": true,
+      "depth_equal": true,
+      "placement_equal": true,
+      "base_equal": true
+    },
+    {
+      "id": 4628,
+      "archetype": "wood",
+      "alpha_equal": true,
+      "depth_equal": true,
+      "placement_equal": true,
+      "base_equal": true
+    },
+    {
+      "id": 4688,
+      "archetype": "masonry",
+      "alpha_equal": true,
+      "depth_equal": true,
+      "placement_equal": true,
+      "base_equal": true
+    },
+    {
+      "id": 4693,
+      "archetype": "masonry",
+      "alpha_equal": true,
+      "depth_equal": true,
+      "placement_equal": true,
+      "base_equal": true
+    },
+    {
+      "id": 4735,
+      "archetype": "masonry",
+      "alpha_equal": true,
+      "depth_equal": true,
+      "placement_equal": true,
+      "base_equal": true
+    }
+  ],
+  "ground_equal": true,
+  "snapshot_sha256": "4ca518fde1c4a6c2e9907c8100aa9aa1c1c4f30985f10a1158ded1b785465d68",
+  "real_world_accuracy_verified": false,
+  "user_visual_approval": false,
+  "assumptions": "same flat ground; 3m story/bay, timber 2.5m; 4m roof repeat; not measured facades"
+}

@@ -2,6 +2,7 @@
 import argparse
 from pathlib import Path
 from shutil import copyfile
+from copy import deepcopy
 from PIL import Image, ImageChops
 from city_snapshot import P2, DEST, read, write, sha
 
@@ -48,6 +49,12 @@ def export(source, dest, *, review_only=False):
         im=Image.open(src(d['reveal'][kind]));im.load()
         if im.size!=tuple(reveal['rect'][2:]): raise ValueError('Reveal dimensions mismatch')
         name=f'bosingak_{kind}.png';copyfile(src(d['reveal'][kind]),dest/name);reveal[kind]=name
+    if d['reveal'].get('foregroundMask'):
+        im=Image.open(src(d['reveal']['foregroundMask']))
+        if im.mode!='L' or im.size!=tuple(reveal['rect'][2:]): raise ValueError('Invalid foreground mask')
+        if ImageChops.multiply(im,ImageChops.invert(Image.open(dest/reveal['mask']).convert('L'))).getbbox(): raise ValueError('Foreground exceeds reveal mask')
+        reveal['foregroundMask']='bosingak_foreground.png';copyfile(src(d['reveal']['foregroundMask']),dest/reveal['foregroundMask'])
+    if d['reveal'].get('auto') is True: reveal['auto']=True
     target=next(l for l in landmarks if l['id']=='bosingak')
     tx,ty,tw,th=target['rect'];rx,ry,rw,rh=reveal['rect']
     if not (rx<=tx and ry<=ty and tx+tw<=rx+rw and ty+th<=ry+rh): raise ValueError('Bosingak crop outside reveal area')
@@ -57,8 +64,21 @@ def export(source, dest, *, review_only=False):
     if ImageChops.multiply(coverage,ImageChops.invert(mask)).getbbox(): raise ValueError('Bosingak sprite exceeds reveal mask')
     for f in ['traveler.png','car_se.png','car_nw.png']:copyfile(DEST/f,dest/f)
     names={'gwanghwamun':'광화문','jongno-tower':'종로타워','bosingak':'보신각'}
+    traffic=deepcopy(d['traffic']);occluders=traffic.get('occluders',[]);seen=set()
+    if not isinstance(occluders,list) or len(occluders)>32: raise ValueError('Invalid traffic occluders')
+    for i,item in enumerate(occluders):
+        rect=item.get('rect',[]);ident=item.get('id');lanes=item.get('lanes',[])
+        if (not isinstance(ident,str) or not ident or ident in seen or len(rect)!=4 or
+            not all(type(v) is int for v in rect) or min(rect[:2])<0 or min(rect[2:])<=0 or
+            rect[0]+rect[2]>4608 or rect[1]+rect[3]>3072 or
+            not isinstance(lanes,list) or not lanes or any(id not in [l['id'] for l in traffic['lanes']] for id in lanes)):
+            raise ValueError('Invalid traffic occlusion placement')
+        seen.add(ident)
+        with Image.open(src(item['mask'])) as mask:
+            if mask.mode!='L' or mask.size!=tuple(rect[2:]) or not mask.getbbox(): raise ValueError('Invalid traffic mask')
+        name=f'traffic_occlusion_{i}.png';copyfile(src(item['mask']),dest/name);item['mask']=name
     overlay={'landmarks':landmarks,'spots':[{'id':l['id'],'title':names[l['id']],'xy':l['anchor']} for l in landmarks],
-             'reveal':reveal,'route':d['route'],'traffic':d['traffic'],'occluders':[]}
+             'reveal':reveal,'route':d['route'],'traffic':traffic,'occluders':[]}
     write(dest/'overlay.json',overlay)
     data=read(DEST/'places.json')
     for l in data['landmarks']:
@@ -70,7 +90,7 @@ def export(source, dest, *, review_only=False):
               'initialView':{'center':next(l['anchor'] for l in landmarks if l['id']=='gwanghwamun'),'scale':.5},
               'asset_sha256':{str(p.relative_to(dest)):sha(p) for p in sorted(dest.rglob('*')) if p.is_file()}}
     write(dest/'manifest.json',manifest)
-    write(dest/'build.json',{'acceptance':d['acceptance'],'reviewOnly':review_only,'deliverySha256':sha(source/'delivery.json'),'publicRightsApproved':False})
+    write(dest/'build.json',{'acceptance':d['acceptance'],'visualAcceptance':d.get('visualAcceptance',{}),'reviewOnly':review_only,'deliverySha256':sha(source/'delivery.json'),'publicRightsApproved':False})
     return {'files':len(manifest['asset_sha256']),'manifestSha256':sha(dest/'manifest.json')}
 
 if __name__=='__main__':

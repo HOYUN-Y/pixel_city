@@ -4,7 +4,8 @@ import {LabMap} from './lab.js';
 import {bootLab,labPanel} from './lab-ui.js';
 import {bootCity} from './city.js';
 const cityView = document.body.hasAttribute('data-city-base') || new URLSearchParams(location.search).get('view') === 'city-pilot';
-const objectView = new URLSearchParams(location.search).get('view') === 'objects';
+const materialView = new URLSearchParams(location.search).get('view') === 'objects-materials';
+const objectView = materialView || new URLSearchParams(location.search).get('view') === 'objects';
 const labView = cityView || ['seam-lab','projection-walk','projection-expand','landmark-pilot','landmark-link'].includes(new URLSearchParams(location.search).get('view'));
 const projectionView = new URLSearchParams(location.search).get('view') === 'projection-lab';
 const $=s=>document.querySelector(s), mobile=()=>innerWidth<900;
@@ -99,13 +100,13 @@ $('#zoom-in').onclick=()=>map.zoom(map.scale*1.25);$('#zoom-out').onclick=()=>ma
 $('#debug-zoom').onchange=e=>{map.setDebug(e.target.checked);$('#double-zoom').disabled=!e.target.checked;};
 document.querySelectorAll('[data-scale]').forEach(b=>b.onclick=()=>map.zoom(Number(b.dataset.scale)));
 $('#seam-lines').onchange=e=>{if(objectView)map.showGeometry=e.target.checked;else map.showSeams=e.target.checked;map.update();};
-$('#map-mode').onchange=e=>{if(labView){map.setMode(e.target.value);return;}map.mode=e.target.value;if(map.base&&!objectView)$('#mini-image').src=new URL(map.mode==='ai'?'preview.png':map.mode==='before'?'before.png':'source.png',map.base);map.update();};
+$('#map-mode').onchange=e=>{if(labView){map.setMode(e.target.value);return;}map.mode=e.target.value;if(map.base&&(!objectView||materialView))$('#mini-image').src=new URL(map.mode==='ai'?'preview.png':map.mode==='previous'?'previous.png':map.mode==='before'?'before.png':'source.png',map.base);if(materialView)map.onSelection?.(map.objects.find(b=>b.id===map.selected));map.update();};
 async function json(url){const r=await fetch(url,{cache:'no-store'});if(!r.ok)throw Error(objectView?'객체형 데모 에셋을 찾을 수 없습니다. 저장소의 assets/object_pilot 폴더를 확인해 주세요.':labView?'연결·남산 시험의 로컬 생성물이 없습니다. 상세 실행 안내의 산출물 경로를 확인해 주세요.':'완료된 2×2 생성 결과가 없습니다. 생성 기록을 확인해 주세요.');return r.json();}
 async function boot(){try{
   if(cityView){await bootCity(map,json,{open,close,render,toast});return;}
   if(labView){await bootLab(map,json,{open,close,render});return;}
   if(objectView){
-    const base=new URL('../../assets/object_pilot/',location.href),manifest=await json(new URL('manifest.json',base));
+    const base=new URL(materialView?'../../assets/object_material_pilot/':'../../assets/object_pilot/',location.href),manifest=await json(new URL('manifest.json',base));
     await map.load(manifest,base);$('#map-message').hidden=true;$('#map-message').dataset.state='ready';
     $('#mini-image').src=new URL(manifest.preview,base);$('#run-info').textContent=manifest.review_summary;
     $('#run-report').href=new URL('index.html',base);$('#run-report').hidden=false;$('#attribution').textContent=manifest.attribution;
@@ -123,7 +124,8 @@ async function boot(){try{
     map.onSelection=b=>{
       $('#object-select').value=b?.id||0;$('#object-hide').disabled=!b;$('#object-light').disabled=!b?.has_light;
       $('#object-hide').textContent=map.hidden.has(b?.id)?'건물 복원':'건물 숨기기';$('#object-light').textContent=map.lights.has(b?.id)?'창문 끄기':'창문 켜기';
-      const status=b?({baseline:'기본 도형',candidate_unreviewed:'AI 후보 · 미감 미승인',geometry_rejected:'AI 도형 불합격 · 기본 도형 표시'}[b.status]||b.status):'';
+      const shownStatus=materialView&&map.mode==='source'?'baseline':materialView&&map.mode==='previous'?b?.previous_status:b?.status;
+      const status=b?({baseline:'기본 도형',candidate_unreviewed:'AI 후보 · 미감 미승인',material_candidate_unreviewed:'면별 AI 재료 · 미감 미승인',geometry_rejected:'AI 도형 불합격 · 기본 도형 표시'}[shownStatus]||shownStatus):'';
       $('#object-info').textContent=b?`#${b.id} · 스냅샷 높이 ${b.height}m · ${status}`:'건물을 클릭하세요.';
       card.hidden=!b;if(b){card.replaceChildren();const title=document.createElement('strong');title.textContent=`BUILDING #${b.id}`;const detail=document.createElement('p');detail.textContent=`${b.height}m · ${status}`;
         const actions=document.createElement('div');actions.className='actions';
@@ -134,6 +136,15 @@ async function boot(){try{
     $('#object-hide').onclick=()=>{map.toggleHidden();if(mobile())$('#inspection').open=false;};
     $('#object-light').onclick=()=>{map.toggleLight();if(mobile())$('#inspection').open=false;};
     $('#object-walk').checked=map.walking;$('#object-walk').onchange=e=>map.setWalking(e.target.checked);$('#walk-phase').oninput=e=>{$('#object-walk').checked=false;map.setPhase(Number(e.target.value)/1000);};
+    if(materialView){
+      document.title='Pixel City · 18동 외관 비교';$('.pilot-badge').textContent='MATERIAL PILOT';
+      $('.inspection-title').textContent='18동 외관 비교';$('#map-mode').options[0].textContent='새 면별 재료 · 18동';
+      const previous=document.createElement('option');previous.value='previous';previous.textContent='이전 후보 · AI 채택 1동';$('#map-mode').append(previous);
+      $('#inspection .presets + p').textContent='같은 바닥·카메라·건물 윤곽. 외관만 비교합니다. 실제 외관 복원 아님.';
+      reviewLink.textContent='전체·개별 건물 비교 ↗';$('#inspection').open=true;
+      $('#object-light').hidden=true;$('#object-walk').closest('label').hidden=true;$('#walk-phase').closest('label').hidden=true;
+      tools.querySelector('small').hidden=true;
+    }
     document.body.dataset.tilesReady='true';return;
   }
   const root=new URL(projectionView?'../../eval/vworld/orthographic_lab/':'../../eval/vworld/openrouter/seam_zoom/',new URL('../',location.href));

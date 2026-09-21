@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {TileLayer,visibleTiles,safeAsset} from '../web/pilot/tile-layer.js';
-import {validateDense,cropHit} from '../web/pilot/dense-core.js';
+import {validateDense,cropHit,intersectRect} from '../web/pilot/dense-core.js';
 const m={kind:'city-dense-pilot',version:1,width:4608,height:3072,tile_size:512,levels:[.25,.5,1],preview:'preview.png',asset_sha256:{},initialView:{center:[2000,1500],scale:.5}};
 const ids=['gwanghwamun','bosingak','jongno-tower'];
 const o={landmarks:ids.map((id,i)=>({id,rect:[i*100,100,80,80],anchor:[i*100+40,180],occluder_id:id+'-body',reveal_only:id==='bosingak'})),spots:ids.map((id,i)=>({id,xy:[i*100+40,180]})),reveal:{targetId:'bosingak',rect:[90,90,100,100]},route:{points:[{xy:[100,200]},{xy:[200,200],behind:['jongno-tower-body']}]},traffic:{focus:[1000,1000],speed:32,lanes:[{start:[100,100],end:[2000,100],offsets:[.15]},{start:[2000,110],end:[100,110],offsets:[.15]}]}};
@@ -22,6 +22,30 @@ test('tile bounds, density and path protection',()=>{
   assert.deepEqual(edge.world,[4096,2048,512,1024]);
   assert.throws(()=>safeAsset('https://example.com/','../secret'));
   assert.throws(()=>safeAsset('https://example.com/','https://evil.com/file'));
+});
+test('four independent cars, optional polylines and foreground hashes',()=>{
+  const overlay=structuredClone(o);
+  overlay.traffic.lanes=[...overlay.traffic.lanes,...structuredClone(overlay.traffic.lanes)].map((l,i)=>({...l,id:`region-${i}`,points:[l.start,l.end]}));
+  overlay.reveal.foregroundMask='foreground.png';overlay.reveal.auto=true;
+  const manifest={...m,asset_sha256:{'foreground.png':'hash'}};
+  assert.equal(validateDense(manifest,overlay),overlay);
+  assert.throws(()=>validateDense(m,overlay));
+  overlay.traffic.lanes[3].id=overlay.traffic.lanes[0].id;
+  assert.throws(()=>validateDense(manifest,overlay));
+  overlay.traffic.lanes[3].id='unique';overlay.traffic.lanes[0].points=[[0,0],[0,0]];
+  assert.throws(()=>validateDense(manifest,overlay));
+});
+test('traffic masks are optional, lane scoped and hash verified',()=>{
+  const item={id:'foreground',rect:[100,100,20,30],mask:'mask.png',lanes:['east']};
+  const overlay=structuredClone(o);overlay.traffic.lanes[0].id='east';overlay.traffic.lanes[1].id='west';overlay.traffic.occluders=[item];
+  const manifest={...m,asset_sha256:{'mask.png':'abc'}};
+  assert.equal(validateDense(manifest,overlay),overlay);
+  assert.throws(()=>validateDense(m,overlay));
+  for(const change of [{rect:[4600,0,20,20]},{lanes:['missing']},{mask:'../mask.png'}]){
+    assert.throws(()=>validateDense(manifest,{...overlay,traffic:{...overlay.traffic,occluders:[{...item,...change}]}}));
+  }
+  assert.deepEqual(intersectRect([0,0,10,10],[5,6,10,10]),[5,6,5,4]);
+  assert.equal(intersectRect([0,0,10,10],[10,0,10,10]),null);
 });
 test('tile cache stays bounded, stale loads close, failed requests keep preview and never loop',async()=>{
   let active=0,max=0,closed=0,calls=0;

@@ -1,0 +1,199 @@
+{
+  "status": "awaiting_user_review",
+  "model": "openai/gpt-image-2.5-sunburst",
+  "provider": "openai",
+  "limit_usd": 2.0,
+  "max_calls": 6,
+  "style_sha256": "1f74c762ed3f7c307f4b856630c09f986f4a5194f2a198040052580b07afeae5",
+  "snapshot_sha256": "4ca518fde1c4a6c2e9907c8100aa9aa1c1c4f30985f10a1158ded1b785465d68",
+  "capability": {
+    "provider_name": "OpenAI",
+    "provider_slug": "openai",
+    "provider_tag": "openai",
+    "supported_parameters": {
+      "aspect_ratio": {
+        "type": "enum",
+        "values": [
+          "1:1",
+          "3:2",
+          "2:3",
+          "4:3",
+          "3:4",
+          "16:9",
+          "9:16",
+          "21:9",
+          "auto"
+        ]
+      },
+      "quality": {
+        "type": "enum",
+        "values": [
+          "auto",
+          "low",
+          "medium",
+          "high",
+          "xhigh",
+          "max"
+        ]
+      },
+      "background": {
+        "type": "enum",
+        "values": [
+          "auto",
+          "transparent",
+          "opaque"
+        ]
+      },
+      "n": {
+        "type": "range",
+        "min": 1,
+        "max": 10
+      },
+      "input_references": {
+        "type": "range",
+        "min": 0,
+        "max": 16
+      },
+      "output_compression": {
+        "type": "range",
+        "min": 0,
+        "max": 100
+      }
+    },
+    "allowed_passthrough_parameters": [
+      "moderation"
+    ],
+    "supports_streaming": true,
+    "pricing": [
+      {
+        "billable": "input_image",
+        "unit": "token",
+        "cost_usd": 8e-06
+      },
+      {
+        "billable": "input_text",
+        "unit": "token",
+        "cost_usd": 5e-06
+      },
+      {
+        "billable": "output_image",
+        "unit": "token",
+        "cost_usd": 3e-05
+      }
+    ]
+  },
+  "total_cost_usd": 0.360595,
+  "requests_started": 6,
+  "assets": [
+    {
+      "name": "wood_wall",
+      "prompt": "Use case: stylized-concept. Asset type: repeatable pixel-art building material, NOT a building sprite. Image 1 is ONLY an art-style reference: use its deliberate pixel clusters, warm highlights, rich but controlled palette and crisp readable game details; do not copy its farm layout, buildings or characters. Create warm Korean timber frame, cream plaster, ONE centered dark teal wooden lattice window. A single square facade bay seen exactly front-on, representing one story. Keep the window entirely inside the central 60% with plain matching material along all four edges. No door, cornice, roof or ground. Opaque material fills the entire image. Flat orthographic surface; no perspective, no isometric view, no depth foreshortening, no cast shadows or lighting gradient. Design readable when reduced to 32 by 32 pixels. No text, logos, labels, borders, collage, sky, vegetation, people, vehicles or extra objects.",
+      "status": "generated",
+      "reservation_usd": 0.75,
+      "reference_sha256": "1f74c762ed3f7c307f4b856630c09f986f4a5194f2a198040052580b07afeae5",
+      "seconds": 44.992,
+      "generation_id": null,
+      "cost_usd": 0.06012,
+      "raw": "wood_wall_raw.png",
+      "sha256": "e2af01f6583188a0209e432c884f33076fefacea1b27302bd1c07134b4f05811",
+      "size": [
+        1024,
+        1024
+      ]
+    },
+    {
+      "name": "wood_roof",
+      "prompt": "Use case: stylized-concept. Asset type: repeatable pixel-art building material, NOT a building sprite. Image 1 is ONLY an art-style reference: use its deliberate pixel clusters, warm highlights, rich but controlled palette and crisp readable game details; do not copy its farm layout, buildings or characters. Create blue-gray Korean ceramic roof tiles, subtle warm highlights and cool crevices. An edge-to-edge square roof material swatch seen exactly top-down. Opposite edges must repeat. No building outline, roof outline, facade, ridge silhouette or surrounding ground. Opaque material fills the entire image. Flat orthographic surface; no perspective, no isometric view, no depth foreshortening, no cast shadows or lighting gradient. Design readable when reduced to 32 by 32 pixels. No text, logos, labels, borders, collage, sky, vegetation, people, vehicles or extra objects.",
+      "status": "generated",
+      "reservation_usd": 0.75,
+      "reference_sha256": "1f74c762ed3f7c307f4b856630c09f986f4a5194f2a198040052580b07afeae5",
+      "seconds": 31.321,
+      "generation_id": null,
+      "cost_usd": 0.06008,
+      "raw": "wood_roof_raw.png",
+      "sha256": "f633407ff9bf48fc3cf7c80a4c1747ca742c20c3de87e846677788b2c23ceb9e",
+      "size": [
+        1024,
+        1024
+      ]
+    },
+    {
+      "name": "masonry_wall",
+      "prompt": "Use case: stylized-concept. Asset type: repeatable pixel-art building material, NOT a building sprite. Image 1 is ONLY an art-style reference: use its deliberate pixel clusters, warm highlights, rich but controlled palette and crisp readable game details; do not copy its farm layout, buildings or characters. Create warm ochre masonry, ONE centered blue-gray double window with cream sill and lintel. A single square facade bay seen exactly front-on, representing one story. Keep the window entirely inside the central 60% with plain matching material along all four edges. No door, cornice, roof or ground. Opaque material fills the entire image. Flat orthographic surface; no perspective, no isometric view, no depth foreshortening, no cast shadows or lighting gradient. Design readable when reduced to 32 by 32 pixels. No text, logos, labels, borders, collage, sky, vegetation, people, vehicles or extra objects.",
+      "status": "generated",
+      "reservation_usd": 0.75,
+      "reference_sha256": "1f74c762ed3f7c307f4b856630c09f986f4a5194f2a198040052580b07afeae5",
+      "seconds": 45.721,
+      "generation_id": null,
+      "cost_usd": 0.06013,
+      "raw": "masonry_wall_raw.png",
+      "sha256": "0d8e07fabce8a37a2fe76a084120d8455ab65a0901b4fec4114e6519b152fcd2",
+      "size": [
+        1024,
+        1024
+      ]
+    },
+    {
+      "name": "masonry_roof",
+      "prompt": "Use case: stylized-concept. Asset type: repeatable pixel-art building material, NOT a building sprite. Image 1 is ONLY an art-style reference: use its deliberate pixel clusters, warm highlights, rich but controlled palette and crisp readable game details; do not copy its farm layout, buildings or characters. Create muted warm gray flat-roof stone or concrete slabs with sparse joints. An edge-to-edge square roof material swatch seen exactly top-down. Opposite edges must repeat. No building outline, roof outline, facade, ridge silhouette or surrounding ground. Opaque material fills the entire image. Flat orthographic surface; no perspective, no isometric view, no depth foreshortening, no cast shadows or lighting gradient. Design readable when reduced to 32 by 32 pixels. No text, logos, labels, borders, collage, sky, vegetation, people, vehicles or extra objects.",
+      "status": "generated",
+      "reservation_usd": 0.75,
+      "reference_sha256": "1f74c762ed3f7c307f4b856630c09f986f4a5194f2a198040052580b07afeae5",
+      "seconds": 34.297,
+      "generation_id": null,
+      "cost_usd": 0.06007,
+      "raw": "masonry_roof_raw.png",
+      "sha256": "c501fb21baab2175bf685640d450160bbbb48311d043470ba0d90f5f1d45e725",
+      "size": [
+        1024,
+        1024
+      ]
+    },
+    {
+      "name": "modern_wall",
+      "prompt": "Use case: stylized-concept. Asset type: repeatable pixel-art building material, NOT a building sprite. Image 1 is ONLY an art-style reference: use its deliberate pixel clusters, warm highlights, rich but controlled palette and crisp readable game details; do not copy its farm layout, buildings or characters. Create cool blue glass, ONE centered large window panel, slim cream structural mullions. A single square facade bay seen exactly front-on, representing one story. Keep the window entirely inside the central 60% with plain matching material along all four edges. No door, cornice, roof or ground. Opaque material fills the entire image. Flat orthographic surface; no perspective, no isometric view, no depth foreshortening, no cast shadows or lighting gradient. Design readable when reduced to 32 by 32 pixels. No text, logos, labels, borders, collage, sky, vegetation, people, vehicles or extra objects.",
+      "status": "generated",
+      "reservation_usd": 0.75,
+      "reference_sha256": "1f74c762ed3f7c307f4b856630c09f986f4a5194f2a198040052580b07afeae5",
+      "seconds": 40.561,
+      "generation_id": null,
+      "cost_usd": 0.06012,
+      "raw": "modern_wall_raw.png",
+      "sha256": "61d051c88b084d44f40899eda415eab054d655f959a058f537e594fbfe49a247",
+      "size": [
+        1024,
+        1024
+      ]
+    },
+    {
+      "name": "modern_roof",
+      "prompt": "Use case: stylized-concept. Asset type: repeatable pixel-art building material, NOT a building sprite. Image 1 is ONLY an art-style reference: use its deliberate pixel clusters, warm highlights, rich but controlled palette and crisp readable game details; do not copy its farm layout, buildings or characters. Create quiet blue-gray flat-roof membrane panels, sparse seams, no equipment. An edge-to-edge square roof material swatch seen exactly top-down. Opposite edges must repeat. No building outline, roof outline, facade, ridge silhouette or surrounding ground. Opaque material fills the entire image. Flat orthographic surface; no perspective, no isometric view, no depth foreshortening, no cast shadows or lighting gradient. Design readable when reduced to 32 by 32 pixels. No text, logos, labels, borders, collage, sky, vegetation, people, vehicles or extra objects.",
+      "status": "generated",
+      "reservation_usd": 0.75,
+      "reference_sha256": "1f74c762ed3f7c307f4b856630c09f986f4a5194f2a198040052580b07afeae5",
+      "seconds": 36.199,
+      "generation_id": null,
+      "cost_usd": 0.060075,
+      "raw": "modern_roof_raw.png",
+      "sha256": "6e8a72cd544035612d16d52f154dc59d13c6925adc42dc40988f9d4b88ec1246",
+      "size": [
+        1024,
+        1024
+      ]
+    }
+  ],
+  "reservation_basis": {
+    "prices": {
+      "input_image": 8e-06,
+      "input_text": 5e-06,
+      "output_image": 3e-05
+    },
+    "per_call_usd": 0.75,
+    "max_output_image_tokens": 5930,
+    "max_input_image_tokens": 16384,
+    "max_input_text_tokens": 4096,
+    "note": "Conservative reservation; one <=1024 reference, <=4096-byte prompt; no retries"
+  },
+  "user_visual_approval": false,
+  "reserved_unknown_usd": 0
+}

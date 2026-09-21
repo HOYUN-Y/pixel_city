@@ -105,7 +105,7 @@ def depth(p):
     return -(e * math.sin(geo.ALPHA) + n * math.cos(geo.ALPHA)) * math.cos(geo.PHI) + h * math.sin(geo.PHI)
 
 
-def raster(all_faces, cam):
+def raster(all_faces, cam, paint=None):
     """Screen-space plane interpolation; nearer depth wins, including concave roofs.
 
     This is camera depth in meters, NOT normalized roof height or centroid Y.
@@ -134,7 +134,13 @@ def raster(all_faces, cam):
         target = zbuffer[y0:y1, x0:x1]
         take = (np.asarray(mask) > 0) & (values > target)
         target[take] = values[take]
-        color[y0:y1, x0:x1][take] = (*face["color"], 255)
+        if paint is None:
+            color[y0:y1, x0:x1][take] = (*face["color"], 255)
+        else:
+            # Appearance only: coverage, face ordering and depth stay authoritative.
+            rgb = paint(face, cam, xx + x0 + .5, yy + y0 + .5)
+            color[y0:y1, x0:x1, :3][take] = rgb[take]
+            color[y0:y1, x0:x1, 3][take] = 255
         surface[y0:y1, x0:x1][take] = face["surface"]
     return Image.fromarray(color), zbuffer, surface
 

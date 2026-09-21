@@ -1,5 +1,5 @@
 import {PilotMap} from './map.js';
-import {routePoint,routePhase,hitSpot,validOverlay} from './lab-core.js';
+import {routePoint,routePhase,hitSpot,validOverlay,polygonHit} from './lab-core.js';
 import {LivingLayer} from './living.js';
 import {labSize} from './lab-size.js';
 import {landmarks} from './living-core.js';
@@ -19,7 +19,7 @@ export class LabMap extends PilotMap {
     this.actorCanvas=document.createElement('canvas');this.actorCanvas.width=48;this.actorCanvas.height=60;
     canvas.addEventListener('pointerdown',e=>{if(this.pointers.size>1)this.clickStart=null;else this.clickStart={x:e.clientX,y:e.clientY};});
     canvas.addEventListener('pointermove',e=>{if(this.clickStart&&Math.hypot(e.clientX-this.clickStart.x,e.clientY-this.clickStart.y)>5)this.clickStart=null;});
-    canvas.addEventListener('pointerup',e=>{if(!this.clickStart||!this.ready||this.mode!=='final')return;this.clickStart=null;const r=canvas.getBoundingClientRect(),p=this.world(e.clientX-r.left,e.clientY-r.top);const spots=(this.overlay?.spots||[]).filter(s=>!landmarks(this.overlay).some(l=>['highlight_only','independent'].includes(l.mode)&&s.id===l.id));this.select(this.reveal?.hit(p)||this.living?.hit(p)||(this.pinsVisible?hitSpot(spots,p,this.scale)?.id:null)||null);});
+    canvas.addEventListener('pointerup',e=>{if(!this.clickStart||!this.ready||this.mode!=='final')return;this.clickStart=null;const r=canvas.getBoundingClientRect(),p=this.world(e.clientX-r.left,e.clientY-r.top);const spots=(this.overlay?.spots||[]).filter(s=>!landmarks(this.overlay).some(l=>['highlight_only','independent'].includes(l.mode)&&s.id===l.id));this.select(this.reveal?.hit(p)||this.living?.hit(p)||[...spots].reverse().find(s=>s.hitPolygon&&polygonHit(s.hitPolygon,p))?.id||(this.pinsVisible?hitSpot(spots,p,this.scale)?.id:null)||null);});
     canvas.addEventListener('pointercancel',()=>this.clickStart=null);
     canvas.addEventListener('keydown',e=>{if(e.key==='Escape')this.select(null);});
     document.addEventListener('visibilitychange',()=>{this.lastTick=0;if(this.living)this.living.lastTick=0;if(!document.hidden)this.update();});
